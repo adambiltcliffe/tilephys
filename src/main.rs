@@ -50,12 +50,11 @@ struct Actor {
     y: i32,
     prec_x: f32,
     prec_y: f32,
-    old_prec_x: f32,
-    old_prec_y: f32,
     width: i32,
     height: i32,
-    drag_x: f32,
-    drag_y: f32,
+    vx: f32,
+    vy: f32,
+    grounded: bool,
 }
 
 impl Actor {
@@ -67,18 +66,15 @@ impl Actor {
             height,
             prec_x: x as f32,
             prec_y: y as f32,
-            old_prec_x: x as f32,
-            old_prec_y: y as f32,
-            drag_x: 0.9,
-            drag_y: 0.9,
+            vx: 0.0,
+            vy: 0.0,
+            grounded: false,
         }
     }
 }
 
 fn move_actor(actor: &mut Actor, chunks: &Vec<TileChunk>) {
-    let prec_dx = actor.prec_x - actor.old_prec_x;
-    actor.old_prec_x = actor.prec_x;
-    actor.prec_x += prec_dx * actor.drag_x;
+    actor.prec_x += actor.vx;
     let targ_x = actor.prec_x.round() as i32;
     while actor.x != targ_x {
         let dx = (targ_x - actor.x).signum();
@@ -87,14 +83,13 @@ fn move_actor(actor: &mut Actor, chunks: &Vec<TileChunk>) {
             .any(|c| c.collide(actor.x + dx, actor.y, actor.width, actor.height))
         {
             actor.prec_x = actor.x as f32;
+            actor.vx = 0.0;
             break;
         } else {
             actor.x += dx;
         }
     }
-    let prec_dy = actor.prec_y - actor.old_prec_y;
-    actor.old_prec_y = actor.prec_y;
-    actor.prec_y += prec_dy * actor.drag_y;
+    actor.prec_y += actor.vy;
     let targ_y = actor.prec_y.round() as i32;
     while actor.y != targ_y {
         let dy = (targ_y - actor.y).signum();
@@ -103,11 +98,15 @@ fn move_actor(actor: &mut Actor, chunks: &Vec<TileChunk>) {
             .any(|c| c.collide(actor.x, actor.y + dy, actor.width, actor.height))
         {
             actor.prec_y = actor.y as f32;
+            actor.vy = 0.0;
             break;
         } else {
             actor.y += dy
         }
     }
+    actor.grounded = chunks
+        .iter()
+        .any(|c| c.collide(actor.x, actor.y + actor.height, actor.width, 1));
 }
 
 fn window_conf() -> Conf {
@@ -173,6 +172,7 @@ async fn main() {
     }
 
     let mut player = Actor::new(50, 10, 10, 10);
+    let mut player_jump_frames = 0;
 
     loop {
         clear_background(SKYBLUE);
@@ -180,13 +180,25 @@ async fn main() {
         let _delta = get_frame_time();
         let (mx, my) = mouse_position();
 
-        player.prec_y += 1.0;
+        player.vy += 1.0;
         if is_key_down(KeyCode::Left) {
-            player.prec_x -= 1.0;
+            player.vx -= 3.0;
         }
         if is_key_down(KeyCode::Right) {
-            player.prec_x += 1.0;
+            player.vx += 3.0;
         }
+        player.vx *= 0.6;
+
+        if player.grounded && is_key_pressed(KeyCode::X) {
+            player.vy = -5.0;
+            player_jump_frames = 5;
+        } else if player_jump_frames > 0 && is_key_down(KeyCode::X) {
+            player.vy = -5.0;
+            player_jump_frames -= 1;
+        } else {
+            player_jump_frames = 0;
+        }
+
         move_actor(&mut player, &chunks);
 
         for chunk in &chunks {
