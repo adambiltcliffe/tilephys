@@ -1,9 +1,11 @@
+use glam::vec2;
 use macroquad::prelude::*;
+use std::collections::HashMap;
 
 const SCR_W: i32 = 400;
 const SCR_H: i32 = 400;
 
-struct TileChunk {
+struct TileBody {
     width: i32,
     size: i32,
     data: Vec<bool>,
@@ -11,7 +13,7 @@ struct TileChunk {
     y: i32,
 }
 
-impl TileChunk {
+impl TileBody {
     fn new(x: i32, y: i32, size: i32, width: i32, data: Vec<bool>) -> Self {
         Self {
             x,
@@ -52,9 +54,6 @@ struct Actor {
     prec_y: f32,
     width: i32,
     height: i32,
-    vx: f32,
-    vy: f32,
-    grounded: bool,
 }
 
 impl Actor {
@@ -66,16 +65,14 @@ impl Actor {
             height,
             prec_x: x as f32,
             prec_y: y as f32,
-            vx: 0.0,
-            vy: 0.0,
-            grounded: false,
         }
     }
 }
 
-fn move_actor(actor: &mut Actor, chunks: &Vec<TileChunk>) {
-    actor.prec_x += actor.vx;
+fn move_actor(actor: &mut Actor, vx: f32, vy: f32, chunks: &Vec<TileBody>) -> (bool, bool) {
+    actor.prec_x += vx;
     let targ_x = actor.prec_x.round() as i32;
+    let mut collided_x = false;
     while actor.x != targ_x {
         let dx = (targ_x - actor.x).signum();
         if chunks
@@ -83,14 +80,15 @@ fn move_actor(actor: &mut Actor, chunks: &Vec<TileChunk>) {
             .any(|c| c.collide(actor.x + dx, actor.y, actor.width, actor.height))
         {
             actor.prec_x = actor.x as f32;
-            actor.vx = 0.0;
+            collided_x = true;
             break;
         } else {
             actor.x += dx;
         }
     }
-    actor.prec_y += actor.vy;
+    actor.prec_y += vy;
     let targ_y = actor.prec_y.round() as i32;
+    let mut collided_y = false;
     while actor.y != targ_y {
         let dy = (targ_y - actor.y).signum();
         if chunks
@@ -98,15 +96,28 @@ fn move_actor(actor: &mut Actor, chunks: &Vec<TileChunk>) {
             .any(|c| c.collide(actor.x, actor.y + dy, actor.width, actor.height))
         {
             actor.prec_y = actor.y as f32;
-            actor.vy = 0.0;
+            collided_y = true;
             break;
         } else {
             actor.y += dy
         }
     }
-    actor.grounded = chunks
-        .iter()
-        .any(|c| c.collide(actor.x, actor.y + actor.height, actor.width, 1));
+    (collided_x, collided_y)
+}
+
+fn move_body(actor: &mut Actor, bodies: &mut Vec<TileBody>, index: usize, vx: i32, vy: i32) {
+    for ii in 0..(vx.abs()) {
+        bodies[index].x += vx.signum();
+        if bodies[index].collide(actor.x, actor.y, actor.width, actor.height) {
+            move_actor(actor, vx.signum() as f32, 0.0, bodies);
+        }
+    }
+    for ii in 0..(vy.abs()) {
+        bodies[index].y += vy.signum();
+        if bodies[index].collide(actor.x, actor.y, actor.width, actor.height) {
+            move_actor(actor, 0.0, vy.signum() as f32, bodies);
+        }
+    }
 }
 
 fn window_conf() -> Conf {
@@ -127,7 +138,8 @@ async fn main() {
         ..Default::default()
     });*/
 
-    let mut chunks: Vec<TileChunk> = Vec::new();
+    let mut chunks: Vec<TileBody> = Vec::new();
+    let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
 
     let mut loader = tiled::Loader::new();
     let map = loader.load_tmx_map("testmap.tmx").unwrap();
@@ -159,7 +171,7 @@ async fn main() {
                         tiledata.push(data.get_tile(x, y).is_some());
                     }
                 }
-                chunks.push(TileChunk::new(
+                chunks.push(TileBody::new(
                     x0 * map.tile_width as i32,
                     y0 * map.tile_height as i32,
                     map.tile_width as i32,
@@ -167,39 +179,37 @@ async fn main() {
                     tiledata,
                 ))
             }
+            tiled::LayerType::ObjectLayer(data) => {
+                for obj in data.objects() {
+                    if let tiled::ObjectData {
+                        name,
+                        shape: tiled::ObjectShape::Polyline { points },
+                        ..
+                    } = &*obj
+                    {
+                        paths.insert(name.clone(), points.clone());
+                    }
+                }
+            }
             _ => println!("(Something other than an infinite tiled layer)"),
         }
     }
 
     let mut player = Actor::new(50, 10, 10, 10);
+    let mut player_vx = 0.0;
+    let mut player_vy = 0.0;
     let mut player_jump_frames = 0;
+
+    let mut chunk4_prec_x = chunks[4].x as f32;
+    let mut chunk4_prec_y = chunks[4].y as f32;
+    let mut chunk4_next_node = 0;
+    let chunk4_base_vec = glam::vec2(chunk4_prec_x, chunk4_prec_y);
 
     loop {
         clear_background(SKYBLUE);
 
         let _delta = get_frame_time();
         let (mx, my) = mouse_position();
-
-        player.vy += 1.0;
-        if is_key_down(KeyCode::Left) {
-            player.vx -= 3.0;
-        }
-        if is_key_down(KeyCode::Right) {
-            player.vx += 3.0;
-        }
-        player.vx *= 0.6;
-
-        if player.grounded && is_key_pressed(KeyCode::X) {
-            player.vy = -5.0;
-            player_jump_frames = 5;
-        } else if player_jump_frames > 0 && is_key_down(KeyCode::X) {
-            player.vy = -5.0;
-            player_jump_frames -= 1;
-        } else {
-            player_jump_frames = 0;
-        }
-
-        move_actor(&mut player, &chunks);
 
         for chunk in &chunks {
             let mut tx = chunk.x;
@@ -227,6 +237,60 @@ async fn main() {
             }
         }
 
+        move_body(&mut player, &mut chunks, 1, -1, 0);
+        move_body(&mut player, &mut chunks, 2, 1, 0);
+        move_body(&mut player, &mut chunks, 3, 0, -1);
+
+        // this is fiddly
+        let dest_tuple = paths["orbit"][chunk4_next_node];
+        let dest = vec2(dest_tuple.0, dest_tuple.1) + chunk4_base_vec;
+        let curr = vec2(chunk4_prec_x, chunk4_prec_y);
+        let v = dest - curr;
+        let tmp = if v.length() < 1.0 {
+            chunk4_next_node = (chunk4_next_node + 1) % 4;
+            (dest.x, dest.y)
+        } else {
+            let new = curr + v.normalize();
+            (new.x, new.y)
+        };
+        chunk4_prec_x = tmp.0;
+        chunk4_prec_y = tmp.1;
+
+        let dx = chunk4_prec_x.round() as i32 - chunks[4].x;
+        let dy = chunk4_prec_y.round() as i32 - chunks[4].y;
+        move_body(&mut player, &mut chunks, 4, dx, dy);
+
+        let grounded = chunks
+            .iter()
+            .any(|c| c.collide(player.x, player.y + player.height, player.width, 1));
+
+        player_vy += 1.0;
+        if is_key_down(KeyCode::Left) {
+            player_vx -= 3.0;
+        }
+        if is_key_down(KeyCode::Right) {
+            player_vx += 3.0;
+        }
+        player_vx *= 0.6;
+
+        if grounded && is_key_pressed(KeyCode::X) {
+            player_vy = -5.0;
+            player_jump_frames = 5;
+        } else if player_jump_frames > 0 && is_key_down(KeyCode::X) {
+            player_vy = -5.0;
+            player_jump_frames -= 1;
+        } else {
+            player_jump_frames = 0;
+        }
+
+        let (cx, cy) = move_actor(&mut player, player_vx, player_vy, &chunks);
+        if cx {
+            player_vx = 0.0;
+        }
+        if cy {
+            player_vy = 0.0;
+        }
+
         draw_rectangle(mx - 5., my - 5., 10., 10., ORANGE);
 
         draw_rectangle(
@@ -236,11 +300,6 @@ async fn main() {
             player.height as f32,
             GREEN,
         );
-
-        chunks[1].x -= 1;
-        chunks[2].x += 1;
-        chunks[3].y -= 1;
-        chunks[4].y += 1;
 
         next_frame().await
     }
