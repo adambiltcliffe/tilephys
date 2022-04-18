@@ -199,6 +199,7 @@ async fn main() {
     let mut player_vx = 0.0;
     let mut player_vy = 0.0;
     let mut player_jump_frames = 0;
+    let mut player_grounded = false;
 
     let mut chunk4_prec_x = chunks[4].x as f32;
     let mut chunk4_prec_y = chunks[4].y as f32;
@@ -260,10 +261,6 @@ async fn main() {
         let dy = chunk4_prec_y.round() as i32 - chunks[4].y;
         move_body(&mut player, &mut chunks, 4, dx, dy);
 
-        let grounded = chunks
-            .iter()
-            .any(|c| c.collide(player.x, player.y + player.height, player.width, 1));
-
         player_vy += 1.0;
         if is_key_down(KeyCode::Left) {
             player_vx -= 3.0;
@@ -273,7 +270,7 @@ async fn main() {
         }
         player_vx *= 0.6;
 
-        if grounded && is_key_pressed(KeyCode::X) {
+        if player_grounded && is_key_pressed(KeyCode::X) {
             player_vy = -5.0;
             player_jump_frames = 5;
         } else if player_jump_frames > 0 && is_key_down(KeyCode::X) {
@@ -290,6 +287,10 @@ async fn main() {
         if cy {
             player_vy = 0.0;
         }
+
+        player_grounded = chunks
+            .iter()
+            .any(|c| c.collide(player.x, player.y + player.height, player.width, 1));
 
         draw_rectangle(mx - 5., my - 5., 10., 10., ORANGE);
 
