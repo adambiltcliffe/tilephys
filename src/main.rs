@@ -91,6 +91,26 @@ struct ConstantMotion {
     vy: i32,
 }
 
+struct PathMotion {
+    prec_x: f32,
+    prec_y: f32,
+    next_node: usize,
+    base_pos: Vec2,
+    offsets: Vec<Vec2>,
+}
+
+impl PathMotion {
+    fn new(x: f32, y: f32, point_list: Vec<(f32, f32)>) -> Self {
+        Self {
+            prec_x: x,
+            prec_y: y,
+            next_node: 0,
+            base_pos: vec2(x, y),
+            offsets: point_list.iter().map(|(px, py)| vec2(*px, *py)).collect(),
+        }
+    }
+}
+
 fn move_actor(
     actor: &mut Actor,
     rect: &mut IntRect,
@@ -251,6 +271,13 @@ async fn main() {
         .insert_one(chunk_ids[3], ConstantMotion { vx: 0, vy: -1 })
         .unwrap();
 
+    let pm = PathMotion::new(
+        world.get::<&TileBody>(chunk_ids[4]).unwrap().x as f32,
+        world.get::<&TileBody>(chunk_ids[4]).unwrap().y as f32,
+        paths["orbit"].clone(),
+    );
+    world.insert_one(chunk_ids[4], pm).unwrap();
+
     let mut player_rect = IntRect::new(50, 10, 10, 10);
     let mut player = Actor::new(player_rect.x, player_rect.y);
     let mut player_vx = 0.0;
@@ -258,39 +285,34 @@ async fn main() {
     let mut player_jump_frames = 0;
     let mut player_grounded = false;
 
-    let mut chunk4_prec_x = world.get::<&TileBody>(chunk_ids[4]).unwrap().x as f32;
-    let mut chunk4_prec_y = world.get::<&TileBody>(chunk_ids[4]).unwrap().y as f32;
-    let mut chunk4_next_node = 0;
-    let chunk4_base_vec = glam::vec2(chunk4_prec_x, chunk4_prec_y);
-
     loop {
         for (e, cm) in world.query::<&ConstantMotion>().iter() {
             move_body(&mut player, &mut player_rect, &world, e, cm.vx, cm.vy);
         }
 
-        // this is fiddly
-        let dest_tuple = paths["orbit"][chunk4_next_node];
-        let dest = vec2(dest_tuple.0, dest_tuple.1) + chunk4_base_vec;
-        let curr = vec2(chunk4_prec_x, chunk4_prec_y);
-        let v = dest - curr;
-        let tmp = if v.length() < 1.0 {
-            chunk4_next_node = (chunk4_next_node + 1) % 4;
-            (dest.x, dest.y)
-        } else {
-            let new = curr + v.normalize();
-            (new.x, new.y)
-        };
-        chunk4_prec_x = tmp.0;
-        chunk4_prec_y = tmp.1;
+        for (e, pm) in world.query::<&mut PathMotion>().iter() {
+            let dest = pm.offsets[pm.next_node] + pm.base_pos;
+            let curr = vec2(pm.prec_x, pm.prec_y);
+            let v = dest - curr;
+            let tmp = if v.length() < 1.0 {
+                pm.next_node = (pm.next_node + 1) % pm.offsets.len();
+                dest
+            } else {
+                let new = curr + v.normalize();
+                new
+            };
+            pm.prec_x = tmp.x;
+            pm.prec_y = tmp.y;
 
-        let (dx, dy) = {
-            let chunk = world.get::<&TileBody>(chunk_ids[4]).unwrap();
-            (
-                chunk4_prec_x.round() as i32 - chunk.x,
-                chunk4_prec_y.round() as i32 - chunk.y,
-            )
-        };
-        move_body(&mut player, &mut player_rect, &world, chunk_ids[4], dx, dy);
+            let (dx, dy) = {
+                let body = world.get::<&TileBody>(e).unwrap();
+                (
+                    pm.prec_x.round() as i32 - body.x,
+                    pm.prec_y.round() as i32 - body.y,
+                )
+            };
+            move_body(&mut player, &mut player_rect, &world, e, dx, dy);
+        }
 
         player_vy += 1.0;
         if is_key_down(KeyCode::Left) {
