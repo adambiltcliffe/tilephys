@@ -6,6 +6,31 @@ use std::collections::HashMap;
 const SCR_W: i32 = 400;
 const SCR_H: i32 = 400;
 
+struct IntRect {
+    x: i32,
+    y: i32,
+    w: i32,
+    h: i32,
+}
+
+impl IntRect {
+    fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
+        Self { x, y, w, h }
+    }
+}
+
+fn offset_rect(rect: &IntRect, dx: i32, dy: i32) -> IntRect {
+    IntRect::new(rect.x + dx, rect.y + dy, rect.w, rect.h)
+}
+
+fn pushing_rect(rect: &IntRect) -> IntRect {
+    IntRect::new(rect.x, rect.y, rect.w, rect.h + 1)
+}
+
+fn feet_rect(rect: &IntRect) -> IntRect {
+    IntRect::new(rect.x, rect.y + rect.h, rect.w, 1)
+}
+
 struct TileBody {
     width: i32,
     size: i32,
@@ -25,12 +50,12 @@ impl TileBody {
         }
     }
 
-    // signature of this function should change when we have a proper rectangle struct
-    fn collide(&self, x: i32, y: i32, w: i32, h: i32) -> bool {
-        let min_kx = (x - self.x).div_euclid(self.size);
-        let max_kx = (x + w - 1 - self.x).div_euclid(self.size);
-        let min_ky = (y - self.y).div_euclid(self.size);
-        let max_ky = (y + h - 1 - self.y).div_euclid(self.size);
+    // note that our rects will always have integer co-ordinates
+    fn collide(&self, rect: &IntRect) -> bool {
+        let min_kx = (rect.x - self.x).div_euclid(self.size);
+        let max_kx = (rect.x + rect.w - 1 - self.x).div_euclid(self.size);
+        let min_ky = (rect.y - self.y).div_euclid(self.size);
+        let max_ky = (rect.y + rect.h - 1 - self.y).div_euclid(self.size);
         for ky in min_ky..=max_ky {
             if ky >= 0 {
                 for kx in min_kx..=max_kx {
@@ -49,21 +74,13 @@ impl TileBody {
 }
 
 struct Actor {
-    x: i32,
-    y: i32,
     prec_x: f32,
     prec_y: f32,
-    width: i32,
-    height: i32,
 }
 
 impl Actor {
-    fn new(x: i32, y: i32, width: i32, height: i32) -> Self {
+    fn new(x: i32, y: i32) -> Self {
         Self {
-            x,
-            y,
-            width,
-            height,
             prec_x: x as f32,
             prec_y: y as f32,
         }
@@ -75,62 +92,75 @@ struct ConstantMotion {
     vy: i32,
 }
 
-fn move_actor(actor: &mut Actor, vx: f32, vy: f32, world: &World) -> (bool, bool) {
+fn move_actor(
+    actor: &mut Actor,
+    rect: &mut IntRect,
+    vx: f32,
+    vy: f32,
+    world: &World,
+) -> (bool, bool) {
     actor.prec_x += vx;
     let targ_x = actor.prec_x.round() as i32;
     let mut collided_x = false;
-    while actor.x != targ_x {
-        let dx = (targ_x - actor.x).signum();
+    while rect.x != targ_x {
+        let dx = (targ_x - rect.x).signum();
         if world
             .query::<&TileBody>()
             .iter()
-            .any(|(_, c)| c.collide(actor.x + dx, actor.y, actor.width, actor.height))
+            .any(|(_, c)| c.collide(&offset_rect(rect, dx, 0)))
         {
-            actor.prec_x = actor.x as f32;
+            actor.prec_x = rect.x as f32;
             collided_x = true;
             break;
         } else {
-            actor.x += dx;
+            rect.x += dx;
         }
     }
     actor.prec_y += vy;
     let targ_y = actor.prec_y.round() as i32;
     let mut collided_y = false;
-    while actor.y != targ_y {
-        let dy = (targ_y - actor.y).signum();
+    while rect.y != targ_y {
+        let dy = (targ_y - rect.y).signum();
         if world
             .query::<&TileBody>()
             .iter()
-            .any(|(_, c)| c.collide(actor.x, actor.y + dy, actor.width, actor.height))
+            .any(|(_, c)| c.collide(&offset_rect(rect, 0, dy)))
         {
-            actor.prec_y = actor.y as f32;
+            actor.prec_y = rect.y as f32;
             collided_y = true;
             break;
         } else {
-            actor.y += dy
+            rect.y += dy
         }
     }
     (collided_x, collided_y)
 }
 
 // this is an awful way of doing this but let's get it working for now
-fn move_body(actor: &mut Actor, world: &mut World, index: Entity, vx: i32, vy: i32) {
+fn move_body(
+    actor: &mut Actor,
+    actor_rect: &mut IntRect,
+    world: &mut World,
+    index: Entity,
+    vx: i32,
+    vy: i32,
+) {
     for _ii in 0..(vx.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
         body.x += vx.signum();
-        let should_move = body.collide(actor.x, actor.y, actor.width, actor.height + 1);
+        let should_move = body.collide(&pushing_rect(&actor_rect));
         drop(body);
         if should_move {
-            move_actor(actor, vx.signum() as f32, 0.0, &world);
+            move_actor(actor, actor_rect, vx.signum() as f32, 0.0, &world);
         }
     }
     for _ii in 0..(vy.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
         body.y += vy.signum();
-        let should_move = body.collide(actor.x, actor.y, actor.width, actor.height + 1);
+        let should_move = body.collide(&pushing_rect(&actor_rect));
         drop(body);
         if should_move {
-            move_actor(actor, 0.0, vy.signum() as f32, &world);
+            move_actor(actor, actor_rect, 0.0, vy.signum() as f32, &world);
         }
     }
 }
@@ -221,7 +251,8 @@ async fn main() {
         .insert_one(chunk_ids[3], ConstantMotion { vx: 0, vy: -1 })
         .unwrap();
 
-    let mut player = Actor::new(50, 10, 10, 10);
+    let mut player_rect = IntRect::new(50, 10, 10, 10);
+    let mut player = Actor::new(player_rect.x, player_rect.y);
     let mut player_vx = 0.0;
     let mut player_vy = 0.0;
     let mut player_jump_frames = 0;
@@ -234,9 +265,30 @@ async fn main() {
 
     loop {
         // TODO make this use those nice ConstantMotion components we added
-        move_body(&mut player, &mut world, chunk_ids[1], -1, 0);
-        move_body(&mut player, &mut world, chunk_ids[2], 1, 0);
-        move_body(&mut player, &mut world, chunk_ids[3], 0, -1);
+        move_body(
+            &mut player,
+            &mut player_rect,
+            &mut world,
+            chunk_ids[1],
+            -1,
+            0,
+        );
+        move_body(
+            &mut player,
+            &mut player_rect,
+            &mut world,
+            chunk_ids[2],
+            1,
+            0,
+        );
+        move_body(
+            &mut player,
+            &mut player_rect,
+            &mut world,
+            chunk_ids[3],
+            0,
+            -1,
+        );
 
         // this is fiddly
         let dest_tuple = paths["orbit"][chunk4_next_node];
@@ -260,7 +312,14 @@ async fn main() {
                 chunk4_prec_y.round() as i32 - chunk.y,
             )
         };
-        move_body(&mut player, &mut world, chunk_ids[4], dx, dy);
+        move_body(
+            &mut player,
+            &mut player_rect,
+            &mut world,
+            chunk_ids[4],
+            dx,
+            dy,
+        );
 
         player_vy += 1.0;
         if is_key_down(KeyCode::Left) {
@@ -281,7 +340,7 @@ async fn main() {
             player_jump_frames = 0;
         }
 
-        let (cx, cy) = move_actor(&mut player, player_vx, player_vy, &world);
+        let (cx, cy) = move_actor(&mut player, &mut player_rect, player_vx, player_vy, &world);
         if cx {
             player_vx = 0.0;
         }
@@ -292,27 +351,28 @@ async fn main() {
         player_grounded = world
             .query::<&TileBody>()
             .iter()
-            .any(|(_, c)| c.collide(player.x, player.y + player.height, player.width, 1));
+            .any(|(_, c)| c.collide(&feet_rect(&player_rect)));
 
-        draw(&mut world, &player);
+        draw(&mut world, &player_rect);
         next_frame().await
     }
 }
 
-fn draw(world: &mut World, player: &Actor) {
+fn draw(world: &mut World, player_rect: &IntRect) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
     clear_background(SKYBLUE);
 
     let _delta = get_frame_time();
     let (mx, my) = mouse_position();
+    let mouse_rect = IntRect::new(mx as i32 - 5, my as i32 - 5, 10, 10);
 
     for (_, chunk) in world.query_mut::<&TileBody>() {
         let mut tx = chunk.x;
         let mut ty = chunk.y;
         for ii in 0..(chunk.data.len()) {
             if chunk.data[ii] {
-                let c = if chunk.collide(mx as i32 - 5, my as i32 - 5, 10, 10) {
+                let c = if chunk.collide(&mouse_rect) {
                     RED
                 } else {
                     BLUE
@@ -336,10 +396,10 @@ fn draw(world: &mut World, player: &Actor) {
     draw_rectangle(mx - 5., my - 5., 10., 10., ORANGE);
 
     draw_rectangle(
-        player.x as f32,
-        player.y as f32,
-        player.width as f32,
-        player.height as f32,
+        player_rect.x as f32,
+        player_rect.y as f32,
+        player_rect.w as f32,
+        player_rect.h as f32,
         GREEN,
     );
 }
