@@ -70,6 +70,11 @@ impl Actor {
     }
 }
 
+struct ConstantMotion {
+    vx: i32,
+    vy: i32,
+}
+
 fn move_actor(actor: &mut Actor, vx: f32, vy: f32, world: &World) -> (bool, bool) {
     actor.prec_x += vx;
     let targ_x = actor.prec_x.round() as i32;
@@ -206,6 +211,16 @@ async fn main() {
         }
     }
 
+    world
+        .insert_one(chunk_ids[1], ConstantMotion { vx: -1, vy: 0 })
+        .unwrap();
+    world
+        .insert_one(chunk_ids[2], ConstantMotion { vx: 1, vy: 0 })
+        .unwrap();
+    world
+        .insert_one(chunk_ids[3], ConstantMotion { vx: 0, vy: -1 })
+        .unwrap();
+
     let mut player = Actor::new(50, 10, 10, 10);
     let mut player_vx = 0.0;
     let mut player_vy = 0.0;
@@ -218,37 +233,7 @@ async fn main() {
     let chunk4_base_vec = glam::vec2(chunk4_prec_x, chunk4_prec_y);
 
     loop {
-        clear_background(SKYBLUE);
-
-        let _delta = get_frame_time();
-        let (mx, my) = mouse_position();
-
-        for (_, chunk) in world.query_mut::<&TileBody>() {
-            let mut tx = chunk.x;
-            let mut ty = chunk.y;
-            for ii in 0..(chunk.data.len()) {
-                if chunk.data[ii] {
-                    let c = if chunk.collide(mx as i32 - 5, my as i32 - 5, 10, 10) {
-                        RED
-                    } else {
-                        BLUE
-                    };
-                    draw_rectangle(
-                        tx as f32,
-                        ty as f32,
-                        chunk.size as f32,
-                        chunk.size as f32,
-                        c,
-                    );
-                }
-                tx += chunk.size as i32;
-                if ((ii + 1) % chunk.width as usize) == 0 {
-                    tx = chunk.x;
-                    ty += chunk.size as i32;
-                }
-            }
-        }
-
+        // TODO make this use those nice ConstantMotion components we added
         move_body(&mut player, &mut world, chunk_ids[1], -1, 0);
         move_body(&mut player, &mut world, chunk_ids[2], 1, 0);
         move_body(&mut player, &mut world, chunk_ids[3], 0, -1);
@@ -309,16 +294,52 @@ async fn main() {
             .iter()
             .any(|(_, c)| c.collide(player.x, player.y + player.height, player.width, 1));
 
-        draw_rectangle(mx - 5., my - 5., 10., 10., ORANGE);
-
-        draw_rectangle(
-            player.x as f32,
-            player.y as f32,
-            player.width as f32,
-            player.height as f32,
-            GREEN,
-        );
-
+        draw(&mut world, &player);
         next_frame().await
     }
+}
+
+fn draw(world: &mut World, player: &Actor) {
+    // we don't actually need mutable access to the world but having it lets us tell
+    // hecs we can skip dynamic borrow checking by using query_mut
+    clear_background(SKYBLUE);
+
+    let _delta = get_frame_time();
+    let (mx, my) = mouse_position();
+
+    for (_, chunk) in world.query_mut::<&TileBody>() {
+        let mut tx = chunk.x;
+        let mut ty = chunk.y;
+        for ii in 0..(chunk.data.len()) {
+            if chunk.data[ii] {
+                let c = if chunk.collide(mx as i32 - 5, my as i32 - 5, 10, 10) {
+                    RED
+                } else {
+                    BLUE
+                };
+                draw_rectangle(
+                    tx as f32,
+                    ty as f32,
+                    chunk.size as f32,
+                    chunk.size as f32,
+                    c,
+                );
+            }
+            tx += chunk.size as i32;
+            if ((ii + 1) % chunk.width as usize) == 0 {
+                tx = chunk.x;
+                ty += chunk.size as i32;
+            }
+        }
+    }
+
+    draw_rectangle(mx - 5., my - 5., 10., 10., ORANGE);
+
+    draw_rectangle(
+        player.x as f32,
+        player.y as f32,
+        player.width as f32,
+        player.height as f32,
+        GREEN,
+    );
 }
