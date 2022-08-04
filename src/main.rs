@@ -50,7 +50,6 @@ impl TileBody {
         }
     }
 
-    // note that our rects will always have integer co-ordinates
     fn collide(&self, rect: &IntRect) -> bool {
         let min_kx = (rect.x - self.x).div_euclid(self.size);
         let max_kx = (rect.x + rect.w - 1 - self.x).div_euclid(self.size);
@@ -136,15 +135,16 @@ fn move_actor(
     (collided_x, collided_y)
 }
 
-// this is an awful way of doing this but let's get it working for now
 fn move_body(
     actor: &mut Actor,
     actor_rect: &mut IntRect,
-    world: &mut World,
+    world: &World,
     index: Entity,
     vx: i32,
     vy: i32,
 ) {
+    // this is a fiddly mess of borrows and drops but we should be able to skip
+    // this in many cases if there are no actors in position to be pushed
     for _ii in 0..(vx.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
         body.x += vx.signum();
@@ -264,31 +264,9 @@ async fn main() {
     let chunk4_base_vec = glam::vec2(chunk4_prec_x, chunk4_prec_y);
 
     loop {
-        // TODO make this use those nice ConstantMotion components we added
-        move_body(
-            &mut player,
-            &mut player_rect,
-            &mut world,
-            chunk_ids[1],
-            -1,
-            0,
-        );
-        move_body(
-            &mut player,
-            &mut player_rect,
-            &mut world,
-            chunk_ids[2],
-            1,
-            0,
-        );
-        move_body(
-            &mut player,
-            &mut player_rect,
-            &mut world,
-            chunk_ids[3],
-            0,
-            -1,
-        );
+        for (e, cm) in world.query::<&ConstantMotion>().iter() {
+            move_body(&mut player, &mut player_rect, &world, e, cm.vx, cm.vy);
+        }
 
         // this is fiddly
         let dest_tuple = paths["orbit"][chunk4_next_node];
@@ -312,14 +290,7 @@ async fn main() {
                 chunk4_prec_y.round() as i32 - chunk.y,
             )
         };
-        move_body(
-            &mut player,
-            &mut player_rect,
-            &mut world,
-            chunk_ids[4],
-            dx,
-            dy,
-        );
+        move_body(&mut player, &mut player_rect, &world, chunk_ids[4], dx, dy);
 
         player_vy += 1.0;
         if is_key_down(KeyCode::Left) {
