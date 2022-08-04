@@ -1,4 +1,5 @@
 use glam::vec2;
+use hecs::{Entity, World};
 use macroquad::prelude::*;
 use std::collections::HashMap;
 
@@ -69,15 +70,16 @@ impl Actor {
     }
 }
 
-fn move_actor(actor: &mut Actor, vx: f32, vy: f32, chunks: &Vec<TileBody>) -> (bool, bool) {
+fn move_actor(actor: &mut Actor, vx: f32, vy: f32, world: &World) -> (bool, bool) {
     actor.prec_x += vx;
     let targ_x = actor.prec_x.round() as i32;
     let mut collided_x = false;
     while actor.x != targ_x {
         let dx = (targ_x - actor.x).signum();
-        if chunks
+        if world
+            .query::<&TileBody>()
             .iter()
-            .any(|c| c.collide(actor.x + dx, actor.y, actor.width, actor.height))
+            .any(|(_, c)| c.collide(actor.x + dx, actor.y, actor.width, actor.height))
         {
             actor.prec_x = actor.x as f32;
             collided_x = true;
@@ -91,9 +93,10 @@ fn move_actor(actor: &mut Actor, vx: f32, vy: f32, chunks: &Vec<TileBody>) -> (b
     let mut collided_y = false;
     while actor.y != targ_y {
         let dy = (targ_y - actor.y).signum();
-        if chunks
+        if world
+            .query::<&TileBody>()
             .iter()
-            .any(|c| c.collide(actor.x, actor.y + dy, actor.width, actor.height))
+            .any(|(_, c)| c.collide(actor.x, actor.y + dy, actor.width, actor.height))
         {
             actor.prec_y = actor.y as f32;
             collided_y = true;
@@ -105,17 +108,24 @@ fn move_actor(actor: &mut Actor, vx: f32, vy: f32, chunks: &Vec<TileBody>) -> (b
     (collided_x, collided_y)
 }
 
-fn move_body(actor: &mut Actor, bodies: &mut Vec<TileBody>, index: usize, vx: i32, vy: i32) {
-    for ii in 0..(vx.abs()) {
-        bodies[index].x += vx.signum();
-        if bodies[index].collide(actor.x, actor.y, actor.width, actor.height) {
-            move_actor(actor, vx.signum() as f32, 0.0, bodies);
+// this is an awful way of doing this but let's get it working for now
+fn move_body(actor: &mut Actor, world: &mut World, index: Entity, vx: i32, vy: i32) {
+    for _ii in 0..(vx.abs()) {
+        let mut body = world.get::<&mut TileBody>(index).unwrap();
+        body.x += vx.signum();
+        let should_move = body.collide(actor.x, actor.y, actor.width, actor.height + 1);
+        drop(body);
+        if should_move {
+            move_actor(actor, vx.signum() as f32, 0.0, &world);
         }
     }
-    for ii in 0..(vy.abs()) {
-        bodies[index].y += vy.signum();
-        if bodies[index].collide(actor.x, actor.y, actor.width, actor.height) {
-            move_actor(actor, 0.0, vy.signum() as f32, bodies);
+    for _ii in 0..(vy.abs()) {
+        let mut body = world.get::<&mut TileBody>(index).unwrap();
+        body.y += vy.signum();
+        let should_move = body.collide(actor.x, actor.y, actor.width, actor.height + 1);
+        drop(body);
+        if should_move {
+            move_actor(actor, 0.0, vy.signum() as f32, &world);
         }
     }
 }
@@ -138,7 +148,8 @@ async fn main() {
         ..Default::default()
     });*/
 
-    let mut chunks: Vec<TileBody> = Vec::new();
+    let mut world: World = World::new();
+    let mut chunk_ids: Vec<Entity> = Vec::new();
     let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
 
     let mut loader = tiled::Loader::new();
@@ -171,13 +182,13 @@ async fn main() {
                         tiledata.push(data.get_tile(x, y).is_some());
                     }
                 }
-                chunks.push(TileBody::new(
+                chunk_ids.push(world.spawn((TileBody::new(
                     x0 * map.tile_width as i32,
                     y0 * map.tile_height as i32,
                     map.tile_width as i32,
                     (x1 - x0) + 1,
                     tiledata,
-                ))
+                ),)))
             }
             tiled::LayerType::ObjectLayer(data) => {
                 for obj in data.objects() {
@@ -201,8 +212,8 @@ async fn main() {
     let mut player_jump_frames = 0;
     let mut player_grounded = false;
 
-    let mut chunk4_prec_x = chunks[4].x as f32;
-    let mut chunk4_prec_y = chunks[4].y as f32;
+    let mut chunk4_prec_x = world.get::<&TileBody>(chunk_ids[4]).unwrap().x as f32;
+    let mut chunk4_prec_y = world.get::<&TileBody>(chunk_ids[4]).unwrap().y as f32;
     let mut chunk4_next_node = 0;
     let chunk4_base_vec = glam::vec2(chunk4_prec_x, chunk4_prec_y);
 
@@ -212,7 +223,7 @@ async fn main() {
         let _delta = get_frame_time();
         let (mx, my) = mouse_position();
 
-        for chunk in &chunks {
+        for (_, chunk) in world.query_mut::<&TileBody>() {
             let mut tx = chunk.x;
             let mut ty = chunk.y;
             for ii in 0..(chunk.data.len()) {
@@ -238,9 +249,9 @@ async fn main() {
             }
         }
 
-        move_body(&mut player, &mut chunks, 1, -1, 0);
-        move_body(&mut player, &mut chunks, 2, 1, 0);
-        move_body(&mut player, &mut chunks, 3, 0, -1);
+        move_body(&mut player, &mut world, chunk_ids[1], -1, 0);
+        move_body(&mut player, &mut world, chunk_ids[2], 1, 0);
+        move_body(&mut player, &mut world, chunk_ids[3], 0, -1);
 
         // this is fiddly
         let dest_tuple = paths["orbit"][chunk4_next_node];
@@ -257,9 +268,14 @@ async fn main() {
         chunk4_prec_x = tmp.0;
         chunk4_prec_y = tmp.1;
 
-        let dx = chunk4_prec_x.round() as i32 - chunks[4].x;
-        let dy = chunk4_prec_y.round() as i32 - chunks[4].y;
-        move_body(&mut player, &mut chunks, 4, dx, dy);
+        let (dx, dy) = {
+            let chunk = world.get::<&TileBody>(chunk_ids[4]).unwrap();
+            (
+                chunk4_prec_x.round() as i32 - chunk.x,
+                chunk4_prec_y.round() as i32 - chunk.y,
+            )
+        };
+        move_body(&mut player, &mut world, chunk_ids[4], dx, dy);
 
         player_vy += 1.0;
         if is_key_down(KeyCode::Left) {
@@ -280,7 +296,7 @@ async fn main() {
             player_jump_frames = 0;
         }
 
-        let (cx, cy) = move_actor(&mut player, player_vx, player_vy, &chunks);
+        let (cx, cy) = move_actor(&mut player, player_vx, player_vy, &world);
         if cx {
             player_vx = 0.0;
         }
@@ -288,9 +304,10 @@ async fn main() {
             player_vy = 0.0;
         }
 
-        player_grounded = chunks
+        player_grounded = world
+            .query::<&TileBody>()
             .iter()
-            .any(|c| c.collide(player.x, player.y + player.height, player.width, 1));
+            .any(|(_, c)| c.collide(player.x, player.y + player.height, player.width, 1));
 
         draw_rectangle(mx - 5., my - 5., 10., 10., ORANGE);
 
