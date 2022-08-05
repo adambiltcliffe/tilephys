@@ -97,16 +97,18 @@ struct PathMotion {
     next_node: usize,
     base_pos: Vec2,
     offsets: Vec<Vec2>,
+    speed: f32,
 }
 
 impl PathMotion {
-    fn new(x: f32, y: f32, point_list: Vec<(f32, f32)>) -> Self {
+    fn new(x: f32, y: f32, point_list: Vec<(f32, f32)>, speed: f32) -> Self {
         Self {
             prec_x: x,
             prec_y: y,
             next_node: 0,
             base_pos: vec2(x, y),
             offsets: point_list.iter().map(|(px, py)| vec2(*px, *py)).collect(),
+            speed,
         }
     }
 }
@@ -167,8 +169,9 @@ fn move_body(
     // this in many cases if there are no actors in position to be pushed
     for _ii in 0..(vx.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
+        let mut should_move = body.collide(&pushing_rect(&actor_rect));
         body.x += vx.signum();
-        let should_move = body.collide(&pushing_rect(&actor_rect));
+        should_move |= body.collide(&pushing_rect(&actor_rect));
         drop(body);
         if should_move {
             move_actor(actor, actor_rect, vx.signum() as f32, 0.0, &world);
@@ -176,8 +179,9 @@ fn move_body(
     }
     for _ii in 0..(vy.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
+        let mut should_move = body.collide(&pushing_rect(&actor_rect));
         body.y += vy.signum();
-        let should_move = body.collide(&pushing_rect(&actor_rect));
+        should_move |= body.collide(&pushing_rect(&actor_rect));
         drop(body);
         if should_move {
             move_actor(actor, actor_rect, 0.0, vy.signum() as f32, &world);
@@ -247,13 +251,21 @@ async fn main() {
             }
             tiled::LayerType::ObjectLayer(data) => {
                 for obj in data.objects() {
-                    if let tiled::ObjectData {
-                        name,
-                        shape: tiled::ObjectShape::Polyline { points },
-                        ..
-                    } = &*obj
-                    {
-                        paths.insert(name.clone(), points.clone());
+                    match &*obj {
+                        tiled::ObjectData {
+                            name,
+                            shape: tiled::ObjectShape::Polyline { points },
+                            ..
+                        }
+                        | tiled::ObjectData {
+                            name,
+                            shape: tiled::ObjectShape::Polygon { points },
+                            ..
+                        } => {
+                            println!("found a path named {}", name);
+                            paths.insert(name.clone(), points.clone());
+                        }
+                        _ => (),
                     }
                 }
             }
@@ -275,8 +287,17 @@ async fn main() {
         world.get::<&TileBody>(chunk_ids[4]).unwrap().x as f32,
         world.get::<&TileBody>(chunk_ids[4]).unwrap().y as f32,
         paths["orbit"].clone(),
+        1.0,
     );
     world.insert_one(chunk_ids[4], pm).unwrap();
+
+    let pm = PathMotion::new(
+        world.get::<&TileBody>(chunk_ids[5]).unwrap().x as f32,
+        world.get::<&TileBody>(chunk_ids[5]).unwrap().y as f32,
+        paths["diamondpath"].clone(),
+        4.0,
+    );
+    world.insert_one(chunk_ids[5], pm).unwrap();
 
     let mut player_rect = IntRect::new(50, 10, 10, 10);
     let mut player = Actor::new(player_rect.x, player_rect.y);
@@ -294,11 +315,11 @@ async fn main() {
             let dest = pm.offsets[pm.next_node] + pm.base_pos;
             let curr = vec2(pm.prec_x, pm.prec_y);
             let v = dest - curr;
-            let tmp = if v.length() < 1.0 {
+            let tmp = if v.length() < pm.speed {
                 pm.next_node = (pm.next_node + 1) % pm.offsets.len();
                 dest
             } else {
-                let new = curr + v.normalize();
+                let new = curr + v.normalize() * pm.speed;
                 new
             };
             pm.prec_x = tmp.x;
