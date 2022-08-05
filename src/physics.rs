@@ -1,4 +1,4 @@
-use hecs::{Entity, World};
+use hecs::{Entity, Satisfies, World};
 use macroquad::math::{vec2, Vec2};
 use std::collections::HashSet;
 
@@ -251,13 +251,13 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
     for _ii in 0..(vx.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
         let mut should_move = HashSet::new();
-        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
+        for (e, (_, rect)) in world.query::<(Satisfies<&Actor>, &IntRect)>().iter() {
             if body.collide(&pushing_rect(rect)) {
                 should_move.insert(e);
             }
         }
         body.x += vx.signum();
-        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
+        for (e, (_, rect)) in world.query::<(Satisfies<&Actor>, &IntRect)>().iter() {
             if body.collide(&pushing_rect(rect)) {
                 should_move.insert(e);
             }
@@ -272,13 +272,13 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
     for _ii in 0..(vy.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
         let mut should_move = HashSet::new();
-        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
+        for (e, (_, rect)) in world.query::<(Satisfies<&Actor>, &IntRect)>().iter() {
             if body.collide(&pushing_rect(rect)) {
                 should_move.insert(e);
             }
         }
         body.y += vy.signum();
-        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
+        for (e, (_, rect)) in world.query::<(Satisfies<&Actor>, &IntRect)>().iter() {
             if body.collide(&pushing_rect(rect)) {
                 should_move.insert(e);
             }

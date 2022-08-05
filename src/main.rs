@@ -1,4 +1,4 @@
-use hecs::World;
+use hecs::{Satisfies, World};
 use loader::{load_map, LoadedMap};
 use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, Controller, IntRect, PathMotion, TileBody};
@@ -64,6 +64,10 @@ async fn main() {
     let controller = Controller::new();
     world.spawn((player_rect, player, controller));
 
+    let thing_rect = IntRect::new(200, 10, 6, 6);
+    let thing = Actor::new(&thing_rect);
+    world.spawn((thing_rect, thing));
+
     loop {
         ConstantMotion::apply(&mut world);
         PathMotion::apply(&mut world);
@@ -113,13 +117,13 @@ fn draw(world: &mut World) {
 
     draw_rectangle(mx - 5., my - 5., 10., 10., ORANGE);
 
-    for (_, (_, rect)) in world.query_mut::<(&Actor, &IntRect)>() {
+    for (_, (_, rect, ctrl)) in world.query_mut::<(&Actor, &IntRect, Satisfies<&Controller>)>() {
         draw_rectangle(
             rect.x as f32,
             rect.y as f32,
             rect.w as f32,
             rect.h as f32,
-            GREEN,
+            if ctrl { GREEN } else { GRAY },
         );
     }
 }
