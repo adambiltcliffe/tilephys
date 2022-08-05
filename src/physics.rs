@@ -88,7 +88,7 @@ impl Actor {
         }
     }
 
-    pub fn update(world: &mut World) {
+    pub fn update(world: &World) {
         for (_, (actor, rect)) in world.query::<(&mut Actor, &mut IntRect)>().iter() {
             actor.vy += 1.0;
             actor.vx *= 0.6;
@@ -115,7 +115,7 @@ impl Controller {
         Self { jump_frames: 0 }
     }
 
-    pub fn update(world: &mut World) {
+    pub fn update(world: &World) {
         use macroquad::input::{is_key_down, is_key_pressed, KeyCode};
         for (_, (player, controller)) in world.query::<(&mut Actor, &mut Controller)>().iter() {
             if is_key_down(KeyCode::Left) {
@@ -146,7 +146,7 @@ impl ConstantMotion {
     pub fn new(vx: i32, vy: i32) -> Self {
         Self { vx, vy }
     }
-    pub fn apply(world: &mut World) {
+    pub fn apply(world: &World) {
         for (e, cm) in world.query::<&ConstantMotion>().iter() {
             move_body(&world, e, cm.vx, cm.vy);
         }
@@ -174,7 +174,7 @@ impl PathMotion {
         }
     }
 
-    pub fn apply(world: &mut World) {
+    pub fn apply(world: &World) {
         for (e, pm) in world.query::<&mut PathMotion>().iter() {
             let dest = pm.offsets[pm.next_node] + pm.base_pos;
             let curr = vec2(pm.prec_x, pm.prec_y);

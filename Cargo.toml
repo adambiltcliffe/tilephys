@@ -9,4 +9,5 @@ edition = "2018"
 euclid = "0.22.7"
 hecs = "0.9.0"
 macroquad = "0.3.15"
+rhai = {version="1.8.0", features=["only_i32","f32_float"]}
 tiled = { git="https://github.com/aleokdev/rs-tiled.git", rev="6493fee"}
