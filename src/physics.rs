@@ -33,6 +33,7 @@ pub struct TileBody {
     pub data: Vec<bool>,
     pub x: i32,
     pub y: i32,
+    pub base_pos: Vec2,
 }
 
 impl TileBody {
@@ -43,6 +44,7 @@ impl TileBody {
             size,
             width,
             data,
+            base_pos: vec2(x as f32, y as f32),
         }
     }
 
@@ -157,7 +159,6 @@ pub struct PathMotion {
     prec_x: f32,
     prec_y: f32,
     next_node: usize,
-    base_pos: Vec2,
     offsets: Vec<Vec2>,
     speed: f32,
 }
@@ -168,7 +169,6 @@ impl PathMotion {
             prec_x: x,
             prec_y: y,
             next_node: 0,
-            base_pos: vec2(x, y),
             offsets: point_list.iter().map(|(px, py)| vec2(*px, *py)).collect(),
             speed,
         }
@@ -176,7 +176,10 @@ impl PathMotion {
 
     pub fn apply(world: &World) {
         for (e, pm) in world.query::<&mut PathMotion>().iter() {
-            let dest = pm.offsets[pm.next_node] + pm.base_pos;
+            let dest = {
+                let body = world.get::<&TileBody>(e).unwrap();
+                pm.offsets[pm.next_node] + body.base_pos
+            };
             let curr = vec2(pm.prec_x, pm.prec_y);
             let v = dest - curr;
             let tmp = if v.length() < pm.speed {
@@ -188,7 +191,6 @@ impl PathMotion {
             };
             pm.prec_x = tmp.x;
             pm.prec_y = tmp.y;
-
             let (dx, dy) = {
                 let body = world.get::<&TileBody>(e).unwrap();
                 (
