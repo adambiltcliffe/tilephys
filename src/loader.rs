@@ -1,11 +1,13 @@
-use crate::TileBody;
+use crate::physics::TileBody;
 use hecs::{Entity, World};
+use std::cell::RefCell;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 pub(crate) struct LoadedMap {
-    pub world: World,
-    pub body_ids: HashMap<String, Entity>,
-    pub paths: HashMap<String, Vec<(f32, f32)>>,
+    pub world_ref: Rc<RefCell<World>>,
+    pub body_ids: Rc<HashMap<String, Entity>>,
+    pub paths: Rc<HashMap<String, Vec<(f32, f32)>>>,
 }
 
 pub(crate) fn load_map() -> LoadedMap {
@@ -79,8 +81,8 @@ pub(crate) fn load_map() -> LoadedMap {
     }
 
     LoadedMap {
-        world,
-        body_ids,
-        paths,
+        world_ref: Rc::new(RefCell::new(world)),
+        body_ids: Rc::new(body_ids),
+        paths: Rc::new(paths),
     }
 }

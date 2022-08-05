@@ -2,12 +2,11 @@ use hecs::{Satisfies, World};
 use loader::{load_map, LoadedMap};
 use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, Controller, IntRect, PathMotion, TileBody};
-use rhai::{Engine, Scope};
-use std::cell::RefCell;
-use std::rc::Rc;
+use script::ScriptEngine;
 
 mod loader;
 mod physics;
+mod script;
 
 const SCR_W: i32 = 400;
 const SCR_H: i32 = 400;
@@ -30,50 +29,13 @@ async fn main() {
         ..Default::default()
     });*/
 
-    let LoadedMap {
-        world,
-        body_ids,
-        paths,
-    } = load_map();
+    let map = load_map();
 
-    let world_ref = Rc::new(RefCell::new(world));
-    let body_ids_ref = Rc::new(body_ids);
+    let mut script_engine = ScriptEngine::new(&map);
+    script_engine.load_file("testmap.rhai");
+    script_engine.call_entry_point("init");
 
-    let mut engine = Engine::new();
-    let mut scope = Scope::new();
-
-    let cloned_world = Rc::clone(&world_ref);
-    let cloned_body_ids = Rc::clone(&body_ids_ref);
-    engine.register_fn(
-        "set_constant_motion",
-        move |name: &str, vx: i32, vy: i32| {
-            cloned_world
-                .borrow_mut()
-                .insert_one(cloned_body_ids[name], ConstantMotion::new(vx, vy))
-                .unwrap();
-        },
-    );
-
-    let cloned_world = Rc::clone(&world_ref);
-    let cloned_body_ids = Rc::clone(&body_ids_ref);
-    engine.register_fn(
-        "set_path_motion",
-        move |body_name: &str, path_name: &str, speed: f32| {
-            let id = cloned_body_ids[body_name];
-            let mut world = cloned_world.borrow_mut();
-            let (x, y) = {
-                let body = world.get::<&TileBody>(id).unwrap();
-                (body.x as f32, body.y as f32)
-            };
-            world
-                .insert_one(id, PathMotion::new(x, y, paths[path_name].clone(), speed))
-                .unwrap();
-        },
-    );
-
-    let ast = engine.compile_file("testmap.rhai".into()).unwrap();
-    engine.call_fn::<()>(&mut scope, &ast, "init", ()).unwrap();
-
+    let LoadedMap { world_ref, .. } = map;
     let mut world = world_ref.borrow_mut();
 
     let player_rect = IntRect::new(50, 10, 10, 10);
