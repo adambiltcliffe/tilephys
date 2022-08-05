@@ -1,7 +1,7 @@
 use hecs::World;
 use loader::{load_map, LoadedMap};
 use macroquad::prelude::*;
-use physics::{Actor, ConstantMotion, IntRect, PathMotion, TileBody};
+use physics::{Actor, ConstantMotion, Controller, IntRect, PathMotion, TileBody};
 
 mod loader;
 mod physics;
@@ -60,45 +60,15 @@ async fn main() {
     world.insert_one(body_ids["cross"], pm).unwrap();
 
     let mut player_rect = IntRect::new(50, 10, 10, 10);
-    let mut player = Actor::new(player_rect.x, player_rect.y);
-    let mut player_vx = 0.0;
-    let mut player_vy = 0.0;
-    let mut player_jump_frames = 0;
-    let mut player_grounded = false;
+    let mut player = Actor::new(&player_rect);
+    let mut controller = Controller::new();
 
     loop {
         ConstantMotion::apply(&mut player, &mut player_rect, &mut world);
         PathMotion::apply(&mut player, &mut player_rect, &mut world);
 
-        player_vy += 1.0;
-        if is_key_down(KeyCode::Left) {
-            player_vx -= 3.0;
-        }
-        if is_key_down(KeyCode::Right) {
-            player_vx += 3.0;
-        }
-        player_vx *= 0.6;
-
-        if player_grounded && is_key_pressed(KeyCode::X) {
-            player_vy = -5.0;
-            player_jump_frames = 5;
-        } else if player_jump_frames > 0 && is_key_down(KeyCode::X) {
-            player_vy = -5.0;
-            player_jump_frames -= 1;
-        } else {
-            player_jump_frames = 0;
-        }
-
-        let (cx, cy) =
-            physics::move_actor(&mut player, &mut player_rect, player_vx, player_vy, &world);
-        if cx {
-            player_vx = 0.0;
-        }
-        if cy {
-            player_vy = 0.0;
-        }
-
-        player_grounded = physics::check_player_grounded(&player_rect, &world);
+        Controller::update(&mut player, &mut controller);
+        Actor::update(&mut player, &mut player_rect, &mut world);
 
         draw(&mut world, &player_rect);
         next_frame().await

@@ -71,13 +71,66 @@ impl TileBody {
 pub struct Actor {
     prec_x: f32,
     prec_y: f32,
+    pub vx: f32,
+    pub vy: f32,
+    pub grounded: bool,
 }
 
 impl Actor {
-    pub fn new(x: i32, y: i32) -> Self {
+    pub fn new(rect: &IntRect) -> Self {
         Self {
-            prec_x: x as f32,
-            prec_y: y as f32,
+            prec_x: rect.x as f32,
+            prec_y: rect.y as f32,
+            vx: 0.0,
+            vy: 0.0,
+            grounded: false,
+        }
+    }
+
+    pub fn update(player: &mut Actor, player_rect: &mut IntRect, world: &mut World) {
+        player.vy += 1.0;
+        player.vx *= 0.6;
+
+        let vx = player.vx;
+        let vy = player.vy;
+        let (cx, cy) = move_actor(player, player_rect, vx, vy, &world);
+        if cx {
+            player.vx = 0.0;
+        }
+        if cy {
+            player.vy = 0.0;
+        }
+
+        player.grounded = check_player_grounded(&player_rect, &world);
+    }
+}
+
+pub struct Controller {
+    jump_frames: u32,
+}
+
+impl Controller {
+    pub fn new() -> Self {
+        Self { jump_frames: 0 }
+    }
+
+    pub fn update(player: &mut Actor, controller: &mut Controller) {
+        use macroquad::input::{is_key_down, is_key_pressed, KeyCode};
+        if is_key_down(KeyCode::Left) {
+            player.vx -= 3.0;
+        }
+        if is_key_down(KeyCode::Right) {
+            player.vx += 3.0;
+        }
+
+        if player.grounded && is_key_pressed(KeyCode::X) {
+            player.vy = -6.0;
+            controller.jump_frames = 5;
+        } else if controller.jump_frames > 0 && is_key_down(KeyCode::X) {
+            player.vy = -6.0;
+            controller.jump_frames -= 1;
+        } else {
+            controller.jump_frames = 0;
         }
     }
 }
@@ -146,8 +199,7 @@ impl PathMotion {
     }
 }
 
-// TODO: try to make this not pub
-pub fn move_actor(
+fn move_actor(
     actor: &mut Actor,
     rect: &mut IntRect,
     vx: f32,
@@ -223,8 +275,7 @@ fn move_body(
     }
 }
 
-// TODO this probably shouldn't even be public eventually
-pub fn check_player_grounded(player_rect: &IntRect, world: &World) -> bool {
+fn check_player_grounded(player_rect: &IntRect, world: &World) -> bool {
     world
         .query::<&TileBody>()
         .iter()
