@@ -59,23 +59,24 @@ async fn main() {
     );
     world.insert_one(body_ids["cross"], pm).unwrap();
 
-    let mut player_rect = IntRect::new(50, 10, 10, 10);
-    let mut player = Actor::new(&player_rect);
-    let mut controller = Controller::new();
+    let player_rect = IntRect::new(50, 10, 10, 10);
+    let player = Actor::new(&player_rect);
+    let controller = Controller::new();
+    world.spawn((player_rect, player, controller));
 
     loop {
-        ConstantMotion::apply(&mut player, &mut player_rect, &mut world);
-        PathMotion::apply(&mut player, &mut player_rect, &mut world);
+        ConstantMotion::apply(&mut world);
+        PathMotion::apply(&mut world);
 
-        Controller::update(&mut player, &mut controller);
-        Actor::update(&mut player, &mut player_rect, &mut world);
+        Controller::update(&mut world);
+        Actor::update(&mut world);
 
-        draw(&mut world, &player_rect);
+        draw(&mut world);
         next_frame().await
     }
 }
 
-fn draw(world: &mut World, player_rect: &IntRect) {
+fn draw(world: &mut World) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
     clear_background(SKYBLUE);
@@ -112,11 +113,13 @@ fn draw(world: &mut World, player_rect: &IntRect) {
 
     draw_rectangle(mx - 5., my - 5., 10., 10., ORANGE);
 
-    draw_rectangle(
-        player_rect.x as f32,
-        player_rect.y as f32,
-        player_rect.w as f32,
-        player_rect.h as f32,
-        GREEN,
-    );
+    for (_, (_, rect)) in world.query_mut::<(&Actor, &IntRect)>() {
+        draw_rectangle(
+            rect.x as f32,
+            rect.y as f32,
+            rect.w as f32,
+            rect.h as f32,
+            GREEN,
+        );
+    }
 }

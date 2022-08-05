@@ -1,5 +1,6 @@
 use hecs::{Entity, World};
 use macroquad::math::{vec2, Vec2};
+use std::collections::HashSet;
 
 pub struct IntRect {
     pub x: i32,
@@ -87,21 +88,21 @@ impl Actor {
         }
     }
 
-    pub fn update(player: &mut Actor, player_rect: &mut IntRect, world: &mut World) {
-        player.vy += 1.0;
-        player.vx *= 0.6;
-
-        let vx = player.vx;
-        let vy = player.vy;
-        let (cx, cy) = move_actor(player, player_rect, vx, vy, &world);
-        if cx {
-            player.vx = 0.0;
+    pub fn update(world: &mut World) {
+        for (_, (actor, rect)) in world.query::<(&mut Actor, &mut IntRect)>().iter() {
+            actor.vy += 1.0;
+            actor.vx *= 0.6;
+            let vx = actor.vx;
+            let vy = actor.vy;
+            let (cx, cy) = move_actor(actor, rect, vx, vy, &world);
+            if cx {
+                actor.vx = 0.0;
+            }
+            if cy {
+                actor.vy = 0.0;
+            }
+            actor.grounded = check_player_grounded(&rect, &world);
         }
-        if cy {
-            player.vy = 0.0;
-        }
-
-        player.grounded = check_player_grounded(&player_rect, &world);
     }
 }
 
@@ -114,23 +115,24 @@ impl Controller {
         Self { jump_frames: 0 }
     }
 
-    pub fn update(player: &mut Actor, controller: &mut Controller) {
+    pub fn update(world: &mut World) {
         use macroquad::input::{is_key_down, is_key_pressed, KeyCode};
-        if is_key_down(KeyCode::Left) {
-            player.vx -= 3.0;
-        }
-        if is_key_down(KeyCode::Right) {
-            player.vx += 3.0;
-        }
-
-        if player.grounded && is_key_pressed(KeyCode::X) {
-            player.vy = -6.0;
-            controller.jump_frames = 5;
-        } else if controller.jump_frames > 0 && is_key_down(KeyCode::X) {
-            player.vy = -6.0;
-            controller.jump_frames -= 1;
-        } else {
-            controller.jump_frames = 0;
+        for (_, (player, controller)) in world.query::<(&mut Actor, &mut Controller)>().iter() {
+            if is_key_down(KeyCode::Left) {
+                player.vx -= 3.0;
+            }
+            if is_key_down(KeyCode::Right) {
+                player.vx += 3.0;
+            }
+            if player.grounded && is_key_pressed(KeyCode::X) {
+                player.vy = -6.0;
+                controller.jump_frames = 5;
+            } else if controller.jump_frames > 0 && is_key_down(KeyCode::X) {
+                player.vy = -6.0;
+                controller.jump_frames -= 1;
+            } else {
+                controller.jump_frames = 0;
+            }
         }
     }
 }
@@ -144,9 +146,9 @@ impl ConstantMotion {
     pub fn new(vx: i32, vy: i32) -> Self {
         Self { vx, vy }
     }
-    pub fn apply(player: &mut Actor, player_rect: &mut IntRect, world: &mut World) {
+    pub fn apply(world: &mut World) {
         for (e, cm) in world.query::<&ConstantMotion>().iter() {
-            move_body(player, player_rect, &world, e, cm.vx, cm.vy);
+            move_body(&world, e, cm.vx, cm.vy);
         }
     }
 }
@@ -172,7 +174,7 @@ impl PathMotion {
         }
     }
 
-    pub fn apply(player: &mut Actor, player_rect: &mut IntRect, world: &mut World) {
+    pub fn apply(world: &mut World) {
         for (e, pm) in world.query::<&mut PathMotion>().iter() {
             let dest = pm.offsets[pm.next_node] + pm.base_pos;
             let curr = vec2(pm.prec_x, pm.prec_y);
@@ -194,7 +196,7 @@ impl PathMotion {
                     pm.prec_y.round() as i32 - body.y,
                 )
             };
-            move_body(player, player_rect, &world, e, dx, dy);
+            move_body(&world, e, dx, dy);
         }
     }
 }
@@ -243,34 +245,49 @@ fn move_actor(
     (collided_x, collided_y)
 }
 
-fn move_body(
-    actor: &mut Actor,
-    actor_rect: &mut IntRect,
-    world: &World,
-    index: Entity,
-    vx: i32,
-    vy: i32,
-) {
+fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
     // this is a fiddly mess of borrows and drops but we should be able to skip
     // this in many cases if there are no actors in position to be pushed
     for _ii in 0..(vx.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
-        let mut should_move = body.collide(&pushing_rect(&actor_rect));
+        let mut should_move = HashSet::new();
+        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
+            if body.collide(&pushing_rect(rect)) {
+                should_move.insert(e);
+            }
+        }
         body.x += vx.signum();
-        should_move |= body.collide(&pushing_rect(&actor_rect));
+        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
+            if body.collide(&pushing_rect(rect)) {
+                should_move.insert(e);
+            }
+        }
         drop(body);
-        if should_move {
-            move_actor(actor, actor_rect, vx.signum() as f32, 0.0, &world);
+        for e in should_move {
+            let mut actor = world.get::<&mut Actor>(e).unwrap();
+            let mut rect = world.get::<&mut IntRect>(e).unwrap();
+            move_actor(&mut *actor, &mut *rect, vx.signum() as f32, 0.0, &world);
         }
     }
     for _ii in 0..(vy.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
-        let mut should_move = body.collide(&pushing_rect(&actor_rect));
+        let mut should_move = HashSet::new();
+        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
+            if body.collide(&pushing_rect(rect)) {
+                should_move.insert(e);
+            }
+        }
         body.y += vy.signum();
-        should_move |= body.collide(&pushing_rect(&actor_rect));
+        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
+            if body.collide(&pushing_rect(rect)) {
+                should_move.insert(e);
+            }
+        }
         drop(body);
-        if should_move {
-            move_actor(actor, actor_rect, 0.0, vy.signum() as f32, &world);
+        for e in should_move {
+            let mut actor = world.get::<&mut Actor>(e).unwrap();
+            let mut rect = world.get::<&mut IntRect>(e).unwrap();
+            move_actor(&mut *actor, &mut *rect, 0.0, vy.signum() as f32, &world);
         }
     }
 }
