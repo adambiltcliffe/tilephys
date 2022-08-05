@@ -208,7 +208,7 @@ async fn main() {
     });*/
 
     let mut world: World = World::new();
-    let mut chunk_ids: Vec<Entity> = Vec::new();
+    let mut body_ids: HashMap<String, Entity> = HashMap::new();
     let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
 
     let mut loader = tiled::Loader::new();
@@ -241,13 +241,16 @@ async fn main() {
                         tiledata.push(data.get_tile(x, y).is_some());
                     }
                 }
-                chunk_ids.push(world.spawn((TileBody::new(
-                    x0 * map.tile_width as i32,
-                    y0 * map.tile_height as i32,
-                    map.tile_width as i32,
-                    (x1 - x0) + 1,
-                    tiledata,
-                ),)))
+                body_ids.insert(
+                    layer.name.clone(),
+                    world.spawn((TileBody::new(
+                        x0 * map.tile_width as i32,
+                        y0 * map.tile_height as i32,
+                        map.tile_width as i32,
+                        (x1 - x0) + 1,
+                        tiledata,
+                    ),)),
+                );
             }
             tiled::LayerType::ObjectLayer(data) => {
                 for obj in data.objects() {
@@ -274,30 +277,30 @@ async fn main() {
     }
 
     world
-        .insert_one(chunk_ids[1], ConstantMotion { vx: -1, vy: 0 })
+        .insert_one(body_ids["layer1"], ConstantMotion { vx: -1, vy: 0 })
         .unwrap();
     world
-        .insert_one(chunk_ids[2], ConstantMotion { vx: 1, vy: 0 })
+        .insert_one(body_ids["layer2"], ConstantMotion { vx: 1, vy: 0 })
         .unwrap();
     world
-        .insert_one(chunk_ids[3], ConstantMotion { vx: 0, vy: -1 })
+        .insert_one(body_ids["layer3"], ConstantMotion { vx: 0, vy: -1 })
         .unwrap();
 
     let pm = PathMotion::new(
-        world.get::<&TileBody>(chunk_ids[4]).unwrap().x as f32,
-        world.get::<&TileBody>(chunk_ids[4]).unwrap().y as f32,
+        world.get::<&TileBody>(body_ids["layer4"]).unwrap().x as f32,
+        world.get::<&TileBody>(body_ids["layer4"]).unwrap().y as f32,
         paths["orbit"].clone(),
         1.0,
     );
-    world.insert_one(chunk_ids[4], pm).unwrap();
+    world.insert_one(body_ids["layer4"], pm).unwrap();
 
     let pm = PathMotion::new(
-        world.get::<&TileBody>(chunk_ids[5]).unwrap().x as f32,
-        world.get::<&TileBody>(chunk_ids[5]).unwrap().y as f32,
+        world.get::<&TileBody>(body_ids["cross"]).unwrap().x as f32,
+        world.get::<&TileBody>(body_ids["cross"]).unwrap().y as f32,
         paths["diamondpath"].clone(),
         4.0,
     );
-    world.insert_one(chunk_ids[5], pm).unwrap();
+    world.insert_one(body_ids["cross"], pm).unwrap();
 
     let mut player_rect = IntRect::new(50, 10, 10, 10);
     let mut player = Actor::new(player_rect.x, player_rect.y);
