@@ -1,4 +1,4 @@
-use hecs::{Entity, Satisfies, World};
+use hecs::{Entity, World};
 use macroquad::math::{vec2, Vec2};
 use std::collections::HashSet;
 
@@ -13,6 +13,13 @@ impl IntRect {
     pub fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
         Self { x, y, w, h }
     }
+
+    pub fn intersects(&self, other: &IntRect) -> bool {
+        self.x < other.x + other.w
+            && self.y < other.y + other.h
+            && self.x + self.w > other.x
+            && self.y + self.h > other.y
+    }
 }
 
 fn offset_rect(rect: &IntRect, dx: i32, dy: i32) -> IntRect {
@@ -25,6 +32,10 @@ fn pushing_rect(rect: &IntRect) -> IntRect {
 
 fn feet_rect(rect: &IntRect) -> IntRect {
     IntRect::new(rect.x, rect.y + rect.h, rect.w, 1)
+}
+
+pub struct TriggerZone {
+    pub name: String,
 }
 
 pub struct TileBody {
@@ -110,16 +121,35 @@ impl Actor {
 
 pub struct Controller {
     jump_frames: u32,
+    triggers: HashSet<String>,
 }
 
 impl Controller {
     pub fn new() -> Self {
-        Self { jump_frames: 0 }
+        Self {
+            jump_frames: 0,
+            triggers: HashSet::new(),
+        }
     }
 
-    pub fn update(world: &World) {
+    pub fn update(world: &World) -> HashSet<String> {
+        let mut result: HashSet<String> = HashSet::new();
         use macroquad::input::{is_key_down, is_key_pressed, KeyCode};
-        for (_, (player, controller)) in world.query::<(&mut Actor, &mut Controller)>().iter() {
+        for (_, (player, p_rect, controller)) in world
+            .query::<(&mut Actor, &IntRect, &mut Controller)>()
+            .iter()
+        {
+            let mut new_triggers: HashSet<String> = HashSet::new();
+            for (_, (trigger, t_rect)) in world.query::<(&TriggerZone, &IntRect)>().iter() {
+                if p_rect.intersects(&t_rect) {
+                    let name = trigger.name.clone();
+                    if !controller.triggers.contains(&name) {
+                        result.insert(name.clone());
+                    }
+                    new_triggers.insert(name);
+                }
+            }
+            controller.triggers = new_triggers;
             if is_key_down(KeyCode::Left) {
                 player.vx -= 3.0;
             }
@@ -136,6 +166,7 @@ impl Controller {
                 controller.jump_frames = 0;
             }
         }
+        result
     }
 }
 
@@ -161,16 +192,18 @@ pub struct PathMotion {
     next_node: usize,
     offsets: Vec<Vec2>,
     speed: f32,
+    cycle: bool,
 }
 
 impl PathMotion {
-    pub fn new(x: f32, y: f32, point_list: Vec<(f32, f32)>, speed: f32) -> Self {
+    pub fn new(x: f32, y: f32, point_list: Vec<(f32, f32)>, speed: f32, cycle: bool) -> Self {
         Self {
             prec_x: x,
             prec_y: y,
             next_node: 0,
             offsets: point_list.iter().map(|(px, py)| vec2(*px, *py)).collect(),
             speed,
+            cycle,
         }
     }
 
@@ -183,7 +216,11 @@ impl PathMotion {
             let curr = vec2(pm.prec_x, pm.prec_y);
             let v = dest - curr;
             let tmp = if v.length() < pm.speed {
-                pm.next_node = (pm.next_node + 1) % pm.offsets.len();
+                if pm.next_node == pm.offsets.len() - 1 && !pm.cycle {
+                    // do nothing
+                } else {
+                    pm.next_node = (pm.next_node + 1) % pm.offsets.len();
+                }
                 dest
             } else {
                 let new = curr + v.normalize() * pm.speed;
@@ -253,13 +290,13 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
     for _ii in 0..(vx.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
         let mut should_move = HashSet::new();
-        for (e, (_, rect)) in world.query::<(Satisfies<&Actor>, &IntRect)>().iter() {
+        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
             if body.collide(&pushing_rect(rect)) {
                 should_move.insert(e);
             }
         }
         body.x += vx.signum();
-        for (e, (_, rect)) in world.query::<(Satisfies<&Actor>, &IntRect)>().iter() {
+        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
             if body.collide(&pushing_rect(rect)) {
                 should_move.insert(e);
             }
@@ -274,13 +311,13 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
     for _ii in 0..(vy.abs()) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
         let mut should_move = HashSet::new();
-        for (e, (_, rect)) in world.query::<(Satisfies<&Actor>, &IntRect)>().iter() {
+        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
             if body.collide(&pushing_rect(rect)) {
                 should_move.insert(e);
             }
         }
         body.y += vy.signum();
-        for (e, (_, rect)) in world.query::<(Satisfies<&Actor>, &IntRect)>().iter() {
+        for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
             if body.collide(&pushing_rect(rect)) {
                 should_move.insert(e);
             }

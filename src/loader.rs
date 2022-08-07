@@ -1,4 +1,4 @@
-use crate::physics::TileBody;
+use crate::physics::{IntRect, TileBody, TriggerZone};
 use hecs::{Entity, World};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -71,6 +71,19 @@ pub(crate) fn load_map() -> LoadedMap {
                         } => {
                             println!("found a path named {}", name);
                             paths.insert(name.clone(), points.clone());
+                        }
+                        tiled::ObjectData {
+                            name,
+                            shape: tiled::ObjectShape::Rect { width, height },
+                            x,
+                            y,
+                            ..
+                        } => {
+                            println!("found a trigger zone named {}", name);
+                            let tz = TriggerZone { name: name.clone() };
+                            let rect =
+                                IntRect::new(*x as i32, *y as i32, *width as i32, *height as i32);
+                            world.spawn((tz, rect));
                         }
                         _ => (),
                     }

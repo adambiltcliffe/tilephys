@@ -36,25 +36,34 @@ async fn main() {
     script_engine.call_entry_point("init");
 
     let LoadedMap { world_ref, .. } = map;
-    let mut world = world_ref.borrow_mut();
+    {
+        let mut world = world_ref.borrow_mut();
 
-    let player_rect = IntRect::new(50, 10, 10, 10);
-    let player = Actor::new(&player_rect);
-    let controller = Controller::new();
-    world.spawn((player_rect, player, controller));
+        let player_rect = IntRect::new(50, 10, 10, 10);
+        let player = Actor::new(&player_rect);
+        let controller = Controller::new();
+        world.spawn((player_rect, player, controller));
 
-    let thing_rect = IntRect::new(200, 10, 6, 6);
-    let thing = Actor::new(&thing_rect);
-    world.spawn((thing_rect, thing));
+        let thing_rect = IntRect::new(200, 10, 6, 6);
+        let thing = Actor::new(&thing_rect);
+        world.spawn((thing_rect, thing));
+    }
 
     loop {
+        let world = world_ref.borrow_mut();
         ConstantMotion::apply(&world);
         PathMotion::apply(&world);
-
-        Controller::update(&world);
+        let new_triggers = Controller::update(&world);
         Actor::update(&world);
 
         draw(&world);
+        drop(world);
+
+        for t in new_triggers {
+            println!("entered new trigger zone {}", t);
+            script_engine.call_entry_point(&format!("{}_enter", t));
+        }
+
         next_frame().await
     }
 }

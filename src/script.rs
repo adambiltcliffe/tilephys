@@ -31,7 +31,7 @@ impl ScriptEngine {
         let cloned_paths = Rc::clone(&map.paths);
         engine.register_fn(
             "set_path_motion",
-            move |body_name: &str, path_name: &str, speed: f32| {
+            move |body_name: &str, path_name: &str, speed: f32, cycle: bool| {
                 let id = cloned_body_ids[body_name];
                 let mut world = cloned_world.borrow_mut();
                 let (x, y) = {
@@ -41,7 +41,7 @@ impl ScriptEngine {
                 world
                     .insert_one(
                         id,
-                        PathMotion::new(x, y, cloned_paths[path_name].clone(), speed),
+                        PathMotion::new(x, y, cloned_paths[path_name].clone(), speed, cycle),
                     )
                     .unwrap();
             },
