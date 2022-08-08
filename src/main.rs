@@ -23,12 +23,6 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf())]
 async fn main() {
-    /*set_camera(&Camera2D {
-        zoom: (vec2(1.0, 1.0)),
-        target: vec2(SCR_W / 2., SCR_H / 2.),
-        ..Default::default()
-    });*/
-
     let map = load_map();
 
     let mut script_engine = ScriptEngine::new(&map);
@@ -36,18 +30,20 @@ async fn main() {
     script_engine.call_entry_point("init");
 
     let LoadedMap { world_ref, .. } = map;
-    {
+    let mut player_id = {
         let mut world = world_ref.borrow_mut();
 
         let player_rect = IntRect::new(50, 10, 10, 10);
         let player = Actor::new(&player_rect);
         let controller = Controller::new();
-        world.spawn((player_rect, player, controller));
+        let player_id = world.spawn((player_rect, player, controller));
 
         let thing_rect = IntRect::new(200, 10, 6, 6);
         let thing = Actor::new(&thing_rect);
         world.spawn((thing_rect, thing));
-    }
+
+        player_id
+    };
 
     loop {
         let world = world_ref.borrow_mut();
@@ -55,6 +51,14 @@ async fn main() {
         PathMotion::apply(&world);
         let new_triggers = Controller::update(&world);
         Actor::update(&world);
+
+        if let Ok(rect) = world.get::<&IntRect>(player_id) {
+            set_camera(&Camera2D {
+                zoom: (vec2(0.01, -0.01)),
+                target: vec2((rect.x + rect.w / 2) as f32, (rect.y + rect.h / 2) as f32),
+                ..Default::default()
+            });
+        }
 
         draw(&world);
         drop(world);
