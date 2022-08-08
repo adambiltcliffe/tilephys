@@ -197,11 +197,11 @@ pub enum PathMotionType {
 pub struct PathMotion {
     pub path_name: String,
     pub motion_type: PathMotionType,
+    pub speed: f32,
     prec_x: f32,
     prec_y: f32,
     next_node: usize,
     offsets: Vec<Vec2>,
-    speed: f32,
 }
 
 impl PathMotion {
@@ -232,7 +232,7 @@ impl PathMotion {
             };
             let curr = vec2(pm.prec_x, pm.prec_y);
             let v = dest - curr;
-            let tmp = if v.length() < pm.speed {
+            let tmp = if v.length() <= pm.speed {
                 // reached the current destination node
                 match &pm.motion_type {
                     PathMotionType::Static => (),
@@ -267,6 +267,7 @@ impl PathMotion {
                 )
             };
             move_body(&world, e, dx, dy);
+            let curr = vec2(pm.prec_x, pm.prec_y);
         }
     }
 }
@@ -360,6 +361,7 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
             move_actor(&mut *actor, &mut *rect, 0.0, vy.signum() as f32, &world);
         }
     }
+    let body = world.get::<&mut TileBody>(index).unwrap();
 }
 
 fn check_player_grounded(player_rect: &IntRect, world: &World) -> bool {
