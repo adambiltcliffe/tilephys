@@ -74,11 +74,11 @@ impl ScriptEngine {
         let cloned_body_ids = Rc::clone(&map.body_ids);
         engine.register_fn(
             "set_motion_goto",
-            move |body_name: &str, index: usize, speed: f32| {
+            move |body_name: &str, index: i32, speed: f32| {
                 let id = cloned_body_ids[body_name];
                 let world = cloned_world.borrow_mut();
                 let mut pm = world.get::<&mut PathMotion>(id).unwrap();
-                pm.motion_type = PathMotionType::GoToNode(index);
+                pm.motion_type = PathMotionType::GoToNode(index as usize);
                 pm.speed = speed;
             },
         );

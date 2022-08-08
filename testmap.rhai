@@ -13,5 +13,10 @@ fn init() {
 
 fn testtrigger_enter() {
     print("here we go here we go");
-    set_motion("slider", ForwardOnce, 2.5);
+    set_motion_goto("slider", 3, 6.0);
+}
+
+fn testtrigger2_enter() {
+    print("re-e-wind");
+    set_motion_goto("slider", 0, 6.0);
 }
