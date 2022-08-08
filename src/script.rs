@@ -1,5 +1,5 @@
 use crate::loader::LoadedMap;
-use crate::physics::{ConstantMotion, PathMotion, TileBody};
+use crate::physics::{ConstantMotion, PathMotion, PathMotionType, TileBody};
 use rhai::{Engine, Scope, AST};
 use std::rc::Rc;
 
@@ -38,12 +38,36 @@ impl ScriptEngine {
                     let body = world.get::<&TileBody>(id).unwrap();
                     (body.x as f32, body.y as f32)
                 };
-                world
-                    .insert_one(
-                        id,
-                        PathMotion::new(x, y, cloned_paths[path_name].clone(), speed, cycle),
-                    )
-                    .unwrap();
+                let pmt = if cycle {
+                    PathMotionType::ForwardCycle
+                } else {
+                    PathMotionType::ForwardOnce
+                };
+                let mut changed = false;
+                {
+                    let res = world.get::<&mut PathMotion>(id);
+                    if let Ok(mut pm) = res {
+                        if pm.path_name == path_name {
+                            pm.motion_type = pmt;
+                            changed = true;
+                        }
+                    }
+                }
+                if !changed {
+                    world
+                        .insert_one(
+                            id,
+                            PathMotion::new(
+                                path_name,
+                                x,
+                                y,
+                                cloned_paths[path_name].clone(),
+                                speed,
+                                pmt,
+                            ),
+                        )
+                        .unwrap();
+                }
             },
         );
 

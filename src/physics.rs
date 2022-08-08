@@ -186,24 +186,41 @@ impl ConstantMotion {
     }
 }
 
+#[derive(PartialEq, Eq, Copy, Clone)]
+pub enum PathMotionType {
+    Static,
+    GoToNode(usize),
+    ForwardOnce,
+    ForwardCycle,
+}
+
 pub struct PathMotion {
+    pub path_name: String,
+    pub motion_type: PathMotionType,
     prec_x: f32,
     prec_y: f32,
     next_node: usize,
     offsets: Vec<Vec2>,
     speed: f32,
-    cycle: bool,
 }
 
 impl PathMotion {
-    pub fn new(x: f32, y: f32, point_list: Vec<(f32, f32)>, speed: f32, cycle: bool) -> Self {
+    pub fn new(
+        path_name: &str,
+        x: f32,
+        y: f32,
+        point_list: Vec<(f32, f32)>,
+        speed: f32,
+        motion_type: PathMotionType,
+    ) -> Self {
         Self {
+            path_name: path_name.to_owned(),
             prec_x: x,
             prec_y: y,
             next_node: 0,
             offsets: point_list.iter().map(|(px, py)| vec2(*px, *py)).collect(),
             speed,
-            cycle,
+            motion_type,
         }
     }
 
@@ -216,10 +233,24 @@ impl PathMotion {
             let curr = vec2(pm.prec_x, pm.prec_y);
             let v = dest - curr;
             let tmp = if v.length() < pm.speed {
-                if pm.next_node == pm.offsets.len() - 1 && !pm.cycle {
-                    // do nothing
-                } else {
-                    pm.next_node = (pm.next_node + 1) % pm.offsets.len();
+                // reached the current destination node
+                match &pm.motion_type {
+                    PathMotionType::Static => (),
+                    PathMotionType::GoToNode(index) => {
+                        if index < &pm.next_node {
+                            pm.next_node -= 1;
+                        } else if index > &pm.next_node {
+                            pm.next_node += 1;
+                        }
+                    }
+                    PathMotionType::ForwardOnce => {
+                        if pm.next_node < pm.offsets.len() - 1 {
+                            pm.next_node += 1;
+                        }
+                    }
+                    PathMotionType::ForwardCycle => {
+                        pm.next_node = (pm.next_node + 1) % pm.offsets.len();
+                    }
                 }
                 dest
             } else {
