@@ -5,6 +5,8 @@ fn init() {
     set_motion("cross", ForwardCycle, 3.0);
     set_path("slider","slidertrack");
     set_path("lift", "lift_path");
+    set_path("trap_floor", "trap_floor_path");
+    set_path("trap_hatch", "trap_hatch_path");
 }
 
 fn testtrigger_enter() {
@@ -20,8 +22,6 @@ fn testtrigger2_enter() {
 }
 
 fn trap_trigger_enter() {
-    set_path("trap_floor", "trap_floor_path");
     set_motion("trap_floor", ForwardOnce, 6.0);
-    set_path("trap_hatch", "trap_hatch_path");
     set_motion("trap_hatch", ForwardOnce, 2.0);
 }

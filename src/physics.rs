@@ -254,8 +254,7 @@ impl PathMotion {
                 }
                 dest
             } else {
-                let new = curr + v.normalize() * pm.speed;
-                new
+                curr + v.normalize() * pm.speed
             };
             pm.prec_x = tmp.x;
             pm.prec_y = tmp.y;
@@ -267,7 +266,6 @@ impl PathMotion {
                 )
             };
             move_body(&world, e, dx, dy);
-            let curr = vec2(pm.prec_x, pm.prec_y);
         }
     }
 }

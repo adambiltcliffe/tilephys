@@ -52,13 +52,15 @@ async fn main() {
         let new_triggers = Controller::update(&world);
         Actor::update(&world);
 
+        /*
         if let Ok(rect) = world.get::<&IntRect>(player_id) {
             set_camera(&Camera2D {
-                zoom: (vec2(0.01, -0.01)),
+                zoom: (vec2(0.02, -0.02)),
                 target: vec2((rect.x + rect.w / 2) as f32, (rect.y + rect.h / 2) as f32),
                 ..Default::default()
             });
         }
+        */
 
         draw(&world);
         drop(world);
