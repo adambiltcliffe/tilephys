@@ -3,10 +3,12 @@ use loader::{load_map, LoadedMap};
 use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, Controller, IntRect, PathMotion, TileBody};
 use script::ScriptEngine;
+use visibility::{compute_obscurers, draw_visibility};
 
 mod loader;
 mod physics;
 mod script;
+mod visibility;
 
 const SCR_W: i32 = 400;
 const SCR_H: i32 = 400;
@@ -30,7 +32,7 @@ async fn main() {
     script_engine.call_entry_point("init");
 
     let LoadedMap { world_ref, .. } = map;
-    let mut player_id = {
+    let mut _player_id = {
         let mut world = world_ref.borrow_mut();
 
         let player_rect = IntRect::new(50, 10, 10, 10);
@@ -44,6 +46,8 @@ async fn main() {
 
         player_id
     };
+
+    compute_obscurers(&mut world_ref.borrow_mut());
 
     loop {
         let world = world_ref.borrow_mut();
@@ -63,6 +67,7 @@ async fn main() {
         */
 
         draw(&world);
+        draw_visibility(&world);
         drop(world);
 
         for t in new_triggers {
