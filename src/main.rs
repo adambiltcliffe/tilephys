@@ -10,15 +10,15 @@ mod physics;
 mod script;
 mod visibility;
 
-const SCR_W: i32 = 400;
-const SCR_H: i32 = 400;
+const RENDER_W: i32 = 400;
+const RENDER_H: i32 = 400;
 
 fn window_conf() -> Conf {
     Conf {
         window_title: "Platform tile physics test".to_owned(),
         fullscreen: false,
-        window_width: SCR_W,
-        window_height: SCR_H,
+        window_width: RENDER_W,
+        window_height: RENDER_H,
         ..Default::default()
     }
 }
@@ -48,6 +48,12 @@ async fn main() {
     };
 
     compute_obscurers(&mut world_ref.borrow_mut());
+
+    set_camera(&Camera2D {
+        zoom: (vec2(2. / RENDER_W as f32, -2. / RENDER_H as f32)),
+        target: vec2(RENDER_W as f32 / 2., RENDER_H as f32 / 2.),
+        ..Default::default()
+    });
 
     loop {
         let world = world_ref.borrow_mut();
