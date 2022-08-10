@@ -130,21 +130,63 @@ pub fn compute_obscurers(world: &mut World) {
     }
 }
 
-pub fn draw_visibility(world: &World) {
+fn extend(v: Vec2, radius: f32) -> Vec2 {
+    if v.x.abs() < v.y.abs() && v.x.abs() != 0. || v.y.abs() == 0. {
+        v * (radius / v.x.abs())
+    } else {
+        v * (radius / v.y.abs())
+    }
+}
+
+fn draw_obscurer(x1: f32, y1: f32, x2: f32, y2: f32, eye: Vec2, radius: f32) {
+    let p1 = vec2(x1, y1);
+    let p2 = vec2(x2, y2);
+    let p1s = p1 + extend(p1 - eye, radius);
+    let p2s = p2 + extend(p2 - eye, radius);
+    draw_triangle(p1, p2, p1s, PINK);
+    draw_triangle(p2, p1s, p2s, PINK);
+}
+
+pub fn draw_visibility(world: &World, eye: Vec2, radius: f32) {
     for (_, (body, obs)) in world.query::<(&TileBody, &Obscurers)>().iter() {
         let bx = body.x as f32;
+        let bw = (body.width * body.size) as f32;
+        if bx > eye.x + radius || bx + bw < eye.x - radius {
+            continue;
+        }
         let by = body.y as f32;
+        let bh = (body.data.len() as f32 / body.width as f32) * body.size as f32;
+        if by > eye.y + radius || by + bh < eye.y - radius {
+            continue;
+        }
         for l in &obs.lefts {
-            draw_line(l.x + bx, l.y + by, l.x + bx, l.y + l.h + by, 2., PINK);
+            if bx + l.x >= eye.x {
+                draw_obscurer(l.x + bx, l.y + by, l.x + bx, l.y + l.h + by, eye, radius);
+            }
         }
         for r in &obs.rights {
-            draw_line(r.x + bx, r.y + by, r.x + bx, r.y + r.h + by, 2., GREEN);
+            if bx + r.x <= eye.x {
+                draw_obscurer(r.x + bx, r.y + by, r.x + bx, r.y + r.h + by, eye, radius);
+            }
         }
         for t in &obs.tops {
-            draw_line(t.x + bx, t.y + by, t.x + t.w + bx, t.y + by, 2., RED);
+            if by + t.y >= eye.y {
+                draw_obscurer(t.x + bx, t.y + by, t.x + t.w + bx, t.y + by, eye, radius);
+            }
         }
         for b in &obs.bottoms {
-            draw_line(b.x + bx, b.y + by, b.x + b.w + bx, b.y + by, 2., YELLOW);
+            if by + b.y <= eye.y {
+                draw_obscurer(b.x + bx, b.y + by, b.x + b.w + bx, b.y + by, eye, radius);
+            }
         }
     }
+    draw_circle(eye.x, eye.y, 3.0, BLACK);
+    draw_rectangle_lines(
+        eye.x - radius,
+        eye.y - radius,
+        radius * 2.,
+        radius * 2.,
+        2.,
+        BLACK,
+    );
 }

@@ -20,6 +20,10 @@ impl IntRect {
             && self.x + self.w > other.x
             && self.y + self.h > other.y
     }
+
+    pub fn centre(&self) -> Vec2 {
+        vec2((self.x + self.w / 2) as f32, (self.y + self.h / 2) as f32)
+    }
 }
 
 fn offset_rect(rect: &IntRect, dx: i32, dy: i32) -> IntRect {

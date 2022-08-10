@@ -32,10 +32,11 @@ async fn main() {
     script_engine.call_entry_point("init");
 
     let LoadedMap { world_ref, .. } = map;
-    let mut _player_id = {
+    let (player_id, mut eye) = {
         let mut world = world_ref.borrow_mut();
 
         let player_rect = IntRect::new(50, 10, 10, 10);
+        let player_eye = player_rect.centre();
         let player = Actor::new(&player_rect);
         let controller = Controller::new();
         let player_id = world.spawn((player_rect, player, controller));
@@ -44,7 +45,7 @@ async fn main() {
         let thing = Actor::new(&thing_rect);
         world.spawn((thing_rect, thing));
 
-        player_id
+        (player_id, player_eye)
     };
 
     compute_obscurers(&mut world_ref.borrow_mut());
@@ -62,18 +63,23 @@ async fn main() {
         let new_triggers = Controller::update(&world);
         Actor::update(&world);
 
-        /*
         if let Ok(rect) = world.get::<&IntRect>(player_id) {
-            set_camera(&Camera2D {
+            *eye = *rect.centre();
+            /* set_camera(&Camera2D {
                 zoom: (vec2(0.02, -0.02)),
                 target: vec2((rect.x + rect.w / 2) as f32, (rect.y + rect.h / 2) as f32),
                 ..Default::default()
-            });
+            }); */
         }
-        */
 
         draw(&world);
-        draw_visibility(&world);
+        let r = eye
+            .x
+            .max(RENDER_W as f32 - eye.x)
+            .max(eye.y)
+            .max(RENDER_H as f32 - eye.y)
+            + 1.;
+        draw_visibility(&world, eye, r);
         drop(world);
 
         for t in new_triggers {
