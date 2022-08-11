@@ -363,7 +363,6 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
             move_actor(&mut *actor, &mut *rect, 0.0, vy.signum() as f32, &world);
         }
     }
-    let body = world.get::<&mut TileBody>(index).unwrap();
 }
 
 fn check_player_grounded(player_rect: &IntRect, world: &World) -> bool {

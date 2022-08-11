@@ -26,13 +26,6 @@ struct Bottom {
     w: f32,
 }
 
-enum Obscurer {
-    L(Left),
-    R(Right),
-    T(Top),
-    B(Bottom),
-}
-
 struct Obscurers {
     lefts: Vec<Left>,
     rights: Vec<Right>,
