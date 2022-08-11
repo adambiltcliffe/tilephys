@@ -136,8 +136,8 @@ fn draw_obscurer(x1: f32, y1: f32, x2: f32, y2: f32, eye: Vec2, radius: f32) {
     let p2 = vec2(x2, y2);
     let p1s = p1 + extend(p1 - eye, radius);
     let p2s = p2 + extend(p2 - eye, radius);
-    draw_triangle(p1, p2, p1s, PINK);
-    draw_triangle(p2, p1s, p2s, PINK);
+    draw_triangle(p1, p2, p1s, BLACK);
+    draw_triangle(p2, p1s, p2s, BLACK);
 }
 
 pub fn draw_visibility(target: &RenderTarget, world: &World, eye: Vec2, radius: f32) {
@@ -147,7 +147,7 @@ pub fn draw_visibility(target: &RenderTarget, world: &World, eye: Vec2, radius: 
         render_target: Some(*target),
         ..Default::default()
     });
-    clear_background(BLACK);
+    clear_background(WHITE);
     for (_, (body, obs)) in world.query::<(&TileBody, &Obscurers)>().iter() {
         let bx = body.x as f32;
         let bw = (body.width * body.size) as f32;
@@ -180,13 +180,13 @@ pub fn draw_visibility(target: &RenderTarget, world: &World, eye: Vec2, radius: 
             }
         }
     }
-    draw_circle(eye.x, eye.y, 3.0, BLACK);
+    draw_circle(eye.x, eye.y, 3.0, PINK);
     draw_rectangle_lines(
         eye.x - radius,
         eye.y - radius,
         radius * 2.,
         radius * 2.,
         2.,
-        BLACK,
+        PINK,
     );
 }
