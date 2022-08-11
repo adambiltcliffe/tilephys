@@ -58,10 +58,12 @@ impl Renderer {
     }
 
     pub fn draw(&self, world: &mut hecs::World, eye: Vec2) {
+        // draw the basic graphics
         gl_use_default_material();
         set_camera(&get_screen_camera(self.width as f32, self.height as f32));
         draw(world);
 
+        // draw black shapes from each obscurer into an offscreen texture
         set_camera(&get_camera_for_target(&self.render_target));
         let r = eye
             .x
@@ -71,6 +73,7 @@ impl Renderer {
             + 1.;
         draw_visibility(&world, eye, r);
 
+        // draw the visibility texture translucently over the main texture
         set_camera(&get_screen_camera(self.width as f32, self.height as f32));
         gl_use_material(self.material);
         draw_texture_ex(
@@ -83,7 +86,6 @@ impl Renderer {
                 ..Default::default()
             },
         );
-        gl_use_default_material();
     }
 }
 
