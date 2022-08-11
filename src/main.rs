@@ -10,15 +10,15 @@ mod physics;
 mod script;
 mod visibility;
 
-const RENDER_W: i32 = 400;
-const RENDER_H: i32 = 400;
+const RENDER_W: u32 = 400;
+const RENDER_H: u32 = 400;
 
 fn window_conf() -> Conf {
     Conf {
         window_title: "Platform tile physics test".to_owned(),
         fullscreen: false,
-        window_width: RENDER_W,
-        window_height: RENDER_H,
+        window_width: RENDER_W as i32,
+        window_height: RENDER_H as i32,
         ..Default::default()
     }
 }
@@ -56,6 +56,26 @@ async fn main() {
         ..Default::default()
     });
 
+    let vis_render_target = render_target(RENDER_W, RENDER_H);
+    use miniquad::graphics::{BlendFactor, BlendState, BlendValue, Equation};
+    let bs = BlendState::new(
+        Equation::Add,
+        BlendFactor::Value(BlendValue::SourceAlpha),
+        BlendFactor::OneMinusValue(BlendValue::SourceAlpha),
+    );
+    let material = load_material(
+        VERTEX_SHADER,
+        FRAGMENT_SHADER,
+        MaterialParams {
+            pipeline_params: PipelineParams {
+                color_blend: Some(bs),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
     loop {
         let world = world_ref.borrow_mut();
         ConstantMotion::apply(&world);
@@ -65,13 +85,14 @@ async fn main() {
 
         if let Ok(rect) = world.get::<&IntRect>(player_id) {
             *eye = *rect.centre();
-            /* set_camera(&Camera2D {
-                zoom: (vec2(0.02, -0.02)),
-                target: vec2((rect.x + rect.w / 2) as f32, (rect.y + rect.h / 2) as f32),
-                ..Default::default()
-            }); */
         }
-
+        set_camera(&Camera2D {
+            zoom: (vec2(2. / RENDER_W as f32, -2. / RENDER_H as f32)),
+            // to follow player, replace next line with "target: eye"
+            // visibility drawing may break if you do
+            target: vec2(RENDER_W as f32 / 2., RENDER_H as f32 / 2.),
+            ..Default::default()
+        });
         draw(&world);
         let r = eye
             .x
@@ -79,7 +100,28 @@ async fn main() {
             .max(eye.y)
             .max(RENDER_H as f32 - eye.y)
             + 1.;
-        draw_visibility(&world, eye, r);
+        draw_visibility(&vis_render_target, &world, eye, r);
+
+        // code duplicated from above, move into function when stable
+        set_camera(&Camera2D {
+            zoom: (vec2(2. / RENDER_W as f32, -2. / RENDER_H as f32)),
+            // to follow player, replace next line with "target: eye"
+            // visibility drawing may break if you do
+            target: vec2(RENDER_W as f32 / 2., RENDER_H as f32 / 2.),
+            ..Default::default()
+        });
+        gl_use_material(material);
+        draw_texture_ex(
+            vis_render_target.texture,
+            0.,
+            0.,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(RENDER_W as f32, RENDER_H as f32)),
+                ..Default::default()
+            },
+        );
+        gl_use_default_material();
         drop(world);
 
         for t in new_triggers {
@@ -141,3 +183,31 @@ fn draw(world: &World) {
         );
     }
 }
+
+const FRAGMENT_SHADER: &'static str = r#"#version 100
+precision lowp float;
+varying vec4 color;
+varying vec2 uv;
+
+uniform sampler2D Texture;
+
+void main() {
+    vec3 res = texture2D(Texture, uv).rgb * color.rgb;
+    gl_FragColor = vec4(res, 0.5);
+}
+"#;
+
+const VERTEX_SHADER: &'static str = "#version 100
+attribute vec3 position;
+attribute vec2 texcoord;
+attribute vec4 color0;
+varying lowp vec2 uv;
+varying lowp vec4 color;
+uniform mat4 Model;
+uniform mat4 Projection;
+void main() {
+    gl_Position = Projection * Model * vec4(position, 1);
+    color = color0 / 255.0;
+    uv = texcoord;
+}
+";
