@@ -140,13 +140,7 @@ fn draw_obscurer(x1: f32, y1: f32, x2: f32, y2: f32, eye: Vec2, radius: f32) {
     draw_triangle(p2, p1s, p2s, BLACK);
 }
 
-pub fn draw_visibility(target: &RenderTarget, world: &World, eye: Vec2, radius: f32) {
-    set_camera(&Camera2D {
-        zoom: vec2(2.0 / target.texture.width(), 2. / target.texture.height()),
-        target: vec2(target.texture.width() / 2., target.texture.height() / 2.),
-        render_target: Some(*target),
-        ..Default::default()
-    });
+pub fn draw_visibility(world: &World, eye: Vec2, radius: f32) {
     clear_background(WHITE);
     for (_, (body, obs)) in world.query::<(&TileBody, &Obscurers)>().iter() {
         let bx = body.x as f32;
