@@ -141,7 +141,6 @@ fn draw_obscurer(x1: f32, y1: f32, x2: f32, y2: f32, eye: Vec2, radius: f32) {
 }
 
 pub fn draw_visibility(world: &World, eye: Vec2, radius: f32) {
-    clear_background(WHITE);
     for (_, (body, obs)) in world.query::<(&TileBody, &Obscurers)>().iter() {
         let bx = body.x as f32;
         let bw = (body.width * body.size) as f32;

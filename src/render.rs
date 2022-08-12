@@ -24,9 +24,10 @@ fn get_camera_for_target(target: &RenderTarget) -> Camera2D {
 pub struct Renderer {
     width: u32,
     height: u32,
-    // eventually, should not be pub
-    render_target: RenderTarget,
-    material: Material,
+    render_targets: [RenderTarget; 2],
+    jfa_init_material: Material,
+    jfa_step_material: Material,
+    jfa_final_material: Material,
 }
 
 impl Renderer {
@@ -37,9 +38,25 @@ impl Renderer {
             BlendFactor::Value(BlendValue::SourceAlpha),
             BlendFactor::OneMinusValue(BlendValue::SourceAlpha),
         );
-        let material = load_material(
+        let jfa_init_material = load_material(
             VERTEX_SHADER,
-            FRAGMENT_SHADER,
+            JFA_INIT_FRAGMENT_SHADER,
+            MaterialParams {
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        let jfa_step_material = load_material(
+            VERTEX_SHADER,
+            JFA_STEP_FRAGMENT_SHADER,
+            MaterialParams {
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        let jfa_final_material = load_material(
+            VERTEX_SHADER,
+            JFA_FINAL_FRAGMENT_SHADER,
             MaterialParams {
                 pipeline_params: PipelineParams {
                     color_blend: Some(bs),
@@ -52,8 +69,10 @@ impl Renderer {
         Self {
             width,
             height,
-            render_target: render_target(width, height),
-            material,
+            render_targets: [render_target(width, height), render_target(width, height)],
+            jfa_init_material,
+            jfa_step_material,
+            jfa_final_material,
         }
     }
 
@@ -63,8 +82,13 @@ impl Renderer {
         set_camera(&get_screen_camera(self.width as f32, self.height as f32));
         draw(world);
 
+        // initialise the offscreen texture for jump flood algorithm
+        gl_use_material(self.jfa_init_material);
+        set_camera(&get_camera_for_target(&self.render_targets[0]));
+        draw_rectangle(0., 0., self.width as f32, self.height as f32, PINK);
+
         // draw black shapes from each obscurer into an offscreen texture
-        set_camera(&get_camera_for_target(&self.render_target));
+        gl_use_default_material();
         let r = eye
             .x
             .max(self.width as f32 - eye.x)
@@ -73,11 +97,27 @@ impl Renderer {
             + 1.;
         draw_visibility(&world, eye, r);
 
-        // draw the visibility texture translucently over the main texture
-        set_camera(&get_screen_camera(self.width as f32, self.height as f32));
-        gl_use_material(self.material);
+        // do the shader pass to process the visibility texture
+        gl_use_material(self.jfa_step_material);
+        set_camera(&get_camera_for_target(&self.render_targets[1]));
+        // we don't use the actual colour but we use it to encode some other info
+        let c = Color::new(2.0 / self.width as f32, 2.0 / self.height as f32, 0.0, 0.0);
         draw_texture_ex(
-            self.render_target.texture,
+            self.render_targets[0].texture,
+            0.,
+            0.,
+            c,
+            DrawTextureParams {
+                dest_size: Some(vec2(self.width as f32, self.height as f32)),
+                ..Default::default()
+            },
+        );
+
+        // draw the visibility texture over the main texture
+        set_camera(&get_screen_camera(self.width as f32, self.height as f32));
+        gl_use_material(self.jfa_final_material);
+        draw_texture_ex(
+            self.render_targets[1].texture,
             0.,
             0.,
             WHITE,
@@ -89,7 +129,7 @@ impl Renderer {
     }
 }
 
-const FRAGMENT_SHADER: &'static str = r#"#version 100
+/*const FRAGMENT_SHADER: &'static str = r#"#version 100
 precision lowp float;
 varying vec4 color;
 varying vec2 uv;
@@ -99,6 +139,55 @@ uniform sampler2D Texture;
 void main() {
     vec3 res = texture2D(Texture, uv).rgb * color.rgb;
     gl_FragColor = vec4(res, 0.5);
+}
+"#;*/
+
+const JFA_INIT_FRAGMENT_SHADER: &'static str = r#"#version 100
+precision lowp float;
+varying vec4 color;
+varying vec2 uv;
+
+uniform sampler2D Texture;
+
+void main() {
+    gl_FragColor = vec4(uv.x, uv.y, 0.0, 0.0);
+}
+"#;
+
+const JFA_STEP_FRAGMENT_SHADER: &'static str = r#"#version 100
+precision lowp float;
+varying vec4 color;
+varying vec2 uv;
+
+uniform sampler2D Texture;
+
+void main() {
+    vec4 res = texture2D(Texture, uv).rgba;
+    vec2 size = vec2(textureSize(Texture, 0));
+    for (int dx = -3; dx < 4; dx += 1) {
+        for (int dy = -3; dy < 4; dy += 1) {
+            vec2 newFragCoord = gl_FragCoord.xy + vec2(float(dx), float(dy));
+            vec2 newuv = newFragCoord / size;
+            if (texture2D(Texture, newuv).a == 0.0) {
+                res.a = 0.0;
+            }
+        }
+    }
+    gl_FragColor = res;
+}
+"#;
+
+const JFA_FINAL_FRAGMENT_SHADER: &'static str = r#"#version 100
+precision lowp float;
+varying vec4 color;
+varying vec2 uv;
+
+uniform sampler2D Texture;
+
+void main() {
+    // remove the 0.5 on next line once we've got it working
+    float level = texture2D(Texture, uv).a * 0.5;
+    gl_FragColor = vec4(0.0, 0.0, 0.0, level);
 }
 "#;
 
