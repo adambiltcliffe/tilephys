@@ -155,6 +155,9 @@ void main() {
 }
 "#;
 
+// This was meant to be done in multiple passes using the jump flood algorithm
+// After spending a day on it I couldn't work out why my JFA implementation
+// wasn't working so for now it uses a O(n^2) brute-force implementation instead
 const JFA_STEP_FRAGMENT_SHADER: &'static str = r#"#version 100
 precision lowp float;
 varying vec4 color;
@@ -170,10 +173,11 @@ void main() {
         for (int dy = -r; dy < r + 1; dy += 1) {
             vec2 offs = vec2(float(dx), float(dy));
             if (length(offs) <= color.r) {
+                float d = 1.0 - (color.r - length(offs)) / color.r;
                 vec2 newFragCoord = gl_FragCoord.xy + offs;
                 vec2 newuv = newFragCoord / size;
                 if (texture2D(Texture, newuv).a == 0.0) {
-                    res.a = 0.0;
+                    res.a = min(res.a, d);
                 }
             }
         }
@@ -191,7 +195,7 @@ uniform sampler2D Texture;
 
 void main() {
     // remove the 0.5 on next line once we've got it working
-    float level = texture2D(Texture, uv).a * 0.5;
+    float level = texture2D(Texture, uv).a;
     gl_FragColor = vec4(0.0, 0.0, 0.0, level);
 }
 "#;
