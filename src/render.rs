@@ -47,7 +47,7 @@ impl Renderer {
         )
         .unwrap();
         let jfa_step_material = load_material(
-            VERTEX_SHADER,
+            VERTEX_SHADER_PASS_COLOR,
             JFA_STEP_FRAGMENT_SHADER,
             MaterialParams {
                 ..Default::default()
@@ -101,7 +101,8 @@ impl Renderer {
         gl_use_material(self.jfa_step_material);
         set_camera(&get_camera_for_target(&self.render_targets[1]));
         // we don't use the actual colour but we use it to encode some other info
-        let c = Color::new(2.0 / self.width as f32, 2.0 / self.height as f32, 0.0, 0.0);
+        // easier than setting up custom shader inputs!
+        let c = Color::new(8.0 / 255.0, 0.0, 0.0, 0.0);
         draw_texture_ex(
             self.render_targets[0].texture,
             0.,
@@ -162,14 +163,18 @@ varying vec2 uv;
 uniform sampler2D Texture;
 
 void main() {
+    int r = int(color.r);
     vec4 res = texture2D(Texture, uv).rgba;
     vec2 size = vec2(textureSize(Texture, 0));
-    for (int dx = -3; dx < 4; dx += 1) {
-        for (int dy = -3; dy < 4; dy += 1) {
-            vec2 newFragCoord = gl_FragCoord.xy + vec2(float(dx), float(dy));
-            vec2 newuv = newFragCoord / size;
-            if (texture2D(Texture, newuv).a == 0.0) {
-                res.a = 0.0;
+    for (int dx = -r; dx < r + 1; dx += 1) {
+        for (int dy = -r; dy < r + 1; dy += 1) {
+            vec2 offs = vec2(float(dx), float(dy));
+            if (length(offs) <= color.r) {
+                vec2 newFragCoord = gl_FragCoord.xy + offs;
+                vec2 newuv = newFragCoord / size;
+                if (texture2D(Texture, newuv).a == 0.0) {
+                    res.a = 0.0;
+                }
             }
         }
     }
@@ -202,6 +207,21 @@ uniform mat4 Projection;
 void main() {
     gl_Position = Projection * Model * vec4(position, 1);
     color = color0 / 255.0;
+    uv = texcoord;
+}
+";
+
+const VERTEX_SHADER_PASS_COLOR: &'static str = "#version 100
+attribute vec3 position;
+attribute vec2 texcoord;
+attribute vec4 color0;
+varying lowp vec2 uv;
+varying lowp vec4 color;
+uniform mat4 Model;
+uniform mat4 Projection;
+void main() {
+    gl_Position = Projection * Model * vec4(position, 1);
+    color = color0;
     uv = texcoord;
 }
 ";

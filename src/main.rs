@@ -73,6 +73,6 @@ async fn main() {
             script_engine.call_entry_point(&format!("{}_enter", t));
         }
 
-        next_frame().await
+        next_frame().await;
     }
 }
