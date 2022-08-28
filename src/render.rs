@@ -2,6 +2,8 @@ use crate::draw::draw;
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
 
+const WALL_VISION_DEPTH: f32 = 8.5;
+
 enum Origin {
     TopLeft,
     BottomLeft,
@@ -124,7 +126,7 @@ impl Renderer {
         ));
         // we don't use the actual colour but we use it to encode some other info
         // easier than setting up custom shader inputs!
-        let c = Color::new(8.0 / 255.0, 0.0, 0.0, 0.0);
+        let c = Color::new(8.0 / 128.0, 0.0, 0.0, 0.0);
         draw_texture_ex(
             self.render_targets[0].texture,
             0.,
@@ -137,17 +139,18 @@ impl Renderer {
         );
 
         // draw the visibility texture over the main texture
+        gl_use_material(self.jfa_final_material);
         set_camera(&get_screen_camera(
             self.width as f32,
             self.height as f32,
             Origin::BottomLeft,
         ));
-        gl_use_material(self.jfa_final_material);
+        let c = Color::new(WALL_VISION_DEPTH / 128.0, 0.0, 0.0, 0.0);
         draw_texture_ex(
             self.render_targets[1].texture,
             0.,
             0.,
-            WHITE,
+            c,
             DrawTextureParams {
                 dest_size: Some(vec2(self.width as f32, self.height as f32)),
                 ..Default::default()
@@ -189,9 +192,8 @@ void main() {
     float current_dist;
     current_pos = unpack(texture2D(Texture, uv));
     current_dist = length(gl_FragCoord.xy - current_pos);
-    //int r = int(color.r * 256.0);
+    //int r = int(color.r * 128.0);
     int r = 1;
-    /*
     vec2 size = vec2(textureSize(Texture, 0));
     //for (int dx = -1; dx <= 1; dx += 1) {
     for (int dx = -10; dx <= 11; dx += 1) {
@@ -206,7 +208,6 @@ void main() {
             }
         }
     }
-    */
     gl_FragColor = pack(current_pos);
 }
 "#;
@@ -220,12 +221,14 @@ vec2 unpack(vec4 t) {
     return vec2(round(t.r * 128.0 + round(t.b * 128.0) * 128.0), round(t.g * 128.0 + round(t.a * 128.0) * 128.0)) + 0.5;
 }
 void main() {
-    float r = color.r * 256.0;
+    float r = color.r * 128.0;
     float len = length(gl_FragCoord.xy - unpack(texture2D(Texture, uv)));
-    if (len == 0.0) {
-        gl_FragColor = vec4(0.0, 1.0, 0.0, 0.5);
+    if (len <= r - 2.0) {
+        gl_FragColor = vec4(0.0);
+    } else if (len <= r) {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0 + (len - r) / 2.0);
     } else {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 0.5);
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
 }
 "#;
