@@ -2,20 +2,32 @@ use crate::draw::draw;
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
 
-fn get_screen_camera(width: f32, height: f32) -> Camera2D {
+enum Origin {
+    TopLeft,
+    BottomLeft,
+}
+
+fn zoom_coeff(o: Origin) -> f32 {
+    match o {
+        Origin::TopLeft => -2.,
+        Origin::BottomLeft => 2.0,
+    }
+}
+
+fn get_screen_camera(width: f32, height: f32, o: Origin) -> Camera2D {
     Camera2D {
-        zoom: (vec2(2. / width, -2. / height)),
+        zoom: (vec2(2. / width, zoom_coeff(o) / height)),
         target: vec2(width / 2., height / 2.),
         ..Default::default()
     }
 }
 
-fn get_camera_for_target(target: &RenderTarget) -> Camera2D {
+fn get_camera_for_target(target: &RenderTarget, o: Origin) -> Camera2D {
     let width = target.texture.width() as f32;
     let height = target.texture.height() as f32;
     Camera2D {
         render_target: Some(*target),
-        zoom: (vec2(2. / width, 2. / height)),
+        zoom: (vec2(2. / width, zoom_coeff(o) / height)),
         target: vec2(width / 2., height / 2.),
         ..Default::default()
     }
@@ -79,13 +91,20 @@ impl Renderer {
     pub fn draw(&self, world: &mut hecs::World, eye: Vec2) {
         // draw the basic graphics
         gl_use_default_material();
-        set_camera(&get_screen_camera(self.width as f32, self.height as f32));
+        set_camera(&get_screen_camera(
+            self.width as f32,
+            self.height as f32,
+            Origin::TopLeft,
+        ));
         draw(world);
 
         // initialise the offscreen texture for jump flood algorithm
         gl_use_material(self.jfa_init_material);
-        set_camera(&get_camera_for_target(&self.render_targets[0]));
-        draw_rectangle(0., 0., self.width as f32, self.height as f32, PINK);
+        set_camera(&get_camera_for_target(
+            &self.render_targets[0],
+            Origin::TopLeft,
+        ));
+        draw_rectangle(0., 0., self.width as f32, self.height as f32, WHITE);
 
         // draw black shapes from each obscurer into an offscreen texture
         gl_use_default_material();
@@ -99,7 +118,10 @@ impl Renderer {
 
         // do the shader pass to process the visibility texture
         gl_use_material(self.jfa_step_material);
-        set_camera(&get_camera_for_target(&self.render_targets[1]));
+        set_camera(&get_camera_for_target(
+            &self.render_targets[1],
+            Origin::BottomLeft,
+        ));
         // we don't use the actual colour but we use it to encode some other info
         // easier than setting up custom shader inputs!
         let c = Color::new(8.0 / 255.0, 0.0, 0.0, 0.0);
@@ -115,7 +137,11 @@ impl Renderer {
         );
 
         // draw the visibility texture over the main texture
-        set_camera(&get_screen_camera(self.width as f32, self.height as f32));
+        set_camera(&get_screen_camera(
+            self.width as f32,
+            self.height as f32,
+            Origin::BottomLeft,
+        ));
         gl_use_material(self.jfa_final_material);
         draw_texture_ex(
             self.render_targets[1].texture,
@@ -130,59 +156,58 @@ impl Renderer {
     }
 }
 
-/*const FRAGMENT_SHADER: &'static str = r#"#version 100
-precision lowp float;
-varying vec4 color;
-varying vec2 uv;
-
-uniform sampler2D Texture;
-
-void main() {
-    vec3 res = texture2D(Texture, uv).rgb * color.rgb;
-    gl_FragColor = vec4(res, 0.5);
-}
-"#;*/
-
 const JFA_INIT_FRAGMENT_SHADER: &'static str = r#"#version 100
 precision lowp float;
 varying vec4 color;
 varying vec2 uv;
-
 uniform sampler2D Texture;
-
+vec4 pack(vec2 fc) {
+    vec2 quot;
+    vec2 frac = modf(floor(fc) / 128.0, quot);
+    return vec4(frac, quot / 128.0);
+}
 void main() {
-    gl_FragColor = vec4(uv.x, uv.y, 0.0, 0.0);
+        gl_FragColor = pack(gl_FragCoord.xy);
 }
 "#;
 
-// This was meant to be done in multiple passes using the jump flood algorithm
-// After spending a day on it I couldn't work out why my JFA implementation
-// wasn't working so for now it uses a O(n^2) brute-force implementation instead
 const JFA_STEP_FRAGMENT_SHADER: &'static str = r#"#version 100
 precision lowp float;
 varying vec4 color;
 varying vec2 uv;
-
 uniform sampler2D Texture;
-
+vec4 pack(vec2 fc) {
+    vec2 quot;
+    vec2 frac = modf(floor(fc) / 128.0, quot);
+    return vec4(frac, quot / 128.0);
+}
+vec2 unpack(vec4 t) {
+    return vec2(round(t.r * 128.0 + round(t.b * 128.0) * 128.0), round(t.g * 128.0 + round(t.a * 128.0) * 128.0)) + 0.5;
+}
 void main() {
-    int r = int(color.r);
-    vec4 res = texture2D(Texture, uv).rgba;
+    vec2 current_pos;
+    float current_dist;
+    current_pos = unpack(texture2D(Texture, uv));
+    current_dist = length(gl_FragCoord.xy - current_pos);
+    //int r = int(color.r * 256.0);
+    int r = 1;
+    /*
     vec2 size = vec2(textureSize(Texture, 0));
-    for (int dx = -r; dx < r + 1; dx += 1) {
-        for (int dy = -r; dy < r + 1; dy += 1) {
-            vec2 offs = vec2(float(dx), float(dy));
-            if (length(offs) <= color.r) {
-                float d = 1.0 - (color.r - length(offs)) / color.r;
-                vec2 newFragCoord = gl_FragCoord.xy + offs;
-                vec2 newuv = newFragCoord / size;
-                if (texture2D(Texture, newuv).a == 0.0) {
-                    res.a = min(res.a, d);
-                }
+    //for (int dx = -1; dx <= 1; dx += 1) {
+    for (int dx = -10; dx <= 11; dx += 1) {
+        //for (int dy = -1; dy <= 1; dy += 1) {
+        for (int dy = -10; dy <= 11; dy += 1) {
+            vec2 newFragCoord = gl_FragCoord.xy + vec2(float(dx * r), float(dy * r));
+            vec2 other_pos = unpack(texture2D(Texture, clamp(newFragCoord / size, 0.0, 1.0)));
+            float len = length(gl_FragCoord.xy - other_pos);
+            if (len < current_dist) {
+                current_dist = len;
+                current_pos = other_pos;
             }
         }
     }
-    gl_FragColor = res;
+    */
+    gl_FragColor = pack(current_pos);
 }
 "#;
 
@@ -190,13 +215,18 @@ const JFA_FINAL_FRAGMENT_SHADER: &'static str = r#"#version 100
 precision lowp float;
 varying vec4 color;
 varying vec2 uv;
-
 uniform sampler2D Texture;
-
+vec2 unpack(vec4 t) {
+    return vec2(round(t.r * 128.0 + round(t.b * 128.0) * 128.0), round(t.g * 128.0 + round(t.a * 128.0) * 128.0)) + 0.5;
+}
 void main() {
-    // remove the 0.5 on next line once we've got it working
-    float level = texture2D(Texture, uv).a;
-    gl_FragColor = vec4(0.0, 0.0, 0.0, level);
+    float r = color.r * 256.0;
+    float len = length(gl_FragCoord.xy - unpack(texture2D(Texture, uv)));
+    if (len == 0.0) {
+        gl_FragColor = vec4(0.0, 1.0, 0.0, 0.5);
+    } else {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 0.5);
+    }
 }
 "#;
 
