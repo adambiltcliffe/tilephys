@@ -12,7 +12,7 @@ enum Origin {
 fn zoom_coeff(o: Origin) -> f32 {
     match o {
         Origin::TopLeft => -2.,
-        Origin::BottomLeft => 2.0,
+        Origin::BottomLeft => 2.,
     }
 }
 
@@ -118,25 +118,34 @@ impl Renderer {
             + 1.;
         draw_visibility(&world, eye, r);
 
-        // do the shader pass to process the visibility texture
-        gl_use_material(self.jfa_step_material);
-        set_camera(&get_camera_for_target(
-            &self.render_targets[1],
-            Origin::BottomLeft,
-        ));
-        // we don't use the actual colour but we use it to encode some other info
-        // easier than setting up custom shader inputs!
-        let c = Color::new(8.0 / 128.0, 0.0, 0.0, 0.0);
-        draw_texture_ex(
-            self.render_targets[0].texture,
-            0.,
-            0.,
-            c,
-            DrawTextureParams {
-                dest_size: Some(vec2(self.width as f32, self.height as f32)),
-                ..Default::default()
-            },
-        );
+        let mut current_rt = 1;
+        let mut step_size = 2_u32.pow(WALL_VISION_DEPTH.log2().ceil() as u32);
+        loop {
+            // do the shader pass to process the visibility texture
+            gl_use_material(self.jfa_step_material);
+            set_camera(&get_camera_for_target(
+                &self.render_targets[current_rt],
+                Origin::BottomLeft,
+            ));
+            // we don't use the actual colour but we use it to encode some other info
+            // easier than setting up custom shader inputs!
+            let c = Color::new(step_size as f32 / 256.0, 0.0, 0.0, 0.0);
+            draw_texture_ex(
+                self.render_targets[1 - current_rt].texture,
+                0.,
+                0.,
+                c,
+                DrawTextureParams {
+                    dest_size: Some(vec2(self.width as f32, self.height as f32)),
+                    ..Default::default()
+                },
+            );
+            if step_size == 1 {
+                break;
+            }
+            step_size /= 2;
+            current_rt = 1 - current_rt;
+        }
 
         // draw the visibility texture over the main texture
         gl_use_material(self.jfa_final_material);
@@ -147,7 +156,7 @@ impl Renderer {
         ));
         let c = Color::new(WALL_VISION_DEPTH / 128.0, 0.0, 0.0, 0.0);
         draw_texture_ex(
-            self.render_targets[1].texture,
+            self.render_targets[1 - current_rt].texture,
             0.,
             0.,
             c,
@@ -192,13 +201,10 @@ void main() {
     float current_dist;
     current_pos = unpack(texture2D(Texture, uv));
     current_dist = length(gl_FragCoord.xy - current_pos);
-    //int r = int(color.r * 128.0);
-    int r = 1;
+    int r = int(color.r * 256.0);
     vec2 size = vec2(textureSize(Texture, 0));
-    //for (int dx = -1; dx <= 1; dx += 1) {
-    for (int dx = -10; dx <= 11; dx += 1) {
-        //for (int dy = -1; dy <= 1; dy += 1) {
-        for (int dy = -10; dy <= 11; dy += 1) {
+    for (int dx = -1; dx <= 1; dx += 1) {
+        for (int dy = -1; dy <= 1; dy += 1) {
             vec2 newFragCoord = gl_FragCoord.xy + vec2(float(dx * r), float(dy * r));
             vec2 other_pos = unpack(texture2D(Texture, clamp(newFragCoord / size, 0.0, 1.0)));
             float len = length(gl_FragCoord.xy - other_pos);
@@ -223,10 +229,8 @@ vec2 unpack(vec4 t) {
 void main() {
     float r = color.r * 128.0;
     float len = length(gl_FragCoord.xy - unpack(texture2D(Texture, uv)));
-    if (len <= r - 2.0) {
+    if (len <= r) {
         gl_FragColor = vec4(0.0);
-    } else if (len <= r) {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0 + (len - r) / 2.0);
     } else {
         gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
@@ -258,7 +262,7 @@ uniform mat4 Model;
 uniform mat4 Projection;
 void main() {
     gl_Position = Projection * Model * vec4(position, 1);
-    color = color0;
+    color = color0 / 255.0;
     uv = texcoord;
 }
 ";
