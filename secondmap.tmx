@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="4" nextobjectid="5">
+ <tileset firstgid="1" source="testset.tsx"/>
+ <layer id="1" name="movingblock" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjYBgFo4Ay0AzELRToXwDEC6njlFFAIgAApDkCSQ==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="2" name="mainlevel" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJyrZ2BgaADiRiBuAuJ6Anx0MAeI5wLxPCCeTwR/FIwCGHCjUH8yA+H0is7fAsRbgXgbFJOafi8C8SUgvgzFpIJ3QPweiD9AMalAg5GBQROItYBYm5EMA9AAAA+LJf8=
+  </chunk>
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjYBgFo4B84E6h/hQK9W9DwtuBeAeJ+i8j4StAfBWI5YBYHg0r4ND/AQl/BOJPQBwBxJFoOAqHfk1GCNYCYm0g1mEk0QMUAgAsSBC6
+  </chunk>
+  </data>
+ </layer>
+ <objectgroup id="3" name="Object Layer 1">
+  <object id="1" name="trigger1" x="64" y="56" width="24" height="32"/>
+  <object id="2" name="trigger2" x="192" y="56" width="16" height="40"/>
+  <object id="4" name="zigzag" x="136" y="64">
+   <polyline points="0,0 0,-56 16,-40 32,-56 48,-40 64,-56 80,-40"/>
+  </object>
+ </objectgroup>
+</map>

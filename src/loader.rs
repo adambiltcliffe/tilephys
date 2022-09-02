@@ -10,13 +10,13 @@ pub(crate) struct LoadedMap {
     pub paths: Rc<HashMap<String, Vec<(f32, f32)>>>,
 }
 
-pub(crate) fn load_map() -> LoadedMap {
+pub(crate) fn load_map(name: &str) -> LoadedMap {
     let mut world: World = World::new();
     let mut body_ids: HashMap<String, Entity> = HashMap::new();
     let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
 
     let mut loader = tiled::Loader::new();
-    let map = loader.load_tmx_map("testmap.tmx").unwrap();
+    let map = loader.load_tmx_map(name).unwrap();
     for layer in map.layers() {
         match layer.layer_type() {
             tiled::LayerType::TileLayer(tiled::TileLayer::Infinite(data)) => {

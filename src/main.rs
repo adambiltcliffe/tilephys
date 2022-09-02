@@ -27,17 +27,17 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf())]
 async fn main() {
-    let map = load_map();
+    let map = load_map("secondmap.tmx");
 
     let mut script_engine = ScriptEngine::new(&map);
-    script_engine.load_file("testmap.rhai");
+    script_engine.load_file("secondmap.rhai");
     script_engine.call_entry_point("init");
 
     let LoadedMap { world_ref, .. } = map;
     let (player_id, mut eye) = {
         let mut world = world_ref.borrow_mut();
 
-        let player_rect = IntRect::new(50, 10, 10, 10);
+        let player_rect = IntRect::new(50, 30, 10, 10);
         let player_eye = player_rect.centre();
         let player = Actor::new(&player_rect);
         let controller = Controller::new();
