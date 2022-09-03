@@ -17,14 +17,6 @@ fn zoom_coeff(o: Origin) -> f32 {
     }
 }
 
-fn get_screen_camera(width: f32, height: f32, camera: Vec2, o: Origin) -> Camera2D {
-    Camera2D {
-        zoom: (vec2(2. / width, zoom_coeff(o) / height)),
-        target: camera,
-        ..Default::default()
-    }
-}
-
 fn get_camera_for_target(target: &RenderTarget, camera: Vec2, o: Origin) -> Camera2D {
     let width = target.texture.width() as f32;
     let height = target.texture.height() as f32;
@@ -186,16 +178,17 @@ impl Renderer {
 
         // finally draw to the screen
         gl_use_default_material();
-        set_camera(&get_screen_camera(
-            self.final_width as f32,
-            self.final_height as f32,
-            vec2(self.final_width as f32 / 2., self.final_height as f32 / 2.),
-            Origin::BottomLeft,
-        ));
+        let sw = screen_width() as f32;
+        let sh = screen_height() as f32;
+        set_camera(&Camera2D {
+            zoom: (vec2(2. / sw, 2. / sh)),
+            target: vec2(sw / 2., sh / 2.),
+            ..Default::default()
+        });
         draw_texture_ex(
             self.draw_target.texture,
-            0.,
-            0.,
+            ((sw - self.final_width as f32) / 2.).floor(),
+            ((sh - self.final_height as f32) / 2.).floor(),
             WHITE,
             DrawTextureParams {
                 source: Some(Rect::new(
