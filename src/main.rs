@@ -12,8 +12,8 @@ mod render;
 mod script;
 mod visibility;
 
-const RENDER_W: u32 = 400;
-const RENDER_H: u32 = 400;
+const RENDER_W: u32 = 320;
+const RENDER_H: u32 = 200;
 
 fn window_conf() -> Conf {
     Conf {
@@ -54,7 +54,7 @@ async fn main() {
 
     let renderer = Renderer::new(RENDER_W, RENDER_H);
 
-    let mut camera_pos = vec2(140., 220.);
+    let mut camera_pos = vec2(140., 120.);
 
     loop {
         let mut world = world_ref.borrow_mut();

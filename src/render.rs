@@ -79,12 +79,14 @@ impl Renderer {
             },
         )
         .unwrap();
+        let draw_target = render_target(width, height);
+        draw_target.texture.set_filter(FilterMode::Nearest);
         Self {
             width,
             height,
             final_width,
             final_height,
-            draw_target: render_target(width, height),
+            draw_target,
             vis_targets: [render_target(width, height), render_target(width, height)],
             jfa_init_material,
             jfa_step_material,
@@ -185,10 +187,16 @@ impl Renderer {
             target: vec2(sw / 2., sh / 2.),
             ..Default::default()
         });
+        let scale = (sw / self.final_width as f32)
+            .min(sh / self.final_height as f32)
+            .floor()
+            .max(1.);
+        let zoomed_width = self.final_width as f32 * scale;
+        let zoomed_height = self.final_height as f32 * scale;
         draw_texture_ex(
             self.draw_target.texture,
-            ((sw - self.final_width as f32) / 2.).floor(),
-            ((sh - self.final_height as f32) / 2.).floor(),
+            ((sw - zoomed_width) / 2.).floor(),
+            ((sh - zoomed_height as f32) / 2.).floor(),
             WHITE,
             DrawTextureParams {
                 source: Some(Rect::new(
@@ -197,6 +205,7 @@ impl Renderer {
                     self.final_width as f32,
                     self.final_height as f32,
                 )),
+                dest_size: Some(vec2(zoomed_width, zoomed_height)),
                 ..Default::default()
             },
         )
