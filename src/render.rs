@@ -18,8 +18,8 @@ fn zoom_coeff(o: Origin) -> f32 {
 }
 
 fn get_camera_for_target(target: &RenderTarget, camera: Vec2, o: Origin) -> Camera2D {
-    let width = target.texture.width() as f32;
-    let height = target.texture.height() as f32;
+    let width = target.texture.width();
+    let height = target.texture.height();
     Camera2D {
         render_target: Some(*target),
         zoom: (vec2(2. / width, zoom_coeff(o) / height)),
@@ -29,10 +29,10 @@ fn get_camera_for_target(target: &RenderTarget, camera: Vec2, o: Origin) -> Came
 }
 
 pub struct Renderer {
-    width: u32,
-    height: u32,
-    final_width: u32,
-    final_height: u32,
+    width: f32,
+    height: f32,
+    final_width: f32,
+    final_height: f32,
     draw_target: RenderTarget,
     vis_targets: [RenderTarget; 2],
     jfa_init_material: Material,
@@ -82,10 +82,10 @@ impl Renderer {
         let draw_target = render_target(width, height);
         draw_target.texture.set_filter(FilterMode::Nearest);
         Self {
-            width,
-            height,
-            final_width,
-            final_height,
+            width: width as f32,
+            height: height as f32,
+            final_width: final_width as f32,
+            final_height: final_height as f32,
             draw_target,
             vis_targets: [render_target(width, height), render_target(width, height)],
             jfa_init_material,
@@ -112,21 +112,17 @@ impl Renderer {
             Origin::TopLeft,
         ));
         draw_rectangle(
-            cam.x - self.width as f32 / 2.,
-            cam.y - self.height as f32 / 2.,
-            self.width as f32,
-            self.height as f32,
+            cam.x - self.width / 2.,
+            cam.y - self.height / 2.,
+            self.width,
+            self.height,
             WHITE,
         );
 
         // draw black shapes from each obscurer into an offscreen texture
         gl_use_default_material();
         let e = eye - cam;
-        let r =
-            e.x.max(self.width as f32 - e.x)
-                .max(e.y)
-                .max(self.height as f32 - e.y)
-                + 1.;
+        let r = e.x.max(self.width - e.x).max(e.y).max(self.height - e.y) + 1.;
         draw_visibility(&world, eye, r);
 
         let mut current_rt = 1;
@@ -136,7 +132,7 @@ impl Renderer {
             gl_use_material(self.jfa_step_material);
             set_camera(&get_camera_for_target(
                 &self.vis_targets[current_rt],
-                vec2(self.width as f32 / 2., self.height as f32 / 2.),
+                vec2(self.width / 2., self.height / 2.),
                 Origin::BottomLeft,
             ));
             // we don't use the actual colour but we use it to encode some other info
@@ -148,7 +144,7 @@ impl Renderer {
                 0.,
                 c,
                 DrawTextureParams {
-                    dest_size: Some(vec2(self.width as f32, self.height as f32)),
+                    dest_size: Some(vec2(self.width, self.height)),
                     ..Default::default()
                 },
             );
@@ -163,7 +159,7 @@ impl Renderer {
         gl_use_material(self.jfa_final_material);
         set_camera(&get_camera_for_target(
             &self.draw_target,
-            vec2(self.width as f32 / 2., self.height as f32 / 2.),
+            vec2(self.width / 2., self.height / 2.),
             Origin::BottomLeft,
         ));
         let c = Color::new(WALL_VISION_DEPTH / 128.0, 0.0, 0.0, 0.0);
@@ -173,37 +169,37 @@ impl Renderer {
             0.,
             c,
             DrawTextureParams {
-                dest_size: Some(vec2(self.width as f32, self.height as f32)),
+                dest_size: Some(vec2(self.width, self.height)),
                 ..Default::default()
             },
         );
 
         // finally draw to the screen
         gl_use_default_material();
-        let sw = screen_width() as f32;
-        let sh = screen_height() as f32;
+        let sw = screen_width();
+        let sh = screen_height();
         set_camera(&Camera2D {
             zoom: (vec2(2. / sw, 2. / sh)),
             target: vec2(sw / 2., sh / 2.),
             ..Default::default()
         });
-        let scale = (sw / self.final_width as f32)
-            .min(sh / self.final_height as f32)
+        let scale = (sw / self.final_width)
+            .min(sh / self.final_height)
             .floor()
             .max(1.);
-        let zoomed_width = self.final_width as f32 * scale;
-        let zoomed_height = self.final_height as f32 * scale;
+        let zoomed_width = self.final_width * scale;
+        let zoomed_height = self.final_height * scale;
         draw_texture_ex(
             self.draw_target.texture,
             ((sw - zoomed_width) / 2.).floor(),
-            ((sh - zoomed_height as f32) / 2.).floor(),
+            ((sh - zoomed_height) / 2.).floor(),
             WHITE,
             DrawTextureParams {
                 source: Some(Rect::new(
                     WALL_VISION_DEPTH.ceil(),
                     WALL_VISION_DEPTH.ceil(),
-                    self.final_width as f32,
-                    self.final_height as f32,
+                    self.final_width,
+                    self.final_height,
                 )),
                 dest_size: Some(vec2(zoomed_width, zoomed_height)),
                 ..Default::default()
@@ -212,7 +208,7 @@ impl Renderer {
     }
 }
 
-const JFA_INIT_FRAGMENT_SHADER: &'static str = r#"#version 100
+const JFA_INIT_FRAGMENT_SHADER: &str = r#"#version 100
 precision lowp float;
 varying vec4 color;
 varying vec2 uv;
@@ -227,7 +223,7 @@ void main() {
 }
 "#;
 
-const JFA_STEP_FRAGMENT_SHADER: &'static str = r#"#version 100
+const JFA_STEP_FRAGMENT_SHADER: &str = r#"#version 100
 precision lowp float;
 varying vec4 color;
 varying vec2 uv;
@@ -262,7 +258,7 @@ void main() {
 }
 "#;
 
-const JFA_FINAL_FRAGMENT_SHADER: &'static str = r#"#version 100
+const JFA_FINAL_FRAGMENT_SHADER: &str = r#"#version 100
 precision lowp float;
 varying vec4 color;
 varying vec2 uv;
@@ -281,7 +277,7 @@ void main() {
 }
 "#;
 
-const VERTEX_SHADER: &'static str = "#version 100
+const VERTEX_SHADER: &str = "#version 100
 attribute vec3 position;
 attribute vec2 texcoord;
 attribute vec4 color0;
@@ -296,7 +292,7 @@ void main() {
 }
 ";
 
-const VERTEX_SHADER_PASS_COLOR: &'static str = "#version 100
+const VERTEX_SHADER_PASS_COLOR: &str = "#version 100
 attribute vec3 position;
 attribute vec2 texcoord;
 attribute vec4 color0;
