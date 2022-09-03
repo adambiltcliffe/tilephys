@@ -39,14 +39,20 @@ fn get_camera_for_target(target: &RenderTarget, camera: Vec2, o: Origin) -> Came
 pub struct Renderer {
     width: u32,
     height: u32,
-    render_targets: [RenderTarget; 2],
+    final_width: u32,
+    final_height: u32,
+    draw_target: RenderTarget,
+    vis_targets: [RenderTarget; 2],
     jfa_init_material: Material,
     jfa_step_material: Material,
     jfa_final_material: Material,
 }
 
 impl Renderer {
-    pub fn new(width: u32, height: u32) -> Self {
+    pub fn new(final_width: u32, final_height: u32) -> Self {
+        let margin = WALL_VISION_DEPTH.ceil() as u32 * 2;
+        let width = final_width + margin;
+        let height = final_height + margin;
         use miniquad::graphics::{BlendFactor, BlendState, BlendValue, Equation};
         let bs = BlendState::new(
             Equation::Add,
@@ -84,7 +90,10 @@ impl Renderer {
         Self {
             width,
             height,
-            render_targets: [render_target(width, height), render_target(width, height)],
+            final_width,
+            final_height,
+            draw_target: render_target(width, height),
+            vis_targets: [render_target(width, height), render_target(width, height)],
             jfa_init_material,
             jfa_step_material,
             jfa_final_material,
@@ -94,9 +103,8 @@ impl Renderer {
     pub(crate) fn draw(&self, world: &mut hecs::World, eye: Vec2, cam: Vec2, tsi: &TilesetInfo) {
         // draw the basic graphics
         gl_use_default_material();
-        set_camera(&get_screen_camera(
-            self.width as f32,
-            self.height as f32,
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
             cam,
             Origin::TopLeft,
         ));
@@ -105,7 +113,7 @@ impl Renderer {
         // initialise the offscreen texture for jump flood algorithm
         gl_use_material(self.jfa_init_material);
         set_camera(&get_camera_for_target(
-            &self.render_targets[0],
+            &self.vis_targets[0],
             cam,
             Origin::TopLeft,
         ));
@@ -133,7 +141,7 @@ impl Renderer {
             // do the shader pass to process the visibility texture
             gl_use_material(self.jfa_step_material);
             set_camera(&get_camera_for_target(
-                &self.render_targets[current_rt],
+                &self.vis_targets[current_rt],
                 vec2(self.width as f32 / 2., self.height as f32 / 2.),
                 Origin::BottomLeft,
             ));
@@ -141,7 +149,7 @@ impl Renderer {
             // easier than setting up custom shader inputs!
             let c = Color::new(step_size as f32 / 256.0, 0.0, 0.0, 0.0);
             draw_texture_ex(
-                self.render_targets[1 - current_rt].texture,
+                self.vis_targets[1 - current_rt].texture,
                 0.,
                 0.,
                 c,
@@ -159,15 +167,14 @@ impl Renderer {
 
         // draw the visibility texture over the main texture
         gl_use_material(self.jfa_final_material);
-        set_camera(&get_screen_camera(
-            self.width as f32,
-            self.height as f32,
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
             vec2(self.width as f32 / 2., self.height as f32 / 2.),
             Origin::BottomLeft,
         ));
         let c = Color::new(WALL_VISION_DEPTH / 128.0, 0.0, 0.0, 0.0);
         draw_texture_ex(
-            self.render_targets[1 - current_rt].texture,
+            self.vis_targets[1 - current_rt].texture,
             0.,
             0.,
             c,
@@ -176,6 +183,30 @@ impl Renderer {
                 ..Default::default()
             },
         );
+
+        // finally draw to the screen
+        gl_use_default_material();
+        set_camera(&get_screen_camera(
+            self.final_width as f32,
+            self.final_height as f32,
+            vec2(self.final_width as f32 / 2., self.final_height as f32 / 2.),
+            Origin::BottomLeft,
+        ));
+        draw_texture_ex(
+            self.draw_target.texture,
+            0.,
+            0.,
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(
+                    WALL_VISION_DEPTH.ceil(),
+                    WALL_VISION_DEPTH.ceil(),
+                    self.final_width as f32,
+                    self.final_height as f32,
+                )),
+                ..Default::default()
+            },
+        )
     }
 }
 
