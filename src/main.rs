@@ -54,7 +54,7 @@ async fn main() {
 
     let renderer = Renderer::new(RENDER_W, RENDER_H);
 
-    let camera_pos = vec2(140., 220.);
+    let mut camera_pos = vec2(140., 220.);
 
     loop {
         let mut world = world_ref.borrow_mut();
@@ -73,6 +73,19 @@ async fn main() {
         for t in new_triggers {
             println!("entered new trigger zone {}", t);
             script_engine.call_entry_point(&format!("{}_enter", t));
+        }
+
+        if is_key_down(KeyCode::W) {
+            camera_pos.y -= 4.0;
+        }
+        if is_key_down(KeyCode::S) {
+            camera_pos.y += 4.0;
+        }
+        if is_key_down(KeyCode::A) {
+            camera_pos.x -= 4.0;
+        }
+        if is_key_down(KeyCode::D) {
+            camera_pos.x += 4.0;
         }
 
         next_frame().await;
