@@ -81,7 +81,6 @@ impl Renderer {
             },
         )
         .unwrap();
-        let margin = WALL_VISION_DEPTH.ceil() as u32 * 2;
         Self {
             width,
             height,
@@ -120,12 +119,12 @@ impl Renderer {
 
         // draw black shapes from each obscurer into an offscreen texture
         gl_use_default_material();
-        let r = eye
-            .x
-            .max(self.width as f32 - eye.x)
-            .max(eye.y)
-            .max(self.height as f32 - eye.y)
-            + 1.;
+        let e = eye - cam;
+        let r =
+            e.x.max(self.width as f32 - e.x)
+                .max(e.y)
+                .max(self.height as f32 - e.y)
+                + 1.;
         draw_visibility(&world, eye, r);
 
         let mut current_rt = 1;
