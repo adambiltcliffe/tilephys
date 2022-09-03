@@ -1,5 +1,6 @@
 use crate::physics::{IntRect, TileBody, TriggerZone};
 use hecs::{Entity, World};
+use macroquad::texture::{load_texture, Texture2D};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -13,14 +14,14 @@ pub(crate) struct LoadedMap {
 
 #[derive(Clone)]
 pub(crate) struct TilesetInfo {
-    pub source: String,
+    pub texture: Texture2D,
     pub tile_width: u32,
     pub tile_height: u32,
     pub count: u32,
     pub columns: u32,
 }
 
-pub(crate) fn load_map(name: &str) -> Result<LoadedMap, String> {
+pub(crate) async fn load_map(name: &str) -> Result<LoadedMap, String> {
     let mut world: World = World::new();
     let mut body_ids: HashMap<String, Entity> = HashMap::new();
     let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
@@ -32,15 +33,17 @@ pub(crate) fn load_map(name: &str) -> Result<LoadedMap, String> {
         return Err("map should contain only one tileset".to_owned());
     }
     let ts = &map.tilesets()[0];
-    let source = ts
-        .image
-        .as_ref()
-        .ok_or("tileset needs to contain a source filename")?
-        .source
-        .as_path()
-        .to_str()
-        .unwrap()
-        .to_owned();
+    let texture = load_texture(
+        ts.image
+            .as_ref()
+            .ok_or("tileset needs to contain a source filename")?
+            .source
+            .as_path()
+            .to_str()
+            .unwrap(),
+    )
+    .await
+    .unwrap();
     let tiled::Tileset {
         tile_width,
         tile_height,
@@ -49,7 +52,7 @@ pub(crate) fn load_map(name: &str) -> Result<LoadedMap, String> {
         ..
     } = **ts;
     let tileset_info = TilesetInfo {
-        source,
+        texture,
         tile_width,
         tile_height,
         count: tilecount,
@@ -92,7 +95,7 @@ pub(crate) fn load_map(name: &str) -> Result<LoadedMap, String> {
                     world.spawn((TileBody::new(
                         x0 * map.tile_width as i32,
                         y0 * map.tile_height as i32,
-                        map.tile_width as i32,
+                        tileset_info.tile_width as i32,
                         (x1 - x0) + 1,
                         data,
                         tiles,

@@ -1,32 +1,36 @@
+use crate::loader::TilesetInfo;
 use crate::physics::{Actor, Controller, IntRect, TileBody};
 use hecs::{Satisfies, World};
 use macroquad::prelude::*;
 
-pub fn draw(world: &mut World) {
+pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
     clear_background(SKYBLUE);
 
     let _delta = get_frame_time();
-    let (mx, my) = mouse_position();
-    let mouse_rect = IntRect::new(mx as i32 - 5, my as i32 - 5, 10, 10);
 
     for (_, chunk) in world.query::<&TileBody>().iter() {
         let mut tx = chunk.x;
         let mut ty = chunk.y;
         for ii in 0..(chunk.data.len()) {
             if chunk.data[ii] {
-                let c = if chunk.collide(&mouse_rect) {
-                    RED
-                } else {
-                    BLUE
-                };
-                draw_rectangle(
+                let sx = (chunk.tiles[ii] as u32 % tsi.columns) * tsi.tile_width;
+                let sy = (chunk.tiles[ii] as u32 / tsi.columns) * tsi.tile_height;
+                draw_texture_ex(
+                    tsi.texture,
                     tx as f32,
                     ty as f32,
-                    chunk.size as f32,
-                    chunk.size as f32,
-                    c,
+                    WHITE,
+                    DrawTextureParams {
+                        source: Some(Rect::new(
+                            sx as f32,
+                            sy as f32,
+                            chunk.size as f32,
+                            chunk.size as f32,
+                        )),
+                        ..Default::default()
+                    },
                 );
             }
             tx += chunk.size as i32;
@@ -36,8 +40,6 @@ pub fn draw(world: &mut World) {
             }
         }
     }
-
-    draw_rectangle(mx - 5., my - 5., 10., 10., ORANGE);
 
     for (_, (_, rect, ctrl)) in world
         .query::<(&Actor, &IntRect, Satisfies<&Controller>)>()

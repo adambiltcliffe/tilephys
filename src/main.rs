@@ -27,7 +27,7 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf())]
 async fn main() {
-    let map = load_map("secondmap.tmx").unwrap();
+    let map = load_map("secondmap.tmx").await.unwrap();
 
     let mut script_engine = ScriptEngine::new(&map);
     script_engine.load_file("secondmap.rhai");
@@ -65,7 +65,7 @@ async fn main() {
             *eye = *rect.centre();
         }
 
-        renderer.draw(&mut world, eye);
+        renderer.draw(&mut world, eye, &map.tileset_info);
         drop(world);
 
         for t in new_triggers {

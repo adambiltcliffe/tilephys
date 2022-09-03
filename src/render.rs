@@ -1,4 +1,5 @@
 use crate::draw::draw;
+use crate::loader::TilesetInfo;
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
 
@@ -90,7 +91,7 @@ impl Renderer {
         }
     }
 
-    pub fn draw(&self, world: &mut hecs::World, eye: Vec2) {
+    pub(crate) fn draw(&self, world: &mut hecs::World, eye: Vec2, tsi: &TilesetInfo) {
         // draw the basic graphics
         gl_use_default_material();
         set_camera(&get_screen_camera(
@@ -98,7 +99,7 @@ impl Renderer {
             self.height as f32,
             Origin::TopLeft,
         ));
-        draw(world);
+        draw(world, tsi);
 
         // initialise the offscreen texture for jump flood algorithm
         gl_use_material(self.jfa_init_material);
