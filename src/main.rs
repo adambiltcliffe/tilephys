@@ -54,6 +54,8 @@ async fn main() {
 
     let renderer = Renderer::new(RENDER_W, RENDER_H);
 
+    let camera_pos = vec2(140., 220.);
+
     loop {
         let mut world = world_ref.borrow_mut();
         ConstantMotion::apply(&world);
@@ -65,7 +67,7 @@ async fn main() {
             *eye = *rect.centre();
         }
 
-        renderer.draw(&mut world, eye, &map.tileset_info);
+        renderer.draw(&mut world, eye, camera_pos, &map.tileset_info);
         drop(world);
 
         for t in new_triggers {

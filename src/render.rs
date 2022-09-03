@@ -17,21 +17,21 @@ fn zoom_coeff(o: Origin) -> f32 {
     }
 }
 
-fn get_screen_camera(width: f32, height: f32, o: Origin) -> Camera2D {
+fn get_screen_camera(width: f32, height: f32, camera: Vec2, o: Origin) -> Camera2D {
     Camera2D {
         zoom: (vec2(2. / width, zoom_coeff(o) / height)),
-        target: vec2(width / 2., height / 2.),
+        target: camera,
         ..Default::default()
     }
 }
 
-fn get_camera_for_target(target: &RenderTarget, o: Origin) -> Camera2D {
+fn get_camera_for_target(target: &RenderTarget, camera: Vec2, o: Origin) -> Camera2D {
     let width = target.texture.width() as f32;
     let height = target.texture.height() as f32;
     Camera2D {
         render_target: Some(*target),
         zoom: (vec2(2. / width, zoom_coeff(o) / height)),
-        target: vec2(width / 2., height / 2.),
+        target: camera,
         ..Default::default()
     }
 }
@@ -81,6 +81,7 @@ impl Renderer {
             },
         )
         .unwrap();
+        let margin = WALL_VISION_DEPTH.ceil() as u32 * 2;
         Self {
             width,
             height,
@@ -91,12 +92,13 @@ impl Renderer {
         }
     }
 
-    pub(crate) fn draw(&self, world: &mut hecs::World, eye: Vec2, tsi: &TilesetInfo) {
+    pub(crate) fn draw(&self, world: &mut hecs::World, eye: Vec2, cam: Vec2, tsi: &TilesetInfo) {
         // draw the basic graphics
         gl_use_default_material();
         set_camera(&get_screen_camera(
             self.width as f32,
             self.height as f32,
+            cam,
             Origin::TopLeft,
         ));
         draw(world, tsi);
@@ -105,9 +107,16 @@ impl Renderer {
         gl_use_material(self.jfa_init_material);
         set_camera(&get_camera_for_target(
             &self.render_targets[0],
+            cam,
             Origin::TopLeft,
         ));
-        draw_rectangle(0., 0., self.width as f32, self.height as f32, WHITE);
+        draw_rectangle(
+            cam.x - self.width as f32 / 2.,
+            cam.y - self.height as f32 / 2.,
+            self.width as f32,
+            self.height as f32,
+            WHITE,
+        );
 
         // draw black shapes from each obscurer into an offscreen texture
         gl_use_default_material();
@@ -126,6 +135,7 @@ impl Renderer {
             gl_use_material(self.jfa_step_material);
             set_camera(&get_camera_for_target(
                 &self.render_targets[current_rt],
+                vec2(self.width as f32 / 2., self.height as f32 / 2.),
                 Origin::BottomLeft,
             ));
             // we don't use the actual colour but we use it to encode some other info
@@ -153,6 +163,7 @@ impl Renderer {
         set_camera(&get_screen_camera(
             self.width as f32,
             self.height as f32,
+            vec2(self.width as f32 / 2., self.height as f32 / 2.),
             Origin::BottomLeft,
         ));
         let c = Color::new(WALL_VISION_DEPTH / 128.0, 0.0, 0.0, 0.0);
