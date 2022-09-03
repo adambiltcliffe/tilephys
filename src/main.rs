@@ -27,7 +27,7 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf())]
 async fn main() {
-    let map = load_map("secondmap.tmx");
+    let map = load_map("secondmap.tmx").unwrap();
 
     let mut script_engine = ScriptEngine::new(&map);
     script_engine.load_file("secondmap.rhai");

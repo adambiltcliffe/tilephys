@@ -46,19 +46,21 @@ pub struct TileBody {
     pub width: i32,
     pub size: i32,
     pub data: Vec<bool>,
+    pub tiles: Vec<u16>,
     pub x: i32,
     pub y: i32,
     pub base_pos: Vec2,
 }
 
 impl TileBody {
-    pub fn new(x: i32, y: i32, size: i32, width: i32, data: Vec<bool>) -> Self {
+    pub fn new(x: i32, y: i32, size: i32, width: i32, data: Vec<bool>, tiles: Vec<u16>) -> Self {
         Self {
             x,
             y,
             size,
             width,
             data,
+            tiles,
             base_pos: vec2(x as f32, y as f32),
         }
     }
