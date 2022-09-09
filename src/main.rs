@@ -1,3 +1,4 @@
+use camera::PlayerCamera;
 use loader::{load_map, LoadedMap};
 use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, Controller, IntRect, PathMotion};
@@ -5,6 +6,7 @@ use render::Renderer;
 use script::ScriptEngine;
 use visibility::compute_obscurers;
 
+mod camera;
 mod draw;
 mod loader;
 mod physics;
@@ -34,27 +36,28 @@ async fn main() {
     script_engine.call_entry_point("init");
 
     let LoadedMap { world_ref, .. } = map;
-    let (player_id, mut eye) = {
+    let (player_id, mut eye, mut cam) = {
         let mut world = world_ref.borrow_mut();
 
         let player_rect = IntRect::new(50, 30, 10, 10);
         let player_eye = player_rect.centre();
         let player = Actor::new(&player_rect);
+        let camera_pos = player_rect.centre();
         let controller = Controller::new();
         let player_id = world.spawn((player_rect, player, controller));
+
+        world.spawn((PlayerCamera::new(camera_pos.y), camera_pos.clone()));
 
         let thing_rect = IntRect::new(200, 10, 6, 6);
         let thing = Actor::new(&thing_rect);
         world.spawn((thing_rect, thing));
 
-        (player_id, player_eye)
+        (player_id, player_eye, camera_pos)
     };
 
     compute_obscurers(&mut world_ref.borrow_mut());
 
     let renderer = Renderer::new(RENDER_W, RENDER_H);
-
-    let mut camera_pos = vec2(140., 120.);
 
     loop {
         let mut world = world_ref.borrow_mut();
@@ -64,28 +67,20 @@ async fn main() {
         Actor::update(&world);
 
         if let Ok(rect) = world.get::<&IntRect>(player_id) {
-            *eye = *rect.centre();
+            let player_pos = rect.centre();
+            *eye = *player_pos;
         }
 
-        renderer.draw(&mut world, eye, camera_pos, &map.tileset_info);
+        if let Some(camera_pos) = PlayerCamera::update_and_get(&world) {
+            *cam = *camera_pos;
+        }
+
+        renderer.draw(&mut world, eye, cam, &map.tileset_info);
         drop(world);
 
         for t in new_triggers {
             println!("entered new trigger zone {}", t);
             script_engine.call_entry_point(&format!("{}_enter", t));
-        }
-
-        if is_key_down(KeyCode::W) {
-            camera_pos.y -= 4.0;
-        }
-        if is_key_down(KeyCode::S) {
-            camera_pos.y += 4.0;
-        }
-        if is_key_down(KeyCode::A) {
-            camera_pos.x -= 4.0;
-        }
-        if is_key_down(KeyCode::D) {
-            camera_pos.x += 4.0;
         }
 
         next_frame().await;
