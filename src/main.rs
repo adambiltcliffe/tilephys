@@ -1,17 +1,21 @@
 use camera::PlayerCamera;
+use input::Input;
 use loader::{load_map, LoadedMap};
 use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, Controller, IntRect, PathMotion};
 use render::Renderer;
 use script::ScriptEngine;
+use timer::Timer;
 use visibility::compute_obscurers;
 
 mod camera;
 mod draw;
+mod input;
 mod loader;
 mod physics;
 mod render;
 mod script;
+mod timer;
 mod visibility;
 
 const RENDER_W: u32 = 320;
@@ -21,8 +25,8 @@ fn window_conf() -> Conf {
     Conf {
         window_title: "Platform tile physics test".to_owned(),
         fullscreen: false,
-        window_width: RENDER_W as i32,
-        window_height: RENDER_H as i32,
+        window_width: RENDER_W as i32 * 2,
+        window_height: RENDER_H as i32 * 2,
         ..Default::default()
     }
 }
@@ -58,30 +62,39 @@ async fn main() {
     compute_obscurers(&mut world_ref.borrow_mut());
 
     let renderer = Renderer::new(RENDER_W, RENDER_H);
+    let mut clock = Timer::new();
+    let mut input = Input::new();
 
     loop {
-        let mut world = world_ref.borrow_mut();
-        ConstantMotion::apply(&world);
-        PathMotion::apply(&world);
-        let new_triggers = Controller::update(&world);
-        Actor::update(&world);
+        input.update();
 
-        if let Ok(rect) = world.get::<&IntRect>(player_id) {
-            let player_pos = rect.centre();
-            *eye = *player_pos;
+        for _ in 0..clock.get_num_updates() {
+            let world = world_ref.borrow_mut();
+            ConstantMotion::apply(&world);
+            PathMotion::apply(&world);
+            let new_triggers = Controller::update(&world, &input);
+            Actor::update(&world);
+
+            if let Ok(rect) = world.get::<&IntRect>(player_id) {
+                let player_pos = rect.centre();
+                *eye = *player_pos;
+            }
+
+            if let Some(camera_pos) = PlayerCamera::update_and_get(&world) {
+                *cam = *camera_pos;
+            }
+
+            drop(world);
+
+            for t in new_triggers {
+                println!("entered new trigger zone {}", t);
+                script_engine.call_entry_point(&format!("{}_enter", t));
+            }
+
+            input.reset();
         }
 
-        if let Some(camera_pos) = PlayerCamera::update_and_get(&world) {
-            *cam = *camera_pos;
-        }
-
-        renderer.draw(&mut world, eye, cam, &map.tileset_info);
-        drop(world);
-
-        for t in new_triggers {
-            println!("entered new trigger zone {}", t);
-            script_engine.call_entry_point(&format!("{}_enter", t));
-        }
+        renderer.draw(&mut world_ref.borrow_mut(), eye, cam, &map.tileset_info);
 
         next_frame().await;
     }

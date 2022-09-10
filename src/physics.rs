@@ -1,3 +1,4 @@
+use crate::input::{Input, VirtualKey};
 use hecs::{Entity, World};
 use macroquad::math::{vec2, Vec2};
 use std::collections::HashSet;
@@ -138,9 +139,8 @@ impl Controller {
         }
     }
 
-    pub fn update(world: &World) -> HashSet<String> {
+    pub fn update(world: &World, input: &Input) -> HashSet<String> {
         let mut result: HashSet<String> = HashSet::new();
-        use macroquad::input::{is_key_down, is_key_pressed, KeyCode};
         for (_, (player, p_rect, controller)) in world
             .query::<(&mut Actor, &IntRect, &mut Controller)>()
             .iter()
@@ -156,16 +156,16 @@ impl Controller {
                 }
             }
             controller.triggers = new_triggers;
-            if is_key_down(KeyCode::Left) {
+            if input.is_down(VirtualKey::Left) {
                 player.vx -= 3.0;
             }
-            if is_key_down(KeyCode::Right) {
+            if input.is_down(VirtualKey::Right) {
                 player.vx += 3.0;
             }
-            if player.grounded && is_key_pressed(KeyCode::X) {
+            if player.grounded && input.is_pressed(VirtualKey::Jump) {
                 player.vy = -6.0;
                 controller.jump_frames = 5;
-            } else if controller.jump_frames > 0 && is_key_down(KeyCode::X) {
+            } else if controller.jump_frames > 0 && input.is_down(VirtualKey::Jump) {
                 player.vy = -6.0;
                 controller.jump_frames -= 1;
             } else {
