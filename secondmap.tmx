@@ -11,16 +11,16 @@
  <layer id="2" name="mainlevel" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="0" y="0" width="16" height="16">
-   eJyrZ2BgaADiRiBuAuJ6Anx0MAeI5wLxPCCeTwR/FIwCGHCjUH8yA+H0is7fAsRbgXgbFJOafi8C8SUgvgzFpIJ3QPweiD9AMalAg5GBQROItYBYm5EMA9AAAA+LJf8=
+   eJyrZ2BgaADiRiBuAuJ6Anx0MAeI5wLxPCCeTwR/FIwCGHCD0iyMCBrGxgcUoGqSGQinV3T+FiDeCsTboJjU9HsRiC8B8WUoJhW8A+L3QPwBikkFGkC/awKxFhBrExFWhAAAUDMmLw==
   </chunk>
    <chunk x="16" y="0" width="16" height="16">
    eJxjYBgFo4B84E6h/hQK9W9DwtuBeAeJ+i8j4StAfBWI5YBYHg0r4ND/AQl/BOJPQBwBxJFoOAqHfk1GCNYCYm0g1mEkzt0SQCxJnFKswBSIzYAYADwsEVY=
   </chunk>
    <chunk x="32" y="0" width="16" height="16">
-   eJxjYBi5oGagHTBAoJTO9pWRoJbWcUKsW+qBuAGIG4G4iQx75gDxXCCeB8Tz8aiTAmJpLLQMEMsSYY85EFtgoS2B2ApNLbawBQBspAnm
+   eJxjYBi5oGagHTBAoJQOdggBsTiUXUaCPlic6AOxCQX2LwbiFVjEiXVLPRA3AHEjEDeRYf8cIJ4LxPOAeD4edVJALI2FlgFiWSLsMQdiCyy0JRBboanFlt4Bts4LvQ==
   </chunk>
    <chunk x="0" y="16" width="16" height="16">
-   eJxjYBj+IJECvTuBeBcQ7wbiPUC8l0T9uowMDHpArA/EBkBsyEiBY0bBKKAyAAADgQT5
+   eJztzkkNgDAURdFfCwxBBZMPBg0YwBSQ1kILeOu18MuGEF5yljd5It/f8qD1CDhx4Vb2tRFp0KJDb9K/ZMhRoESl7AeMmDBjVfYbdhywcMr+3/sWARRLCj0=
   </chunk>
    <chunk x="16" y="16" width="16" height="16">
    eJzl0D0OAUEYxvGZWsINUErofSwVLkCD0gW4ACfgApyAWkLvq5bQS6gl9BL/jdlkMjuEic6T/DaZvPtkPoRwSw11x66fDrrauo0lVlhjg62l10MfAwxVJ/g3K4XIIY8CPBnujzDGBFMcccLZ8R53/8M+0rLXJwnObDvrt5lhjsWLeRwJg54d9jioWdKYeyga9FxwxU3NSiijgioaaBr0RHiDKGLyOWu9vW04KXppZH7wlv+SB446H/U=

@@ -3,7 +3,7 @@ use crate::loader::TilesetInfo;
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
 
-const WALL_VISION_DEPTH: f32 = 8.5;
+const WALL_VISION_DEPTH: f32 = 16.5;
 
 enum Origin {
     TopLeft,

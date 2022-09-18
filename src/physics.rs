@@ -1,4 +1,5 @@
 use crate::input::{Input, VirtualKey};
+use crate::loader::TileFlags;
 use hecs::{Entity, World};
 use macroquad::math::{vec2, Vec2};
 use std::collections::HashSet;
@@ -46,7 +47,7 @@ pub struct TriggerZone {
 pub struct TileBody {
     pub width: i32,
     pub size: i32,
-    pub data: Vec<bool>,
+    pub data: Vec<TileFlags>,
     pub tiles: Vec<u16>,
     pub x: i32,
     pub y: i32,
@@ -54,7 +55,14 @@ pub struct TileBody {
 }
 
 impl TileBody {
-    pub fn new(x: i32, y: i32, size: i32, width: i32, data: Vec<bool>, tiles: Vec<u16>) -> Self {
+    pub fn new(
+        x: i32,
+        y: i32,
+        size: i32,
+        width: i32,
+        data: Vec<TileFlags>,
+        tiles: Vec<u16>,
+    ) -> Self {
         Self {
             x,
             y,
@@ -77,7 +85,9 @@ impl TileBody {
                 for kx in min_kx..=max_kx {
                     if kx >= 0 && kx < self.width {
                         let index = ky * self.width + kx;
-                        if index >= 0 && index < self.data.len() as i32 && self.data[index as usize]
+                        if index >= 0
+                            && index < self.data.len() as i32
+                            && self.data[index as usize].is_blocker()
                         {
                             return true;
                         }

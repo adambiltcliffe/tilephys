@@ -1,4 +1,5 @@
 use crate::physics::{IntRect, TileBody, TriggerZone};
+use bitflags::bitflags;
 use hecs::{Entity, World};
 use macroquad::texture::{load_texture, Texture2D};
 use std::cell::RefCell;
@@ -19,6 +20,31 @@ pub(crate) struct TilesetInfo {
     pub tile_height: u32,
     pub count: u32,
     pub columns: u32,
+}
+
+bitflags! {
+    pub struct TileFlags: u8 {
+        const VISIBLE = 0b00000001;
+        const BLOCKER = 0b00000010;
+        const OBSCURER = 0b00000100;
+    }
+}
+
+impl TileFlags {
+    #[inline]
+    pub fn is_visible(&self) -> bool {
+        self.contains(Self::VISIBLE)
+    }
+
+    #[inline]
+    pub fn is_blocker(&self) -> bool {
+        self.contains(Self::BLOCKER)
+    }
+
+    #[inline]
+    pub fn is_obscurer(&self) -> bool {
+        self.contains(Self::OBSCURER)
+    }
 }
 
 pub(crate) async fn load_map(name: &str) -> Result<LoadedMap, String> {
@@ -86,7 +112,21 @@ pub(crate) async fn load_map(name: &str) -> Result<LoadedMap, String> {
                 for y in y0..=y1 {
                     for x in x0..=x1 {
                         let t = layer_data.get_tile(x, y);
-                        data.push(t.is_some());
+                        let td = match t {
+                            None => TileFlags::empty(),
+                            Some(ltd) => {
+                                // if map parsing is ever slow, we could cache this per tile
+                                let t = ltd.get_tile().unwrap();
+                                if t.properties.contains_key("background") {
+                                    TileFlags::VISIBLE
+                                } else if t.properties.contains_key("transparent") {
+                                    TileFlags::BLOCKER | TileFlags::VISIBLE
+                                } else {
+                                    TileFlags::BLOCKER | TileFlags::VISIBLE | TileFlags::OBSCURER
+                                }
+                            }
+                        };
+                        data.push(td);
                         tiles.push(t.map(|t| t.id() as u16).unwrap_or(0));
                     }
                 }

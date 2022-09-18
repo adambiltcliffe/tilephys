@@ -557,6 +557,7 @@ dependencies = [
 name = "tilephys"
 version = "0.1.0"
 dependencies = [
+ "bitflags",
  "euclid",
  "hecs",
  "macroquad",

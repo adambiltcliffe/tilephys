@@ -14,7 +14,7 @@ pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo) {
         let mut tx = chunk.x;
         let mut ty = chunk.y;
         for ii in 0..(chunk.data.len()) {
-            if chunk.data[ii] {
+            if chunk.data[ii].is_visible() {
                 let sx = (chunk.tiles[ii] as u32 % tsi.columns) * tsi.tile_width;
                 let sy = (chunk.tiles[ii] as u32 / tsi.columns) * tsi.tile_height;
                 draw_texture_ex(

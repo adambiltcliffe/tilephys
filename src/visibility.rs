@@ -55,10 +55,14 @@ pub fn compute_obscurers(world: &mut World) {
             let mut sry: Option<i32> = None;
             for cy in 0..=ch {
                 let index = (cy * body.width + cx) as usize;
-                let is_left_edge =
-                    cy < ch && cx < cw && body.data[index] && (cx == 0 || !body.data[index - 1]);
-                let is_right_edge =
-                    cy < ch && cx > 0 && body.data[index - 1] && (cx == cw || !body.data[index]);
+                let is_left_edge = cy < ch
+                    && cx < cw
+                    && body.data[index].is_obscurer()
+                    && (cx == 0 || !body.data[index - 1].is_obscurer());
+                let is_right_edge = cy < ch
+                    && cx > 0
+                    && body.data[index - 1].is_obscurer()
+                    && (cx == cw || !body.data[index].is_obscurer());
                 if is_left_edge && sly.is_none() {
                     sly = Some(cy);
                 } else if !is_left_edge && sly.is_some() {
@@ -88,12 +92,12 @@ pub fn compute_obscurers(world: &mut World) {
                 let index = (cy * body.width + cx) as usize;
                 let is_top_edge = cx < cw
                     && cy < ch
-                    && body.data[index]
-                    && (cy == 0 || !body.data[index - body.width as usize]);
+                    && body.data[index].is_obscurer()
+                    && (cy == 0 || !body.data[index - body.width as usize].is_obscurer());
                 let is_bottom_edge = cx < cw
                     && cy > 0
-                    && body.data[index - body.width as usize]
-                    && (cy == ch || !body.data[index]);
+                    && body.data[index - body.width as usize].is_obscurer()
+                    && (cy == ch || !body.data[index].is_obscurer());
                 if is_top_edge && stx.is_none() {
                     stx = Some(cx);
                 } else if !is_top_edge && stx.is_some() {
