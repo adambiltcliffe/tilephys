@@ -27,6 +27,7 @@ bitflags! {
         const VISIBLE = 0b00000001;
         const BLOCKER = 0b00000010;
         const OBSCURER = 0b00000100;
+        const PLATFORM = 0b00001000;
     }
 }
 
@@ -44,6 +45,11 @@ impl TileFlags {
     #[inline]
     pub fn is_obscurer(&self) -> bool {
         self.contains(Self::OBSCURER)
+    }
+
+    #[inline]
+    pub fn is_platform(&self) -> bool {
+        self.contains(Self::PLATFORM)
     }
 }
 
@@ -121,6 +127,8 @@ pub(crate) async fn load_map(name: &str) -> Result<LoadedMap, String> {
                                     TileFlags::VISIBLE
                                 } else if t.properties.contains_key("transparent") {
                                     TileFlags::BLOCKER | TileFlags::VISIBLE
+                                } else if t.properties.contains_key("platform") {
+                                    TileFlags::PLATFORM | TileFlags::VISIBLE
                                 } else {
                                     TileFlags::BLOCKER | TileFlags::VISIBLE | TileFlags::OBSCURER
                                 }

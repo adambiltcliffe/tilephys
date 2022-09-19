@@ -4,6 +4,12 @@ use hecs::{Entity, World};
 use macroquad::math::{vec2, Vec2};
 use std::collections::HashSet;
 
+#[derive(PartialEq, Eq)]
+enum CollisionType {
+    Blocker,
+    TopOfBlockerOrPlatform,
+}
+
 pub struct IntRect {
     pub x: i32,
     pub y: i32,
@@ -30,6 +36,14 @@ impl IntRect {
 
 fn offset_rect(rect: &IntRect, dx: i32, dy: i32) -> IntRect {
     IntRect::new(rect.x + dx, rect.y + dy, rect.w, rect.h)
+}
+
+fn offset_rect_up(rect: &IntRect) -> IntRect {
+    IntRect::new(rect.x, rect.y - 1, rect.w, 1)
+}
+
+fn offset_rect_down(rect: &IntRect) -> IntRect {
+    IntRect::new(rect.x, rect.y + rect.h, rect.w, 1)
 }
 
 fn pushing_rect(rect: &IntRect) -> IntRect {
@@ -74,11 +88,14 @@ impl TileBody {
         }
     }
 
-    // this is only pub at the moment because of checking if the mouse intersects it for debugging
-    pub fn collide(&self, rect: &IntRect) -> bool {
+    fn collide(&self, rect: &IntRect, typ: CollisionType) -> bool {
+        let adjustment = match typ {
+            CollisionType::Blocker => 0,
+            CollisionType::TopOfBlockerOrPlatform => self.size - 1,
+        };
         let min_kx = (rect.x - self.x).div_euclid(self.size);
         let max_kx = (rect.x + rect.w - 1 - self.x).div_euclid(self.size);
-        let min_ky = (rect.y - self.y).div_euclid(self.size);
+        let min_ky = (rect.y - self.y + adjustment).div_euclid(self.size);
         let max_ky = (rect.y + rect.h - 1 - self.y).div_euclid(self.size);
         for ky in min_ky..=max_ky {
             if ky >= 0 {
@@ -87,7 +104,9 @@ impl TileBody {
                         let index = ky * self.width + kx;
                         if index >= 0
                             && index < self.data.len() as i32
-                            && self.data[index as usize].is_blocker()
+                            && (self.data[index as usize].is_blocker()
+                                || self.data[index as usize].is_platform()
+                                    && typ == CollisionType::TopOfBlockerOrPlatform)
                         {
                             return true;
                         }
@@ -301,7 +320,7 @@ fn move_actor(
         if world
             .query::<&TileBody>()
             .iter()
-            .any(|(_, c)| c.collide(&offset_rect(rect, dx, 0)))
+            .any(|(_, c)| c.collide(&offset_rect(rect, dx, 0), CollisionType::Blocker))
         {
             actor.prec_x = rect.x as f32;
             collided_x = true;
@@ -315,11 +334,19 @@ fn move_actor(
     let mut collided_y = false;
     while rect.y != targ_y {
         let dy = (targ_y - rect.y).signum();
-        if world
-            .query::<&TileBody>()
-            .iter()
-            .any(|(_, c)| c.collide(&offset_rect(rect, 0, dy)))
-        {
+        let clo: Box<dyn FnMut((_, &TileBody)) -> bool> = if dy == -1 {
+            Box::new(|(_, c): (_, &TileBody)| {
+                c.collide(&offset_rect_up(rect), CollisionType::Blocker)
+            })
+        } else {
+            Box::new(|(_, c): (_, &TileBody)| {
+                c.collide(
+                    &offset_rect_down(rect),
+                    CollisionType::TopOfBlockerOrPlatform,
+                )
+            })
+        };
+        if world.query::<&TileBody>().iter().any(clo) {
             actor.prec_y = rect.y as f32;
             collided_y = true;
             break;
@@ -337,13 +364,13 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
         let mut should_move = HashSet::new();
         for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
-            if body.collide(&pushing_rect(rect)) {
+            if body.collide(&pushing_rect(rect), CollisionType::Blocker) {
                 should_move.insert(e);
             }
         }
         body.x += vx.signum();
         for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
-            if body.collide(&pushing_rect(rect)) {
+            if body.collide(&pushing_rect(rect), CollisionType::Blocker) {
                 should_move.insert(e);
             }
         }
@@ -358,13 +385,13 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
         let mut body = world.get::<&mut TileBody>(index).unwrap();
         let mut should_move = HashSet::new();
         for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
-            if body.collide(&pushing_rect(rect)) {
+            if body.collide(&pushing_rect(rect), CollisionType::Blocker) {
                 should_move.insert(e);
             }
         }
         body.y += vy.signum();
         for (e, (_, rect)) in world.query::<(&Actor, &IntRect)>().iter() {
-            if body.collide(&pushing_rect(rect)) {
+            if body.collide(&pushing_rect(rect), CollisionType::Blocker) {
                 should_move.insert(e);
             }
         }
@@ -378,8 +405,10 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
 }
 
 fn check_player_grounded(player_rect: &IntRect, world: &World) -> bool {
-    world
-        .query::<&TileBody>()
-        .iter()
-        .any(|(_, c)| c.collide(&feet_rect(&player_rect)))
+    world.query::<&TileBody>().iter().any(|(_, c)| {
+        c.collide(
+            &feet_rect(&player_rect),
+            CollisionType::TopOfBlockerOrPlatform,
+        )
+    })
 }

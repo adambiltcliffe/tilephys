@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.8" tiledversion="1.8.4" name="testset" tilewidth="8" tileheight="8" tilecount="319" columns="29">
  <image source="temptiles.png" width="232" height="88"/>
+ <tile id="5">
+  <properties>
+   <property name="platform" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="6">
+  <properties>
+   <property name="platform" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="7">
+  <properties>
+   <property name="platform" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="12">
+  <properties>
+   <property name="platform" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="13">
+  <properties>
+   <property name="platform" type="bool" value="true"/>
+  </properties>
+ </tile>
  <tile id="17">
   <properties>
    <property name="transparent" type="bool" value="true"/>
@@ -29,6 +54,21 @@
  <tile id="22">
   <properties>
    <property name="transparent" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="40">
+  <properties>
+   <property name="platform" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="41">
+  <properties>
+   <property name="platform" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="42">
+  <properties>
+   <property name="platform" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="46">
