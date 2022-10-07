@@ -1,9 +1,13 @@
 use crate::physics::{IntRect, TileBody, TriggerZone};
 use bitflags::bitflags;
 use hecs::{Entity, World};
-use macroquad::texture::{load_texture, Texture2D};
+use macroquad::{
+    file::load_string,
+    texture::{load_texture, Texture2D},
+};
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::io::Cursor;
 use std::path::Path;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -55,12 +59,45 @@ impl TileFlags {
     }
 }
 
+struct AsyncPreloadReader {
+    cache: HashMap<tiled::ResourcePathBuf, String>,
+}
+
+impl AsyncPreloadReader {
+    pub fn new() -> Self {
+        Self {
+            cache: HashMap::new(),
+        }
+    }
+
+    pub(crate) async fn preload(&mut self, path: &str) {
+        let s = load_string(path).await.unwrap();
+        self.cache.insert(path.into(), s);
+    }
+}
+
+impl tiled::ResourceReader for AsyncPreloadReader {
+    type Resource = std::io::Cursor<Rc<[u8]>>;
+    type Error = std::io::Error; // hmm
+    fn read_from(&mut self, path: &Path) -> std::result::Result<Self::Resource, Self::Error> {
+        self.cache
+            .get(path)
+            .map(|s| Cursor::new(Rc::from(s.as_bytes())))
+            .ok_or(std::io::Error::from(std::io::ErrorKind::NotFound))
+    }
+}
+
 pub(crate) async fn load_map(name: &str) -> Result<LoadedMap, String> {
+    let mut preloader = AsyncPreloadReader::new();
+    preloader.preload("testset.tsx").await; // MEGA HACK
+    preloader.preload(name).await;
+
     let mut world: World = World::new();
     let mut body_ids: HashMap<String, Entity> = HashMap::new();
     let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
 
-    let mut loader = tiled::Loader::new();
+    let mut loader =
+        tiled::Loader::with_cache_and_reader(tiled::DefaultResourceCache::new(), preloader);
     let map = loader.load_tmx_map(name).unwrap();
 
     if map.tilesets().len() != 1 {
