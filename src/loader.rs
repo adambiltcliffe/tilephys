@@ -4,7 +4,9 @@ use hecs::{Entity, World};
 use macroquad::texture::{load_texture, Texture2D};
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::path::Path;
 use std::rc::Rc;
+use std::sync::Arc;
 
 pub(crate) struct LoadedMap {
     pub world_ref: Rc<RefCell<World>>,
@@ -93,14 +95,14 @@ pub(crate) async fn load_map(name: &str) -> Result<LoadedMap, String> {
 
     for layer in map.layers() {
         match layer.layer_type() {
-            tiled::LayerType::TileLayer(tiled::TileLayer::Infinite(layer_data)) => {
+            tiled::LayerType::Tiles(tiled::TileLayer::Infinite(layer_data)) => {
                 println!("Found an infinite tiled layer named {}", layer.name);
                 let (xmin, xmax, ymin, ymax) = layer_data.chunks().fold(
                     (i32::MAX, i32::MIN, i32::MAX, i32::MIN),
                     |(x0, x1, y0, y1), ((x, y), _)| (x0.min(x), x1.max(x), y0.min(y), y1.max(y)),
                 );
-                const W: i32 = tiled::Chunk::WIDTH as i32;
-                const H: i32 = tiled::Chunk::HEIGHT as i32;
+                const W: i32 = tiled::ChunkData::WIDTH as i32;
+                const H: i32 = tiled::ChunkData::HEIGHT as i32;
                 let (mut x0, mut x1, mut y0, mut y1) = (i32::MAX, i32::MIN, i32::MAX, i32::MIN);
                 for y in ymin * H..(ymax + 1) * H {
                     for x in xmin * W..(xmax + 1) * W {
@@ -150,7 +152,7 @@ pub(crate) async fn load_map(name: &str) -> Result<LoadedMap, String> {
                     ),)),
                 );
             }
-            tiled::LayerType::ObjectLayer(data) => {
+            tiled::LayerType::Objects(data) => {
                 for obj in data.objects() {
                     match &*obj {
                         tiled::ObjectData {

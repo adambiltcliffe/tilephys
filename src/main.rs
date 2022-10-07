@@ -36,7 +36,7 @@ async fn main() {
     let map = load_map("secondmap.tmx").await.unwrap();
 
     let mut script_engine = ScriptEngine::new(&map);
-    script_engine.load_file("secondmap.rhai");
+    script_engine.load_file("secondmap.rhai").await;
     script_engine.call_entry_point("init");
 
     let LoadedMap { world_ref, .. } = map;

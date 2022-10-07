@@ -1,5 +1,6 @@
 use crate::loader::LoadedMap;
 use crate::physics::{ConstantMotion, PathMotion, PathMotionType, TileBody};
+use macroquad::file::load_string;
 use rhai::{Engine, Scope, AST};
 use std::rc::Rc;
 
@@ -90,8 +91,12 @@ impl ScriptEngine {
         }
     }
 
-    pub fn load_file(&mut self, path: &str) {
-        self.ast = Some(self.engine.compile_file(path.into()).unwrap());
+    pub async fn load_file(&mut self, path: &str) {
+        self.ast = Some(
+            self.engine
+                .compile(load_string(path.into()).await.unwrap())
+                .unwrap(),
+        );
     }
 
     pub fn call_entry_point(&mut self, name: &str) {
