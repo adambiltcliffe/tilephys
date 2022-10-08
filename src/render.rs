@@ -45,6 +45,7 @@ impl Renderer {
         let margin = WALL_VISION_DEPTH.ceil() as u32 * 2;
         let width = final_width + margin;
         let height = final_height + margin;
+        println!("{} {}", width, height);
         use miniquad::graphics::{BlendFactor, BlendState, BlendValue, Equation};
         let bs = BlendState::new(
             Equation::Add,
@@ -214,8 +215,8 @@ varying vec4 color;
 varying vec2 uv;
 uniform sampler2D Texture;
 vec4 pack(vec2 fc) {
-    vec2 quot;
-    vec2 frac = modf(floor(fc) / 128.0, quot);
+    vec2 quot = floor(floor(fc) / 128.0);
+    vec2 frac = fract(floor(fc) / 128.0);
     return vec4(frac, quot / 128.0);
 }
 void main() {
@@ -229,12 +230,15 @@ varying vec4 color;
 varying vec2 uv;
 uniform sampler2D Texture;
 vec4 pack(vec2 fc) {
-    vec2 quot;
-    vec2 frac = modf(floor(fc) / 128.0, quot);
+    vec2 quot = floor(floor(fc) / 128.0);
+    vec2 frac = fract(floor(fc) / 128.0);
     return vec4(frac, quot / 128.0);
 }
+float round_(float v) {
+    return floor(v + 0.5);
+}
 vec2 unpack(vec4 t) {
-    return vec2(round(t.r * 128.0 + round(t.b * 128.0) * 128.0), round(t.g * 128.0 + round(t.a * 128.0) * 128.0)) + 0.5;
+    return vec2(round_(t.r * 128.0 + round_(t.b * 128.0) * 128.0), round_(t.g * 128.0 + round_(t.a * 128.0) * 128.0)) + 0.5;
 }
 void main() {
     vec2 current_pos;
@@ -243,6 +247,7 @@ void main() {
     current_dist = length(gl_FragCoord.xy - current_pos);
     int r = int(color.r * 256.0);
     vec2 size = vec2(textureSize(Texture, 0));
+    //vec2 size = vec2(354.0, 234.0);
     for (int dx = -1; dx <= 1; dx += 1) {
         for (int dy = -1; dy <= 1; dy += 1) {
             vec2 newFragCoord = gl_FragCoord.xy + vec2(float(dx * r), float(dy * r));
@@ -263,8 +268,11 @@ precision lowp float;
 varying vec4 color;
 varying vec2 uv;
 uniform sampler2D Texture;
+float round_(float v) {
+    return floor(v + 0.5);
+}
 vec2 unpack(vec4 t) {
-    return vec2(round(t.r * 128.0 + round(t.b * 128.0) * 128.0), round(t.g * 128.0 + round(t.a * 128.0) * 128.0)) + 0.5;
+    return vec2(round_(t.r * 128.0 + round_(t.b * 128.0) * 128.0), round_(t.g * 128.0 + round_(t.a * 128.0) * 128.0)) + 0.5;
 }
 void main() {
     float r = color.r * 128.0;
