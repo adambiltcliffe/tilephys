@@ -23,7 +23,6 @@ pub(crate) struct TilesetInfo {
     pub texture: Texture2D,
     pub tile_width: u32,
     pub tile_height: u32,
-    pub count: u32,
     pub columns: u32,
 }
 
