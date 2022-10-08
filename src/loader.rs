@@ -141,7 +141,6 @@ impl LoadingManager {
         let tiled::Tileset {
             tile_width,
             tile_height,
-            tilecount,
             columns,
             ..
         } = **ts;
@@ -149,7 +148,6 @@ impl LoadingManager {
             texture,
             tile_width,
             tile_height,
-            count: tilecount,
             columns,
         };
 
