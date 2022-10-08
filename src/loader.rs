@@ -2,7 +2,7 @@ use crate::physics::{IntRect, TileBody, TriggerZone};
 use bitflags::bitflags;
 use hecs::{Entity, World};
 use macroquad::{
-    file::load_string,
+    file::load_file,
     texture::{load_texture, Texture2D},
 };
 use std::cell::RefCell;
@@ -58,7 +58,7 @@ impl TileFlags {
 }
 
 pub struct AsyncPreloadReader {
-    cache: HashMap<tiled::ResourcePathBuf, String>,
+    cache: HashMap<tiled::ResourcePathBuf, Rc<[u8]>>,
 }
 
 impl AsyncPreloadReader {
@@ -69,8 +69,8 @@ impl AsyncPreloadReader {
     }
 
     pub(crate) async fn preload(&mut self, path: &str) {
-        let s = load_string(path).await.unwrap();
-        self.cache.insert(path.into(), s);
+        let data = load_file(path).await.unwrap();
+        self.cache.insert(path.into(), Rc::from(data));
     }
 }
 
@@ -80,7 +80,7 @@ impl tiled::ResourceReader for AsyncPreloadReader {
     fn read_from(&mut self, path: &Path) -> std::result::Result<Self::Resource, Self::Error> {
         self.cache
             .get(path)
-            .map(|s| Cursor::new(Rc::from(s.as_bytes())))
+            .map(|data| Cursor::new(Rc::clone(data)))
             .ok_or(std::io::Error::from(std::io::ErrorKind::NotFound))
     }
 }
