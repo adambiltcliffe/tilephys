@@ -1,6 +1,6 @@
 use camera::PlayerCamera;
 use input::Input;
-use loader::{load_map, LoadedMap};
+use loader::{LoadedMap, LoadingManager};
 use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, Controller, IntRect, PathMotion};
 use render::Renderer;
@@ -33,7 +33,8 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf())]
 async fn main() {
-    let map = load_map("secondmap.tmx").await.unwrap();
+    let mut loader = LoadingManager::new();
+    let map = loader.load("secondmap.tmx").await.unwrap();
 
     let mut script_engine = ScriptEngine::new(&map);
     script_engine.load_file("secondmap.rhai").await;
