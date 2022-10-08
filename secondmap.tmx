@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="4" nextobjectid="5">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="5" nextobjectid="48">
  <tileset firstgid="1" source="testset.tsx"/>
  <layer id="1" name="movingblock" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -36,7 +36,7 @@
   </chunk>
   </data>
  </layer>
- <objectgroup id="3" name="Object Layer 1">
+ <objectgroup id="3" name="paths">
   <object id="1" name="trigger1" x="64" y="56" width="24" height="32"/>
   <object id="2" name="trigger2" x="192" y="56" width="16" height="40"/>
   <object id="4" name="zigzag" x="136" y="64">
