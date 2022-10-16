@@ -28,6 +28,7 @@ impl Input {
     }
 
     pub fn update(&mut self) {
+        self.down.clear();
         for (kc, vk) in ALL_KEYS.iter() {
             if is_key_down(*kc) {
                 self.down.insert(*vk);
@@ -47,7 +48,6 @@ impl Input {
     }
 
     pub fn reset(&mut self) {
-        self.down.clear();
         self.pressed.clear();
     }
 }
