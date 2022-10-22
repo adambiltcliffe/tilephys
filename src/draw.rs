@@ -1,7 +1,17 @@
 use crate::loader::TilesetInfo;
-use crate::physics::{Actor, Controller, IntRect, TileBody};
-use hecs::{Satisfies, World};
+use crate::physics::{IntRect, TileBody};
+use hecs::World;
 use macroquad::prelude::*;
+
+pub(crate) struct ColorRect {
+    color: Color,
+}
+
+impl ColorRect {
+    pub fn new(color: Color) -> Self {
+        Self { color }
+    }
+}
 
 pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo) {
     // we don't actually need mutable access to the world but having it lets us tell
@@ -41,16 +51,13 @@ pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo) {
         }
     }
 
-    for (_, (_, rect, ctrl)) in world
-        .query::<(&Actor, &IntRect, Satisfies<&Controller>)>()
-        .iter()
-    {
+    for (_, (rect, draw)) in world.query::<(&IntRect, &ColorRect)>().iter() {
         draw_rectangle(
             rect.x as f32,
             rect.y as f32,
             rect.w as f32,
             rect.h as f32,
-            if ctrl { GREEN } else { GRAY },
+            draw.color,
         );
     }
 }

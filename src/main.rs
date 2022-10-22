@@ -1,4 +1,5 @@
 use camera::PlayerCamera;
+use draw::ColorRect;
 use input::Input;
 use loader::{LoadedMap, LoadingManager};
 use macroquad::prelude::*;
@@ -50,14 +51,16 @@ async fn main() {
         let player = Actor::new(&player_rect);
         let camera_pos = player_rect.centre();
         let controller = Controller::new();
-        let player_id = world.spawn((player_rect, player, controller));
+        let color = ColorRect::new(GREEN);
+        let player_id = world.spawn((player_rect, player, controller, color));
 
         world.spawn((PlayerCamera::new(camera_pos.y), camera_pos.clone()));
 
         for _ in 0..20 {
             let thing_rect = IntRect::new(gen_range(0, 400), -160, 16, 16);
             let thing = Actor::new(&thing_rect);
-            world.spawn((thing_rect, thing));
+            let color = ColorRect::new(GRAY);
+            world.spawn((thing_rect, thing, color));
         }
 
         (player_id, player_eye, camera_pos)
