@@ -1,9 +1,10 @@
 use camera::PlayerCamera;
 use draw::ColorRect;
+use hecs::CommandBuffer;
 use input::Input;
 use loader::{LoadedMap, LoadingManager};
 use macroquad::prelude::*;
-use physics::{Actor, ConstantMotion, Controller, IntRect, PathMotion};
+use physics::{Actor, ConstantMotion, Controller, IntRect, PathMotion, Projectile};
 use quad_rand::gen_range;
 use render::Renderer;
 use script::ScriptEngine;
@@ -76,11 +77,14 @@ async fn main() {
         input.update();
 
         for _ in 0..clock.get_num_updates() {
-            let world = world_ref.borrow_mut();
+            let mut world = world_ref.borrow_mut();
+            let mut buffer = CommandBuffer::new();
             ConstantMotion::apply(&world);
             PathMotion::apply(&world);
-            let new_triggers = Controller::update(&world, &input);
+            let new_triggers = Controller::update(&world, &mut buffer, &input);
             Actor::update(&world);
+            Projectile::update(&world, &mut buffer);
+            buffer.run_on(&mut world);
 
             if let Ok(rect) = world.get::<&IntRect>(player_id) {
                 let player_pos = rect.centre();

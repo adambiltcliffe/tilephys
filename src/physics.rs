@@ -1,7 +1,8 @@
 use crate::input::{Input, VirtualKey};
 use crate::loader::TileFlags;
-use hecs::{Entity, World};
+use hecs::{CommandBuffer, Entity, World};
 use macroquad::math::{vec2, Vec2};
+use macroquad::prelude::RED;
 use std::collections::HashSet;
 
 #[derive(PartialEq, Eq)]
@@ -10,6 +11,7 @@ enum CollisionType {
     TopOfBlockerOrPlatform,
 }
 
+#[derive(Clone)]
 pub struct IntRect {
     pub x: i32,
     pub y: i32,
@@ -155,9 +157,44 @@ impl Actor {
     }
 }
 
+pub struct Projectile {
+    prec_x: f32,
+    prec_y: f32,
+    pub vx: f32,
+    pub vy: f32,
+}
+
+impl Projectile {
+    pub fn new(rect: &IntRect, vx: f32, vy: f32) -> Self {
+        Self {
+            prec_x: rect.x as f32,
+            prec_y: rect.y as f32,
+            vx,
+            vy,
+        }
+    }
+
+    pub fn update(world: &World, buffer: &mut CommandBuffer) {
+        for (e, (proj, rect)) in world.query::<(&mut Projectile, &mut IntRect)>().iter() {
+            proj.prec_x += proj.vx;
+            proj.prec_y += proj.vy;
+            rect.x = proj.prec_x.round() as i32;
+            rect.y = proj.prec_y.round() as i32;
+            if world
+                .query::<&TileBody>()
+                .iter()
+                .any(|(_, c)| c.collide(rect, CollisionType::Blocker))
+            {
+                buffer.despawn(e)
+            }
+        }
+    }
+}
+
 pub struct Controller {
     jump_frames: u32,
     triggers: HashSet<String>,
+    facing: i8,
 }
 
 impl Controller {
@@ -165,15 +202,14 @@ impl Controller {
         Self {
             jump_frames: 0,
             triggers: HashSet::new(),
+            facing: 1,
         }
     }
 
-    pub fn update(world: &World, input: &Input) -> HashSet<String> {
+    pub fn update(world: &World, buffer: &mut CommandBuffer, input: &Input) -> HashSet<String> {
         let mut result: HashSet<String> = HashSet::new();
-        for (_, (player, p_rect, controller)) in world
-            .query::<(&mut Actor, &IntRect, &mut Controller)>()
-            .iter()
-        {
+        let mut q = world.query::<(&mut Actor, &IntRect, &mut Controller)>();
+        for (_, (player, p_rect, controller)) in q.iter() {
             let mut new_triggers: HashSet<String> = HashSet::new();
             for (_, (trigger, t_rect)) in world.query::<(&TriggerZone, &IntRect)>().iter() {
                 if p_rect.intersects(&t_rect) {
@@ -187,9 +223,16 @@ impl Controller {
             controller.triggers = new_triggers;
             if input.is_down(VirtualKey::Left) {
                 player.vx -= 3.0;
+                controller.facing = -1;
             }
             if input.is_down(VirtualKey::Right) {
                 player.vx += 3.0;
+                controller.facing = 1;
+            }
+            if input.is_pressed(VirtualKey::Fire) {
+                let color = crate::draw::ColorRect::new(RED);
+                let proj = Projectile::new(p_rect, controller.facing as f32 * 10.0, 0.0);
+                buffer.spawn((p_rect.clone(), color, proj));
             }
             if player.grounded && input.is_pressed(VirtualKey::Jump) {
                 player.vy = -6.0;
