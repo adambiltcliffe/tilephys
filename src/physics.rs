@@ -143,6 +143,7 @@ impl Actor {
         for (_, (actor, rect)) in world.query::<(&mut Actor, &mut IntRect)>().iter() {
             actor.vy += 1.0;
             actor.vx *= 0.6;
+            actor.vy = actor.vy.min(16.0);
             let vx = actor.vx;
             let vy = actor.vy;
             let (cx, cy) = move_actor(actor, rect, vx, vy, &world);

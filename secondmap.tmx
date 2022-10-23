@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="5" nextobjectid="48">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="7" nextobjectid="53">
  <tileset firstgid="1" source="testset.tsx"/>
  <layer id="1" name="movingblock" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -10,6 +10,12 @@
  </layer>
  <layer id="2" name="mainlevel" width="40" height="30">
   <data encoding="base64" compression="zlib">
+   <chunk x="16" y="-16" width="16" height="16">
+   eJxjYBgFQw08BeJnUJocwMTIwMDMCKEpsZ9cALOfXEBv+5HDG5km1T50ejAAAEcTC9U=
+  </chunk>
+   <chunk x="32" y="-16" width="16" height="16">
+   eJxjYBgFAwmeAfFTKE0OYGZkYGBihNDkAkrsB4HhYj86Tar96PRQAAA3MQvX
+  </chunk>
    <chunk x="0" y="0" width="16" height="16">
    eJyrZ2BgaADiRiBuAuJ6Anx0MAeI5wLxPCCeTwR/FIwCGHCD0iyMCBrGxgcUoGqSGQinV3T+FiDeCsTboJjU9HsRiC8B8WUoJhW8A+L3QPwBikkFGkC/awKxFhBrExFWhAAAUDMmLw==
   </chunk>
@@ -22,17 +28,30 @@
    <chunk x="48" y="0" width="16" height="16">
    eJzVkMsNglAQRR8bRNswYKxQRRMMdWgsQY1rO1CgDfz04JkYopmwuC69yVm8xZm5b0L478wghgEksIcDHOEk+HPnX+AKFTSCv3B+Cze4i37u/Dh6uw/RX/b0T5gxhKfgr3r62/4aRpEwwMX6d/uV/j7W325v/1f6T6GANZTh0998tf8GtrALv9/f53u/0t+nu596/7N7j3FSyGAi+C/SWidN
   </chunk>
+   <chunk x="-16" y="16" width="16" height="16">
+   eJxjYCAdSACxJBBLkaEXBEyB2AyIzcnUHwTEwUAcQqb+fCAuAOJCCu0nF8DsJxeM2j847B+o9NcDxL1A3Eem/pVAvAqIVwMxAAHYDzU=
+  </chunk>
    <chunk x="0" y="16" width="16" height="16">
-   eJztzkkNgDAURdFfCwxBBZMPBg0YwBSQ1kILeOu18MuGEF5yljd5It/f8qD1CDhx4Vb2tRFp0KJDb9K/ZMhRoESl7AeMmDBjVfYbdhywcMr+3/sWARRLCj0=
+   eJy90j0SwVAUhuGTLfgZBZbgrxNrECpSZwMK0ocViB6NGAr0iL3lLVNwOTczvplnbnPO/Yp76yLSQFPs0oeLgeX+BFP4lvtzLBAaZoIvd5j673jgiRSvNzOm/pYj0kYHXfQcXX8+JZRRQRW1H/rzGcLDCGPMlP0HJDjihLOy/1OKvH/R/n/8P1PWiLFBhCVWivOCK27YYoe94swAZnAofA==
   </chunk>
    <chunk x="16" y="16" width="16" height="16">
-   eJzl0D0OAUEYxvGZWsINUErofSwVLkCD0gW4ACfgApyAWkLvq5bQS6gl9BL/jdlkMjuEic6T/DaZvPtkPoRwSw11x66fDrrauo0lVlhjg62l10MfAwxVJ/g3K4XIIY8CPBnujzDGBFMcccLZ8R53/8M+0rLXJwnObDvrt5lhjsWLeRwJg54d9jioWdKYeyga9FxwxU3NSiijgioaaBr0RHiDKGLyOWu9vW04KXppZH7wlv+SB446H/U=
+   eJy90LsOAUEYhuGZWsIdoJTQOywVboAGpRvgBgg9N0DoqSX0TrWEXkItoZd4N3aTyewSdsWXPDOZ/PNnDkJ4Swllj71mGmgq6zqWWGGNDbYufS200UPf6rH3JqUQKaSRgSGd/QMMMcEUR5xw9viOuzlwjnQ565PYd3a767eZYY7Fi3oYEY2aHfY4WLWoVjeQ1ai54IqbVcshjwKKqKCqURPgD4IIyWet9va1zsToiyPxg7/8Vzro+phHGPuYH/AWMdU=
   </chunk>
    <chunk x="32" y="16" width="16" height="16">
-   eJwLYWBgCAXiEDQ6DIjDGVBBIhBfA+LrQHwDiG8CcSEQF2Ghi4G4hAET6DIyMOgBsT4QGwBxH1CsnwGTngDEE7HoRwergXgNFnotEK8jQj89gCYNzVCg0H5bCu2PotB+YgElZgyk/fVA3ADEjUDchIVPCMwB4rlAPA+I52PhUwoAiBAffQ==
+   eJwLYWBgCAXiEDQ6DIjDGVBBIhBfA+LrQHwDiG8CcSEQF2Ghi4G4hAET6DIyMOgBsT4QGwBxH1CsnwGTngDEE7HoRwergXgNFnotEK8jQj89gCYNzVCg0H5bCu2PotB+YgElZgyk/fVA3ADEjUDchIUPY6PTMPk5QDwXiOcB8XwsfBgbnYbJEwIASSUocQ==
   </chunk>
    <chunk x="48" y="16" width="16" height="16">
    eJy7xUAZMGSk0IBRMApGwYABACe7AQ0=
+  </chunk>
+  </data>
+ </layer>
+ <layer id="5" name="hatch" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="16" y="-16" width="16" height="16">
+   eJxjYBgFo2BkgmYK9S+ghiMGGAAAA5sBJA==
+  </chunk>
+   <chunk x="32" y="-16" width="16" height="16">
+   eJxjYBgFo2DoghYK9S+kiiuGLgAASg8BJg==
   </chunk>
   </data>
  </layer>
@@ -41,6 +60,20 @@
   <object id="2" name="trigger2" x="192" y="56" width="16" height="40"/>
   <object id="4" name="zigzag" x="136" y="64">
    <polyline points="0,0 0,-56 16,-40 32,-56 48,-40 64,-56 80,-40"/>
+  </object>
+  <object id="49" name="hatch_drop" x="256" y="-32">
+   <polyline points="0,0 0,40"/>
+  </object>
+ </objectgroup>
+ <objectgroup id="6" name="enemies">
+  <object id="50" type="enemy" x="256" y="-56">
+   <point/>
+  </object>
+  <object id="51" type="enemy" x="256" y="-48">
+   <point/>
+  </object>
+  <object id="52" type="enemy" x="304" y="64">
+   <point/>
   </object>
  </objectgroup>
 </map>

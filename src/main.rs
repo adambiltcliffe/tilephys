@@ -1,5 +1,6 @@
 use camera::PlayerCamera;
 use draw::ColorRect;
+use enemy::Enemy;
 use hecs::CommandBuffer;
 use input::Input;
 use loader::{LoadedMap, LoadingManager};
@@ -13,6 +14,7 @@ use visibility::compute_obscurers;
 
 mod camera;
 mod draw;
+mod enemy;
 mod input;
 mod loader;
 mod physics;
@@ -82,6 +84,7 @@ async fn main() {
             ConstantMotion::apply(&world);
             PathMotion::apply(&world);
             let new_triggers = Controller::update(&world, &mut buffer, &input);
+            Enemy::update(&world, player_id);
             Actor::update(&world);
             Projectile::update(&world, &mut buffer);
             buffer.run_on(&mut world);

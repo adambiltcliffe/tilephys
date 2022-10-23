@@ -1,8 +1,10 @@
-use crate::physics::{IntRect, TileBody, TriggerZone};
+use crate::enemy::Enemy;
+use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
 use bitflags::bitflags;
 use hecs::{Entity, World};
 use macroquad::{
     file::load_file,
+    prelude::*,
     texture::{load_texture, Texture2D},
 };
 use std::cell::RefCell;
@@ -246,6 +248,21 @@ impl LoadingManager {
                                     *height as i32,
                                 );
                                 world.spawn((tz, rect));
+                            }
+                            tiled::ObjectData {
+                                shape: tiled::ObjectShape::Point(x, y),
+                                obj_type,
+                                ..
+                            } => {
+                                if obj_type == "enemy" {
+                                    let rect = IntRect::new(*x as i32 - 6, *y as i32 - 6, 12, 12);
+                                    let draw = crate::draw::ColorRect::new(RED);
+                                    let actor = Actor::new(&rect);
+                                    let enemy = Enemy::new();
+                                    world.spawn((actor, rect, enemy, draw));
+                                } else {
+                                    println!("found an unknown point object type: {}", obj_type)
+                                }
                             }
                             _ => (),
                         }
