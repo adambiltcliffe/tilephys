@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="6" nextobjectid="16">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="8" nextobjectid="24">
  <tileset firstgid="1" source="testset.tsx"/>
  <layer id="1" name="Tile Layer 1" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -30,6 +30,12 @@
    <chunk x="48" y="0" width="16" height="16">
    eJxjYBhYcACI90NpcsBdIL4DpUfBKBgM4D4QnwHis0SoFWNkYBBnhNAw9h+g+EsgfkWEfmOgehNGCA3CpkBsBsRsQMzOSFg/AHUgC98=
   </chunk>
+   <chunk x="64" y="0" width="16" height="16">
+   eJxjYBgFo2AUDEfwBojfElADAELQAdo=
+  </chunk>
+   <chunk x="80" y="0" width="16" height="16">
+   eJxjYBgFgxGYArEZBfqDgDiYAv35QFxAgf4eIO6lQP+o/+njfwDy5Ach
+  </chunk>
    <chunk x="-16" y="16" width="16" height="16">
    eJxjYCANvAPi90D8AYg/kqh3FIyCUTC4AAAyqgO/
   </chunk>
@@ -43,7 +49,30 @@
    eJy7xsDAcB2KbwDxTTT2LQbigCAjRI8wIypbhJE4/XpAdfpAbMCIyjYkUj8IbAfiHcQrxwBXgPgqBfo/AvEnCvRrA/2qQ4J/0cF+ID4AxAcJsPcjiSGDO0B8F4jv4WH/BOJfQPwbKk4MQNYjBvSfOBBLMELEiQHIekYBdQEAaeoqEg==
   </chunk>
    <chunk x="48" y="16" width="16" height="16">
-   eJxjYMAOzgDxWRxyxICXQPyKAv0DbT8bIwMDOyP5+unl/v1AfACJPgjEhxiId/9dIL4HxHeQ2PcZiHf/LyD+DcQ/kdh/SHA/DIgB3SoOxBJQN1Ma/qOAOAAAs9Ydtw==
+   eJxjYMAO2BgZGNiBmAOIzwL554D4PBBzQsVhYriAMlCNChCrQmkYWw2NPVjBeiDeAMQboTSMvQlNHBc4w4AIo7MMqGGILI4LvATiV0S4cz8QH0CiDwLxIQZE/BECd4H4HhDfQWLfR3I/IfALiH8D8U8k9h8S3A8DYkC3igOxBNTNxLp/FFAGAMaAKcg=
+  </chunk>
+   <chunk x="64" y="16" width="16" height="16">
+   eJw7z8DAwMHIwHAeSHMCaXZGCJ8TirmAGB9QYYRgNShG56sT0D/QYCMQb4DSm7DgzQT0nwPis1D6PBZ8AYjlgFgeB8YH3gDxWyC2BmIbHBgfICb+RsHIBgDZghUm
+  </chunk>
+   <chunk x="80" y="16" width="16" height="16">
+   eJxjYMAO8oG4AIccMaAHiHsp0G8KxGYU6A8C4mAS1B8G4iNAfAyIjzMQ7395KH4AxA+B+DEQP2Eg3v82UPwXiP+R4N5RMAqoAQCYnw5O
+  </chunk>
+  </data>
+ </layer>
+ <layer id="6" name="door2" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="48" y="16" width="16" height="16">
+   eJxjYBi6oJlC/Quo4YhRMAqGMAAAknkBJA==
+  </chunk>
+   <chunk x="64" y="16" width="16" height="16">
+   eJxjYBhY0EKh/oVUccUoGAUjEwAA3W0BJg==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="7" name="door3" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="64" y="16" width="16" height="16">
+   eJxjYBg8oBmIWyjQvwCIF1LHKaNgFIwIAACQNQJJ
   </chunk>
   </data>
  </layer>
@@ -53,7 +82,7 @@
    eJxjYBgFo2AUDGawD4j3A/FBID5Ehv7bQHwHiO8B8X00OQBRzwZ1
   </chunk>
    <chunk x="32" y="16" width="16" height="16">
-   eJxjYCAMRBkZGMSAWAKIJRmJ0IAGjIB6jIHYFIjNyNA/CkbBKKANAABsdAE1
+   eJxjYCAMRBkZGMSAWAKIJRmJ0IAGjIB6jIHYFIjNyNC/D4j3A/FBID5EunaG20B8B4jvAfF9MvT/AOKfQPwbiP+QoX+gw28UjAJcAAATTQzF
   </chunk>
   </data>
  </layer>
@@ -107,6 +136,17 @@
   </object>
   <object id="14" name="bouldertrigger" x="336" y="80" width="16" height="32"/>
   <object id="15" name="droppertrigger" x="320" y="152" width="80" height="8"/>
+  <object id="16" name="smalldoors" x="528" y="152">
+   <polyline points="0,0 0,-16"/>
+  </object>
+  <object id="17" type="enemy" x="528" y="152">
+   <point/>
+  </object>
+  <object id="18" type="enemy" x="560" y="152">
+   <point/>
+  </object>
+  <object id="19" name="door2trigger" x="472" y="144" width="16" height="16"/>
+  <object id="21" name="door3trigger" x="504" y="144" width="16" height="16"/>
  </objectgroup>
  <layer id="4" name="dropper" width="40" height="30">
   <data encoding="base64" compression="zlib">

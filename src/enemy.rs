@@ -3,11 +3,12 @@ use hecs::{Entity, World};
 
 pub(crate) struct Enemy {
     dir: f32,
+    pub hp: i32,
 }
 
 impl Enemy {
     pub fn new() -> Self {
-        Self { dir: 0.0 }
+        Self { dir: 0.0, hp: 3 }
     }
 
     pub fn update(world: &World, player_id: Entity) {

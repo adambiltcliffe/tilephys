@@ -1,3 +1,4 @@
+use crate::enemy::Enemy;
 use crate::input::{Input, VirtualKey};
 use crate::loader::TileFlags;
 use hecs::{CommandBuffer, Entity, World};
@@ -190,6 +191,18 @@ impl Projectile {
             {
                 buffer.despawn(e)
             }
+            world
+                .query::<(&mut Enemy, &IntRect)>()
+                .iter()
+                .for_each(|(e_id, (en, e_rect))| {
+                    if rect.intersects(&e_rect) {
+                        buffer.despawn(e);
+                        en.hp -= 1;
+                        if en.hp <= 0 {
+                            buffer.despawn(e_id)
+                        }
+                    }
+                });
         }
     }
 }
@@ -236,6 +249,7 @@ impl Controller {
                 let color = crate::draw::ColorRect::new(RED);
                 let proj = Projectile::new(p_rect, controller.facing as f32 * 10.0, 0.0);
                 buffer.spawn((p_rect.clone(), color, proj));
+                player.vx -= controller.facing as f32 * 5.0;
             }
             if player.grounded && input.is_pressed(VirtualKey::Jump) {
                 player.vy = -6.0;
