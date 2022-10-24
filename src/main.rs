@@ -39,10 +39,10 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf())]
 async fn main() {
     let mut loader = LoadingManager::new();
-    let map = loader.load("secondmap.tmx").await.unwrap();
+    let map = loader.load("conceptmap.tmx").await.unwrap();
 
     let mut script_engine = ScriptEngine::new(&map);
-    script_engine.load_file("secondmap.rhai").await;
+    script_engine.load_file("conceptmap.rhai").await;
     script_engine.call_entry_point("init");
 
     let LoadedMap { world_ref, .. } = map;
