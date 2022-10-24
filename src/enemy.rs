@@ -21,7 +21,7 @@ impl Enemy {
                 if player_x.is_some() && quad_rand::rand() < (u32::MAX / 2) {
                     enemy.dir = (player_x.unwrap() - rect.centre().x).signum() * 5.0;
                 } else {
-                    enemy.dir = quad_rand::gen_range(-3.0, 3.0);
+                    enemy.dir = quad_rand::gen_range(-6.0, 6.0);
                 }
             }
             if actor.grounded && quad_rand::rand() < (u32::MAX / 5) {

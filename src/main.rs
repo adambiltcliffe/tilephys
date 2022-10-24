@@ -51,7 +51,7 @@ async fn main() {
 
         let player_rect = IntRect::new(50, 30, 10, 10);
         let player_eye = player_rect.centre();
-        let player = Actor::new(&player_rect);
+        let player = Actor::new(&player_rect, 0.6);
         let camera_pos = player_rect.centre();
         let controller = Controller::new();
         let color = ColorRect::new(GREEN);
@@ -61,7 +61,7 @@ async fn main() {
 
         for _ in 0..20 {
             let thing_rect = IntRect::new(gen_range(0, 400), -160, 16, 16);
-            let thing = Actor::new(&thing_rect);
+            let thing = Actor::new(&thing_rect, 0.0);
             let color = ColorRect::new(GRAY);
             world.spawn((thing_rect, thing, color));
         }

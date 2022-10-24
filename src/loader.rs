@@ -257,7 +257,7 @@ impl LoadingManager {
                                 if obj_type == "enemy" {
                                     let rect = IntRect::new(*x as i32 - 6, *y as i32 - 6, 12, 12);
                                     let draw = crate::draw::ColorRect::new(RED);
-                                    let actor = Actor::new(&rect);
+                                    let actor = Actor::new(&rect, 0.4);
                                     let enemy = Enemy::new();
                                     world.spawn((actor, rect, enemy, draw));
                                 } else {

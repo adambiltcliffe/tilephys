@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="4" nextobjectid="8">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="6" nextobjectid="16">
  <tileset firstgid="1" source="testset.tsx"/>
  <layer id="1" name="Tile Layer 1" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -10,7 +10,10 @@
    eJxjYBgFo2AUkAt4GAljXiB+CVT7CojfMiDE+IBYEwlrAbE2DjYbELMDMRea/BageTuAWAiIxfG4UxmoVgWI1RlRxQFXzQe6
   </chunk>
    <chunk x="16" y="-16" width="16" height="16">
-   eJxjYBgFo2AUIIPNJKjlZ2RgeAmkXyGJXSBBvw6S/tdQsbck6AcBNqAZ7EDMAcScQMzFSLxeAGDFB2w=
+   eJztzLERgCAQBdEjETShEXsXtQ0V20CgB9YOvFj+zJuL9kT6+v69BQErNuyK1huRg3viQsSt6Gf6xH2QUVAV/buBHxYOIybzvW1jnQx9
+  </chunk>
+   <chunk x="32" y="-16" width="16" height="16">
+   eJztzbsNwCAMAFEWDwTGCL9NgDAZ1yBR4t4nvcq2bIymadIeWMG+wwuPgA9RcJ+QUVAv/zd0DPyYx2z/XwuUDJk=
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
    eJyt0jcOwjAYhmHnBrQJuAJtAg4HB4Fr0MtE2WkDTMABaAOM8CIlUvTLMn9QPumRIsefbTkxRpc9Dsq5tjzxUu6R8IxJIoV0iLZfYG4RJZRDKp6u/2/i7g8xwhgTTCP25T1mMGN8jgWWoi+/kbzH7/0dGT/hjLfoB3u4kuV9Dnmf6/y2VOnUUPe5zh81cf3jDTTRQRc99DH40Q/ur8VzGyusscEWO8uarlxwxQ13PCxrfgDVozu6
@@ -22,10 +25,10 @@
    eJxjYGBgUGZkYFABYlUgVgNidSAmB0gAsSR5WsHAFIjNKNAfBMTBFOjPB+ICKtjfDMQtFNi/AIgXUmA/KUAci/2kgBVI7B4g7kWT3wLEW4F4OxDvIGDWSiBehSZ2EYgvAfEVIL5KottAgBuYlnmAmA+I+ZHSNbFxpAHUownE2kCsg6R/AQN5cURtAApXUPhuw8FGD/ctSGpA4gDOXx6g
   </chunk>
    <chunk x="32" y="0" width="16" height="16">
-   eJztzrkJgFAQhOF9RWj/HXhF3g145dqAV66ZfyAoZrrRAxc+mGSWEbHzCpSKfo9B0d+wK/qOEXHN9/6/3579HnwECBHJu/0VajRo0cm1PyYnpxTZI+cYMWHGgvX2+wCblCN2
+   eJxjYMANbgPxHSC+C8T3gPg+klwtENfh0QsCP4D4JxD/AuLfQPwHSW4WEM8moF+UkYFBDIjFgVgCiCUZEXL7gHg/Af1GQPXGQGwCxKZAbIakH+Y3cgHMb+QCmN/IBaPuH3U/yP07gexdULwbiPegsffi0A/LGwD6MSSv
   </chunk>
    <chunk x="48" y="0" width="16" height="16">
-   eJxjYBhYcGCA7R8Fo2AkAwCkHgDB
+   eJxjYBhYcACI90NpcsBdIL4DpUfBKBgM4D4QnwHis0SoFWNkYBBnhNAw9h+g+EsgfkWEfmOgehNGCA3CpkBsBsRsQMzOSFg/AHUgC98=
   </chunk>
    <chunk x="-16" y="16" width="16" height="16">
    eJxjYCANvAPi90D8AYg/kqh3FIyCUTC4AAAyqgO/
@@ -37,7 +40,20 @@
    eJy7wsDAcAmILwPxFSxsEH2VAQEuIqlBFicWvAPi91D2JzL0j4JRMAqoBwDi4g5c
   </chunk>
    <chunk x="32" y="16" width="16" height="16">
-   eJy7xsDAcB2KbwDxTTT2LSBmY2RgYAdiDiAeBaNgFAwfAABEKwew
+   eJy7xsDAcB2KbwDxTTT2LQbigCAjRI8wIypbhJE4/XpAdfpAbMCIyjYkUj8IbAfiHcQrxwBXgPgqBfo/AvEnCvRrA/2qQ4J/0cF+ID4AxAcJsPcjiSGDO0B8F4jv4WH/BOJfQPwbKk4MQNYjBvSfOBBLMELEiQHIekYBdQEAaeoqEg==
+  </chunk>
+   <chunk x="48" y="16" width="16" height="16">
+   eJxjYMAOzgDxWRxyxICXQPyKAv0DbT8bIwMDOyP5+unl/v1AfACJPgjEhxiId/9dIL4HxHeQ2PcZiHf/LyD+DcQ/kdh/SHA/DIgB3SoOxBJQN1Ma/qOAOAAAs9Ydtw==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="5" name="boulder" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="32" y="0" width="16" height="16">
+   eJxjYBgFo2AUDGawD4j3A/FBID5Ehv7bQHwHiO8B8X00OQBRzwZ1
+  </chunk>
+   <chunk x="32" y="16" width="16" height="16">
+   eJxjYCAMRBkZGMSAWAKIJRmJ0IAGjIB6jIHYFIjNyNA/CkbBKKANAABsdAE1
   </chunk>
   </data>
  </layer>
@@ -71,5 +87,32 @@
    <point/>
   </object>
   <object id="7" name="doortrigger" x="168" y="96" width="24" height="24"/>
+  <object id="8" type="enemy" x="420" y="172">
+   <point/>
+  </object>
+  <object id="9" type="enemy" x="360" y="8">
+   <point/>
+  </object>
+  <object id="10" type="enemy" x="360" y="8">
+   <point/>
+  </object>
+  <object id="11" type="enemy" x="360" y="8">
+   <point/>
+  </object>
+  <object id="12" name="boulder" x="328" y="144">
+   <polyline points="0,0 0,40 -32,40"/>
+  </object>
+  <object id="13" name="dropper" x="360" y="24">
+   <polyline points="0,0 0,16 -16,16"/>
+  </object>
+  <object id="14" name="bouldertrigger" x="336" y="80" width="16" height="32"/>
+  <object id="15" name="droppertrigger" x="320" y="152" width="80" height="8"/>
  </objectgroup>
+ <layer id="4" name="dropper" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="32" y="0" width="16" height="16">
+   eJxjYBhaoBmIWyjQvwCIF1LHKaNgFAx5AAA+FQJJ
+  </chunk>
+  </data>
+ </layer>
 </map>

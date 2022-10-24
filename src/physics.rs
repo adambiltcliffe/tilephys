@@ -126,23 +126,25 @@ pub struct Actor {
     pub vx: f32,
     pub vy: f32,
     pub grounded: bool,
+    pub drag: f32,
 }
 
 impl Actor {
-    pub fn new(rect: &IntRect) -> Self {
+    pub fn new(rect: &IntRect, drag: f32) -> Self {
         Self {
             prec_x: rect.x as f32,
             prec_y: rect.y as f32,
             vx: 0.0,
             vy: 0.0,
             grounded: false,
+            drag,
         }
     }
 
     pub fn update(world: &World) {
         for (_, (actor, rect)) in world.query::<(&mut Actor, &mut IntRect)>().iter() {
             actor.vy += 1.0;
-            actor.vx *= 0.6;
+            actor.vx *= actor.drag;
             actor.vy = actor.vy.min(16.0);
             let vx = actor.vx;
             let vy = actor.vy;
