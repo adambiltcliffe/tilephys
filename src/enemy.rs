@@ -1,32 +1,80 @@
 use crate::physics::{Actor, IntRect};
 use hecs::{Entity, World};
+use macroquad::prelude::*;
+
+#[derive(PartialEq, Eq)]
+pub enum EnemyKind {
+    Dog,
+    JumpyDog,
+}
+
+impl EnemyKind {
+    fn jump_prob(&self) -> f32 {
+        match self {
+            EnemyKind::Dog => 0.05,
+            EnemyKind::JumpyDog => 0.2,
+        }
+    }
+
+    fn jump_vel(&self) -> f32 {
+        match self {
+            EnemyKind::Dog => -4.0,
+            EnemyKind::JumpyDog => -8.0,
+        }
+    }
+}
+
+pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
+    let rect = IntRect::new(x - 6, y - 6, 12, 12);
+    let draw = crate::draw::ColorRect::new(RED);
+    let actor = Actor::new(&rect, 0.4);
+    let enemy = Enemy::new(kind);
+    world.spawn((rect, draw, actor, enemy));
+}
+
+fn with_prob(p: f32) -> bool {
+    quad_rand::gen_range(0.0, 1.0) < p
+}
+
+fn rand_sign() -> f32 {
+    quad_rand::gen_range(0, 2) as f32 * 2.0 - 1.0
+}
+
+fn player_x(world: &World, player_id: Entity) -> Option<f32> {
+    world
+        .get::<&IntRect>(player_id)
+        .map(|rect| rect.centre().x)
+        .ok()
+}
 
 pub(crate) struct Enemy {
+    kind: EnemyKind,
     dir: f32,
     pub hp: i32,
 }
 
 impl Enemy {
-    pub fn new() -> Self {
-        Self { dir: 0.0, hp: 3 }
+    pub fn new(kind: EnemyKind) -> Self {
+        Self {
+            kind,
+            dir: 0.0,
+            hp: 3,
+        }
     }
 
     pub fn update(world: &World, player_id: Entity) {
-        let player_x: Option<f32> = world
-            .get::<&IntRect>(player_id)
-            .map(|rect| rect.centre().x)
-            .ok();
+        let player_x = player_x(world, player_id);
         for (_, (actor, enemy, rect)) in world.query::<(&mut Actor, &mut Enemy, &IntRect)>().iter()
         {
-            if quad_rand::rand() < (u32::MAX / 10) {
-                if player_x.is_some() && quad_rand::rand() < (u32::MAX / 2) {
+            if with_prob(0.1) {
+                if player_x.is_some() && with_prob(0.5) {
                     enemy.dir = (player_x.unwrap() - rect.centre().x).signum() * 5.0;
                 } else {
-                    enemy.dir = quad_rand::gen_range(-6.0, 6.0);
+                    enemy.dir = 5.0 * rand_sign();
                 }
             }
-            if actor.grounded && quad_rand::rand() < (u32::MAX / 5) {
-                actor.vy = -8.0;
+            if actor.grounded && with_prob(enemy.kind.jump_prob()) {
+                actor.vy = enemy.kind.jump_vel()
             }
             actor.vx += enemy.dir;
         }

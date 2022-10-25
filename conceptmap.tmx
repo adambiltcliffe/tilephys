@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="8" nextobjectid="24">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="1" nextlayerid="8" nextobjectid="26">
  <tileset firstgid="1" source="testset.tsx"/>
  <layer id="1" name="Tile Layer 1" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -19,10 +19,10 @@
    eJyt0jcOwjAYhmHnBrQJuAJtAg4HB4Fr0MtE2WkDTMABaAOM8CIlUvTLMn9QPumRIsefbTkxRpc9Dsq5tjzxUu6R8IxJIoV0iLZfYG4RJZRDKp6u/2/i7g8xwhgTTCP25T1mMGN8jgWWoi+/kbzH7/0dGT/hjLfoB3u4kuV9Dnmf6/y2VOnUUPe5zh81cf3jDTTRQRc99DH40Q/ur8VzGyusscEWO8uarlxwxQ13PCxrfgDVozu6
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJzTYGRg0AHixQwMDCsYRsFQA8eA+DglBgDjnhGIDwOZR4D4KNTMI0gY3XwhIBYGYjEglgXqlQNicyC2AGJLqFlH8ZgBSmtLgHg5EFsB1VszopoPMssKyTxsagYzqAfiBiBuBOImAmp3YBGbg2QGIXOuAvEWIN4KxNuAeDuJbAAoyiQr
+   eJzTYGRg0AHixQwMDCsYRsFQA8eA+DglBgDjnhGIDwOZR4D4KNTMI0gYZL4QEIsBsTiULQzlywL1ygGxORBbALEl1KyjWMxYzgBJY6C0tgTKtwKqt2ZEdRLILCsk87CpGcygHogbgLgRiJsIqN2BRWwOkhmEzLkKxFuAeCsQbwPi7SSyAaoMJbk=
   </chunk>
    <chunk x="16" y="0" width="16" height="16">
-   eJxjYGBgUGZkYFABYlUgVgNidSAmB0gAsSR5WsHAFIjNKNAfBMTBFOjPB+ICKtjfDMQtFNi/AIgXUmA/KUAci/2kgBVI7B4g7kWT3wLEW4F4OxDvIGDWSiBehSZ2EYgvAfEVIL5KottAgBuYlnmAmA+I+ZHSNbFxpAHUownE2kCsg6R/AQN5cURtAApXUPhuw8FGD/ctSGpA4gDOXx6g
+   eJyt0j0OgkAQhuGxxmiChVD7H2z1IHAQvYOWegeMFmrNj9eQ6H18l2qziVF2meRJyMLHwOyKiIw6ImNMMMUMNhUgtIvWtcLaIR8jcchvsG2h/w57h/4pTg79m9QQPgZi9/9XnHHBAUfjfoYcJR4/3nXD3Vh7osIL74bfpsrjLHfRQ1871//u0ZzMAhGWWj4Vuz1qu9Rc1XyLL9fm3DPtGbX+AUxAIAw=
   </chunk>
    <chunk x="32" y="0" width="16" height="16">
    eJxjYMANbgPxHSC+C8T3gPg+klwtENfh0QsCP4D4JxD/AuLfQPwHSW4WEM8moF+UkYFBDIjFgVgCiCUZEXL7gHg/Af1GQPXGQGwCxKZAbIakH+Y3cgHMb+QCmN/IBaPuH3U/yP07gexdULwbiPegsffi0A/LGwD6MSSv
@@ -147,6 +147,9 @@
   </object>
   <object id="19" name="door2trigger" x="472" y="144" width="16" height="16"/>
   <object id="21" name="door3trigger" x="504" y="144" width="16" height="16"/>
+  <object id="24" type="walker_enemy" x="120" y="56">
+   <point/>
+  </object>
  </objectgroup>
  <layer id="4" name="dropper" width="40" height="30">
   <data encoding="base64" compression="zlib">

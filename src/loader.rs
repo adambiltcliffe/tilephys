@@ -1,5 +1,5 @@
-use crate::enemy::Enemy;
-use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
+use crate::enemy::{add_enemy, EnemyKind};
+use crate::physics::{IntRect, TileBody, TriggerZone};
 use bitflags::bitflags;
 use hecs::{Entity, World};
 use macroquad::{
@@ -255,11 +255,9 @@ impl LoadingManager {
                                 ..
                             } => {
                                 if obj_type == "enemy" {
-                                    let rect = IntRect::new(*x as i32 - 6, *y as i32 - 6, 12, 12);
-                                    let draw = crate::draw::ColorRect::new(RED);
-                                    let actor = Actor::new(&rect, 0.4);
-                                    let enemy = Enemy::new();
-                                    world.spawn((actor, rect, enemy, draw));
+                                    add_enemy(&mut world, EnemyKind::JumpyDog, *x as i32, *y as i32)
+                                } else if obj_type == "walker_enemy" {
+                                    add_enemy(&mut world, EnemyKind::Dog, *x as i32, *y as i32);
                                 } else {
                                     println!("found an unknown point object type: {}", obj_type)
                                 }
