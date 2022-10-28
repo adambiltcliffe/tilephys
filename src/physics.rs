@@ -191,16 +191,18 @@ impl Projectile {
             {
                 buffer.despawn(e)
             }
+            let mut live = true;
             world
                 .query::<(&mut Enemy, &IntRect)>()
                 .iter()
                 .for_each(|(e_id, (en, e_rect))| {
-                    if rect.intersects(&e_rect) {
+                    if live && rect.intersects(&e_rect) {
                         buffer.despawn(e);
                         en.hp -= 1;
                         if en.hp <= 0 {
                             buffer.despawn(e_id)
                         }
+                        live = false;
                     }
                 });
         }

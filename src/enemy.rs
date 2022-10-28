@@ -51,7 +51,7 @@ fn player_x(world: &World, player_id: Entity) -> Option<f32> {
 pub(crate) struct Enemy {
     kind: EnemyKind,
     dir: f32,
-    jumped: bool,
+    jump_y: Option<i32>,
     pub hp: i32,
 }
 
@@ -60,7 +60,7 @@ impl Enemy {
         Self {
             kind,
             dir: 0.0,
-            jumped: false,
+            jump_y: None,
             hp: 3,
         }
     }
@@ -71,8 +71,8 @@ impl Enemy {
             .query::<(&mut Actor, &mut Enemy, &IntRect, &mut DogSprite)>()
             .iter()
         {
-            if (actor.grounded || enemy.jumped) && with_prob(0.1) {
-                if player_x.is_some() && with_prob(0.5) {
+            if (actor.grounded || enemy.jump_y.is_some()) && with_prob(0.1) {
+                if player_x.is_some() && with_prob(0.7) {
                     enemy.dir = (player_x.unwrap() - rect.centre().x).signum() * 5.0;
                 } else {
                     enemy.dir = 5.0 * rand_sign();
@@ -81,12 +81,16 @@ impl Enemy {
             if actor.grounded {
                 if with_prob(enemy.kind.jump_prob()) {
                     actor.vy = enemy.kind.jump_vel();
-                    enemy.jumped = true;
+                    enemy.jump_y = Some(rect.y);
                 } else {
-                    enemy.jumped = false
+                    enemy.jump_y = None;
                 }
             } else {
-                if !enemy.jumped {
+                // stop moving horizontally if ground has fallen out from under us
+                if match enemy.jump_y {
+                    None => true,
+                    Some(y) => y < rect.y,
+                } {
                     enemy.dir = 0.0;
                 }
             }

@@ -3,7 +3,15 @@ fn init() {
     set_path("finaldoor", "door");
     set_path("hatchleft", "hatchleft");
     set_path("hatchright", "hatchright");
-    set_path("towerhatch", "right2");
+    set_path("towerhatch", "right3");
+    set_path("releaser", "releaser");
+    set_path("releaser2", "right3");
+    set_path("doodler", "doodler");
+    set_motion("doodler", ForwardCycle, 0.5);
+    set_path("platform", "platform");
+    set_motion("platform", ForwardCycle, 1.0);
+    set_path("piston", "piston");
+    set_motion("piston", ForwardCycle, 0.5);
 }
 
 fn door_trigger_enter() {
@@ -18,4 +26,9 @@ fn hatch_trigger_enter() {
 fn unlock_trigger_enter() {
     set_motion_goto("finaldoor", 1, 0.5);
     set_motion_goto("towerhatch", 1, 4.0);
+}
+
+fn releaser_trigger_enter() {
+    set_motion_goto("releaser", 1, 4.0);
+    set_motion_goto("releaser2", 1, 4.0);
 }
