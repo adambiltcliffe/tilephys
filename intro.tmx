@@ -154,7 +154,7 @@
  <layer id="11" name="piston" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="32" y="0" width="16" height="16">
-   eJxjYBgFo2AUMCLhoaifXAAAClQACg==
+   eJxjYBgFo2AUMCHhoaifXAAAEKgAEw==
   </chunk>
   </data>
  </layer>

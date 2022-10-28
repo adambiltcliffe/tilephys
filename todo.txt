@@ -1,0 +1,12 @@
+player graphic
+vfx
+player damage and death
+* god mode cheat for debugging!
+* health pickups
+move resources into structure of some sort
+visible switches or other interactibles
+rewrite scripting layer
+top level menu-play-report loop
+weapons/ammo
+* ammo pickups
+more tiles
