@@ -6,7 +6,6 @@ use input::Input;
 use loader::{LoadedMap, LoadingManager};
 use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, Controller, IntRect, PathMotion, Projectile};
-use quad_rand::gen_range;
 use render::Renderer;
 use script::ScriptEngine;
 use timer::Timer;
@@ -63,13 +62,6 @@ async fn main() {
         let player_id = world.spawn((player_rect, player, controller, color));
 
         world.spawn((PlayerCamera::new(camera_pos.y), camera_pos.clone()));
-
-        for _ in 0..20 {
-            let thing_rect = IntRect::new(gen_range(0, 400), -160, 16, 16);
-            let thing = Actor::new(&thing_rect, 0.0);
-            let color = ColorRect::new(GRAY);
-            world.spawn((thing_rect, thing, color));
-        }
 
         (player_id, player_eye, camera_pos)
     };
