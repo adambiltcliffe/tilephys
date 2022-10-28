@@ -6,6 +6,9 @@ fn init() {
     set_path("towerhatch", "right3");
     set_path("releaser", "releaser");
     set_path("releaser2", "right3");
+    set_path("secretdoors", "door");
+    set_path("secretplat", "right3");
+
     set_path("doodler", "doodler");
     set_motion("doodler", ForwardCycle, 0.5);
     set_path("platform", "platform");
@@ -15,7 +18,7 @@ fn init() {
 }
 
 fn door_trigger_enter() {
-    set_motion_goto("door", 1, 0.5);
+    set_motion_goto("door", 1, 1.0);
 }
 
 fn hatch_trigger_enter() {
@@ -24,11 +27,13 @@ fn hatch_trigger_enter() {
 }
 
 fn unlock_trigger_enter() {
-    set_motion_goto("finaldoor", 1, 0.5);
+    set_motion_goto("finaldoor", 1, 1.0);
     set_motion_goto("towerhatch", 1, 4.0);
 }
 
 fn releaser_trigger_enter() {
     set_motion_goto("releaser", 1, 4.0);
     set_motion_goto("releaser2", 1, 4.0);
+    set_motion_goto("secretdoors", 1, 4.0);
+    set_motion_goto("secretplat", 1, 4.0);
 }
