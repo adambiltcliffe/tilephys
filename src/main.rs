@@ -42,8 +42,8 @@ async fn main() {
     let map = loader.load("intro.tmx").await.unwrap();
 
     let mut script_engine = ScriptEngine::new(&map);
-    //script_engine.load_file("conceptmap.rhai").await;
-    //script_engine.call_entry_point("init");
+    script_engine.load_file("intro.rhai").await;
+    script_engine.call_entry_point("init");
 
     let LoadedMap {
         world_ref,
@@ -79,6 +79,7 @@ async fn main() {
     let mut clock = Timer::new();
     let mut input = Input::new();
 
+    let tex = load_texture("robodog.png").await.unwrap();
     loop {
         input.update();
 
@@ -112,7 +113,13 @@ async fn main() {
             input.reset();
         }
 
-        renderer.draw(&mut world_ref.borrow_mut(), eye, cam, &map.tileset_info);
+        renderer.draw(
+            &mut world_ref.borrow_mut(),
+            eye,
+            cam,
+            &map.tileset_info,
+            &tex,
+        );
 
         next_frame().await;
     }

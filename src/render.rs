@@ -95,7 +95,14 @@ impl Renderer {
         }
     }
 
-    pub(crate) fn draw(&self, world: &mut hecs::World, eye: Vec2, cam: Vec2, tsi: &TilesetInfo) {
+    pub(crate) fn draw(
+        &self,
+        world: &mut hecs::World,
+        eye: Vec2,
+        cam: Vec2,
+        tsi: &TilesetInfo,
+        tex: &Texture2D,
+    ) {
         // draw the basic graphics
         gl_use_default_material();
         set_camera(&get_camera_for_target(
@@ -103,7 +110,7 @@ impl Renderer {
             cam,
             Origin::TopLeft,
         ));
-        draw(world, tsi);
+        draw(world, tsi, tex);
 
         // initialise the offscreen texture for jump flood algorithm
         gl_use_material(self.jfa_init_material);

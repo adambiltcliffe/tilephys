@@ -13,7 +13,21 @@ impl ColorRect {
     }
 }
 
-pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo) {
+pub(crate) struct DogSprite {
+    pub n: i32,
+    pub flipped: bool,
+}
+
+impl DogSprite {
+    pub fn new() -> Self {
+        Self {
+            n: 0,
+            flipped: false,
+        }
+    }
+}
+
+pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo, tex: &Texture2D) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
     clear_background(DARKGRAY);
@@ -58,6 +72,21 @@ pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo) {
             rect.w as f32,
             rect.h as f32,
             draw.color,
+        );
+    }
+
+    for (_, (rect, spr)) in world.query::<(&IntRect, &DogSprite)>().iter() {
+        draw_texture_ex(
+            *tex,
+            rect.x as f32,
+            rect.y as f32,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(24.0, 16.0)),
+                source: Some(Rect::new(0.0, 16.0 * (spr.n / 5 % 2) as f32, 24.0, 16.0)),
+                flip_x: spr.flipped,
+                ..Default::default()
+            },
         );
     }
 }

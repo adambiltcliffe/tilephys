@@ -1,3 +1,4 @@
+use crate::draw::DogSprite;
 use crate::physics::{Actor, IntRect};
 use hecs::{Entity, World};
 use macroquad::prelude::*;
@@ -26,7 +27,7 @@ impl EnemyKind {
 
 pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
     let rect = IntRect::new(x - 12, y - 16, 24, 16);
-    let draw = crate::draw::ColorRect::new(RED);
+    let draw = crate::draw::DogSprite::new();
     let actor = Actor::new(&rect, 0.4);
     let enemy = Enemy::new(kind);
     world.spawn((rect, draw, actor, enemy));
@@ -64,7 +65,9 @@ impl Enemy {
 
     pub fn update(world: &World, player_id: Entity) {
         let player_x = player_x(world, player_id);
-        for (_, (actor, enemy, rect)) in world.query::<(&mut Actor, &mut Enemy, &IntRect)>().iter()
+        for (_, (actor, enemy, rect, spr)) in world
+            .query::<(&mut Actor, &mut Enemy, &IntRect, &mut DogSprite)>()
+            .iter()
         {
             if with_prob(0.1) {
                 if player_x.is_some() && with_prob(0.5) {
@@ -77,6 +80,13 @@ impl Enemy {
                 actor.vy = enemy.kind.jump_vel()
             }
             actor.vx += enemy.dir;
+            if actor.vx < 0.0 {
+                spr.flipped = false
+            }
+            if actor.vx > 0.0 {
+                spr.flipped = true
+            }
+            spr.n += 1;
         }
     }
 }
