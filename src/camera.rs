@@ -2,6 +2,12 @@ use crate::physics::{Actor, Controller, IntRect};
 use hecs::World;
 use macroquad::prelude::*;
 
+pub fn add_camera(world: &mut World, player_pos: Vec2) -> Vec2 {
+    let pos = vec2(player_pos.x, player_pos.y - CAMERA_FLOOR_OFFSET);
+    world.spawn((PlayerCamera::new(pos.y), pos.clone()));
+    pos
+}
+
 pub struct PlayerCamera {
     floor: f32,
 }
@@ -13,7 +19,7 @@ const CAMERA_FLOOR_OFFSET: f32 = 32.0;
 const CAMERA_V_SPEED: f32 = 4.0;
 
 impl PlayerCamera {
-    pub fn new(floor: f32) -> Self {
+    fn new(floor: f32) -> Self {
         Self { floor }
     }
 

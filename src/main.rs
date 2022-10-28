@@ -1,4 +1,4 @@
-use camera::PlayerCamera;
+use camera::{add_camera, PlayerCamera};
 use draw::ColorRect;
 use enemy::Enemy;
 use hecs::CommandBuffer;
@@ -55,13 +55,11 @@ async fn main() {
 
         let player_rect = IntRect::new(player_start.0 - 12, player_start.1 - 24, 24, 24);
         let player_eye = player_rect.centre();
+        let camera_pos = add_camera(&mut world, player_rect.centre());
         let player = Actor::new(&player_rect, 0.6);
-        let camera_pos = player_rect.centre();
         let controller = Controller::new();
         let color = ColorRect::new(GREEN);
         let player_id = world.spawn((player_rect, player, controller, color));
-
-        world.spawn((PlayerCamera::new(camera_pos.y), camera_pos.clone()));
 
         (player_id, player_eye, camera_pos)
     };
