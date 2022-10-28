@@ -16,7 +16,7 @@ impl ColorRect {
 pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
-    clear_background(SKYBLUE);
+    clear_background(DARKGRAY);
 
     let _delta = get_frame_time();
 

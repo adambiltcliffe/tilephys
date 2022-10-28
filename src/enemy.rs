@@ -18,14 +18,14 @@ impl EnemyKind {
 
     fn jump_vel(&self) -> f32 {
         match self {
-            EnemyKind::Dog => -4.0,
+            EnemyKind::Dog => -6.0,
             EnemyKind::JumpyDog => -8.0,
         }
     }
 }
 
 pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
-    let rect = IntRect::new(x - 6, y - 6, 12, 12);
+    let rect = IntRect::new(x - 12, y - 16, 24, 16);
     let draw = crate::draw::ColorRect::new(RED);
     let actor = Actor::new(&rect, 0.4);
     let enemy = Enemy::new(kind);

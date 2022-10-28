@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="3" nextobjectid="4">
+ <tileset firstgid="1" source="phtiles16.tsx"/>
+ <layer id="1" name="Tile Layer 1" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo4C2gBGImdAwI4n6iREb1U+6fgAcDAAX
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjZGBgYCQCowNGNJpUgK6fnQz96JgZiFmAmBWJD2Pjsp8YPjF+xOUeXPaT4h4QmwkNE3I/E4X2M+GRI0Y/MeGPL4wJhT8x+qkV/8QAUvRzEKmf1DxJCoCZAQBK5wCV
+  </chunk>
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBhYwEgEJtYcUsQHo35sfiZWPxOF9pOrn5j4w2cGMXFMTnoYTgCf/ykNfwBpRAA5
+  </chunk>
+  </data>
+ </layer>
+ <objectgroup id="2" name="entities">
+  <object id="1" name="start" type="player" x="-184" y="80">
+   <point/>
+  </object>
+  <object id="3" type="walker_enemy" x="72" y="240">
+   <point/>
+  </object>
+ </objectgroup>
+</map>

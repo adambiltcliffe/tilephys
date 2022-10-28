@@ -39,17 +39,21 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf())]
 async fn main() {
     let mut loader = LoadingManager::new();
-    let map = loader.load("conceptmap.tmx").await.unwrap();
+    let map = loader.load("intro.tmx").await.unwrap();
 
     let mut script_engine = ScriptEngine::new(&map);
-    script_engine.load_file("conceptmap.rhai").await;
-    script_engine.call_entry_point("init");
+    //script_engine.load_file("conceptmap.rhai").await;
+    //script_engine.call_entry_point("init");
 
-    let LoadedMap { world_ref, .. } = map;
+    let LoadedMap {
+        world_ref,
+        player_start,
+        ..
+    } = map;
     let (player_id, mut eye, mut cam) = {
         let mut world = world_ref.borrow_mut();
 
-        let player_rect = IntRect::new(50, 30, 10, 10);
+        let player_rect = IntRect::new(player_start.0 - 12, player_start.1 - 24, 24, 24);
         let player_eye = player_rect.centre();
         let player = Actor::new(&player_rect, 0.6);
         let camera_pos = player_rect.centre();

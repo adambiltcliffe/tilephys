@@ -18,6 +18,7 @@ pub(crate) struct LoadedMap {
     pub body_ids: Rc<HashMap<String, Entity>>,
     pub paths: Rc<HashMap<String, Vec<(f32, f32)>>>,
     pub tileset_info: TilesetInfo,
+    pub player_start: (i32, i32),
 }
 
 #[derive(Clone)]
@@ -124,6 +125,7 @@ impl LoadingManager {
         let mut world: World = World::new();
         let mut body_ids: HashMap<String, Entity> = HashMap::new();
         let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
+        let (mut psx, mut psy) = (0, 0);
 
         if map.tilesets().len() != 1 {
             return Err("map should contain only one tileset".to_owned());
@@ -254,7 +256,9 @@ impl LoadingManager {
                                 obj_type,
                                 ..
                             } => {
-                                if obj_type == "enemy" {
+                                if obj_type == "player" {
+                                    (psx, psy) = (*x as i32, *y as i32);
+                                } else if obj_type == "enemy" {
                                     add_enemy(&mut world, EnemyKind::JumpyDog, *x as i32, *y as i32)
                                 } else if obj_type == "walker_enemy" {
                                     add_enemy(&mut world, EnemyKind::Dog, *x as i32, *y as i32);
@@ -275,6 +279,7 @@ impl LoadingManager {
             body_ids: Rc::new(body_ids),
             paths: Rc::new(paths),
             tileset_info,
+            player_start: (psx, psy),
         })
     }
 }
