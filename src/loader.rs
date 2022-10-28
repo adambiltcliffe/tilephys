@@ -19,6 +19,7 @@ pub(crate) struct LoadedMap {
     pub paths: Rc<HashMap<String, Vec<(f32, f32)>>>,
     pub tileset_info: TilesetInfo,
     pub player_start: (i32, i32),
+    pub draw_order: Vec<Entity>,
 }
 
 #[derive(Clone)]
@@ -155,6 +156,8 @@ impl LoadingManager {
             columns,
         };
 
+        let mut draw_order = Vec::new();
+
         for layer in map.layers() {
             match layer.layer_type() {
                 tiled::LayerType::Tiles(tiled::TileLayer::Infinite(layer_data)) => {
@@ -206,17 +209,16 @@ impl LoadingManager {
                             tiles.push(t.map(|t| t.id() as u16).unwrap_or(0));
                         }
                     }
-                    body_ids.insert(
-                        layer.name.clone(),
-                        world.spawn((TileBody::new(
-                            x0 * map.tile_width as i32,
-                            y0 * map.tile_height as i32,
-                            tileset_info.tile_width as i32,
-                            (x1 - x0) + 1,
-                            data,
-                            tiles,
-                        ),)),
-                    );
+                    let id = world.spawn((TileBody::new(
+                        x0 * map.tile_width as i32,
+                        y0 * map.tile_height as i32,
+                        tileset_info.tile_width as i32,
+                        (x1 - x0) + 1,
+                        data,
+                        tiles,
+                    ),));
+                    body_ids.insert(layer.name.clone(), id);
+                    draw_order.push(id);
                 }
                 tiled::LayerType::Objects(data) => {
                     for obj in data.objects() {
@@ -280,6 +282,7 @@ impl LoadingManager {
             paths: Rc::new(paths),
             tileset_info,
             player_start: (psx, psy),
+            draw_order,
         })
     }
 }

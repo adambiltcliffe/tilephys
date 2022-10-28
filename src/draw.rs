@@ -1,6 +1,6 @@
 use crate::loader::TilesetInfo;
 use crate::physics::{IntRect, TileBody};
-use hecs::World;
+use hecs::{Entity, World};
 use macroquad::prelude::*;
 
 pub(crate) struct ColorRect {
@@ -27,14 +27,20 @@ impl DogSprite {
     }
 }
 
-pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo, tex: &Texture2D) {
+pub(crate) fn draw(
+    world: &mut World,
+    tsi: &TilesetInfo,
+    tex: &Texture2D,
+    draw_order: &Vec<Entity>,
+) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
     clear_background(DARKGRAY);
 
     let _delta = get_frame_time();
 
-    for (_, chunk) in world.query::<&TileBody>().iter() {
+    for id in draw_order {
+        let chunk = world.get::<&TileBody>(*id).unwrap();
         let mut tx = chunk.x;
         let mut ty = chunk.y;
         for ii in 0..(chunk.data.len()) {

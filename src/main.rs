@@ -48,6 +48,7 @@ async fn main() {
     let LoadedMap {
         world_ref,
         player_start,
+        draw_order,
         ..
     } = map;
     let (player_id, mut eye, mut cam) = {
@@ -113,12 +114,14 @@ async fn main() {
             input.reset();
         }
 
+        // this interface is getting busy
         renderer.draw(
             &mut world_ref.borrow_mut(),
             eye,
             cam,
             &map.tileset_info,
             &tex,
+            &draw_order,
         );
 
         next_frame().await;

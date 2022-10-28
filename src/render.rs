@@ -1,6 +1,7 @@
 use crate::draw::draw;
 use crate::loader::TilesetInfo;
 use crate::visibility::draw_visibility;
+use hecs::Entity;
 use macroquad::prelude::*;
 
 const WALL_VISION_DEPTH: f32 = 16.5;
@@ -102,6 +103,7 @@ impl Renderer {
         cam: Vec2,
         tsi: &TilesetInfo,
         tex: &Texture2D,
+        draw_order: &Vec<Entity>,
     ) {
         // draw the basic graphics
         gl_use_default_material();
@@ -110,7 +112,7 @@ impl Renderer {
             cam,
             Origin::TopLeft,
         ));
-        draw(world, tsi, tex);
+        draw(world, tsi, tex, draw_order);
 
         // initialise the offscreen texture for jump flood algorithm
         gl_use_material(self.jfa_init_material);

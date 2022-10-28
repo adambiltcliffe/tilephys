@@ -1,43 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="14" nextobjectid="32">
  <tileset firstgid="1" source="phtiles16.tsx"/>
- <layer id="1" name="Tile Layer 1" width="40" height="30">
-  <data encoding="base64" compression="zlib">
-   <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYBgFo4BywIiHD2IzoWF86rHpJ8W+oaofV/jQ0n4AK8wAKw==
-  </chunk>
-   <chunk x="16" y="-16" width="16" height="16">
-   eJxjYBgFo2AUjBTAiIYBBCgABQ==
-  </chunk>
-   <chunk x="32" y="-16" width="16" height="16">
-   eJxjYBgFo2BoA0YC/JGgnwkJk6IfAAxAABE=
-  </chunk>
-   <chunk x="-16" y="0" width="16" height="16">
-   eJytkVEKACEIRNXdqPufuD4KYsActx14lNSkqYqITmxDAZTCmhX66wc/8gzeQdnitffyMzHzR68eL3+mHpyNBfdl3rnJb4czxs/0/9TjqP+M/6/5M8r4G+mPuNF6owNWtwCY
-  </chunk>
-   <chunk x="0" y="0" width="16" height="16">
-   eJxjYBhYwEgEJtYcUsQHo35sfiZWPxOF9pOrn5j4QzeD1DgmN00MF4DP/5SGPwBvjABB
-  </chunk>
-   <chunk x="16" y="0" width="16" height="16">
-   eJxjYCANMOJgj1T9uDAp+vGpGar6cYUFqeGPL2zJiT9cbhms+gn5nxiMy04QGwBtMABA
-  </chunk>
-   <chunk x="32" y="0" width="16" height="16">
-   eJxjYGBgYGRABeh8QmAg9TPi0E8spgRQop+TCP2Uup/W/h8OYLCmD3L0k+N+AI/oAEA=
-  </chunk>
-   <chunk x="48" y="0" width="16" height="16">
-   eJxjYBgFAwkY0TC99aObRan+weQWeuunRlxSAsjRDwAmVAAX
-  </chunk>
-   <chunk x="16" y="16" width="16" height="16">
-   eJxjYCANMOJgU1s/Ix5MrH5KALX1g/jMQMyChknRjy8ssOknVu0oGLkAAIP4ADA=
-  </chunk>
-   <chunk x="32" y="16" width="16" height="16">
-   eJxjYEAARgbKADn6GdHwUAOsDKjuZ0YTIwSQ1Q1E+ONyy3AxgxAe6QAAaMQALQ==
-  </chunk>
-   <chunk x="48" y="16" width="16" height="16">
-   eJxjYEAARgbKwKj+Uf301s+IhkcBaQAAJqQAEA==
-  </chunk>
-  </data>
- </layer>
  <layer id="12" name="releaser" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="48" y="0" width="16" height="16">
@@ -182,4 +145,41 @@
    <point/>
   </object>
  </objectgroup>
+ <layer id="1" name="main" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo4BywIiHD2IzoWF86rHpJ8W+oaofV/jQ0n4AK8wAKw==
+  </chunk>
+   <chunk x="16" y="-16" width="16" height="16">
+   eJxjYBgFo2AUjBTAiIYBBCgABQ==
+  </chunk>
+   <chunk x="32" y="-16" width="16" height="16">
+   eJxjYBgFo2BoA0YC/JGgnwkJk6IfAAxAABE=
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJytkVEKACEIRNXdqPufuD4KYsActx14lNSkqYqITmxDAZTCmhX66wc/8gzeQdnitffyMzHzR68eL3+mHpyNBfdl3rnJb4czxs/0/9TjqP+M/6/5M8r4G+mPuNF6owNWtwCY
+  </chunk>
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBhYwEgEJtYcUsQHo35sfiZWPxOF9pOrn5j4QzeD1DgmN00MF4DP/5SGPwBvjABB
+  </chunk>
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjYCANMOJgj1T9uDAp+vGpGar6cYUFqeGPL2zJiT9cbhms+gn5nxiMy04QGwBtMABA
+  </chunk>
+   <chunk x="32" y="0" width="16" height="16">
+   eJxjYGBgYGRABeh8QmAg9TPi0E8spgRQop+TCP2Uup/W/h8OYLCmD3L0k+N+AI/oAEA=
+  </chunk>
+   <chunk x="48" y="0" width="16" height="16">
+   eJxjYBgFAwkY0TC99aObRan+weQWeuunRlxSAsjRDwAmVAAX
+  </chunk>
+   <chunk x="16" y="16" width="16" height="16">
+   eJxjYCANMOJgU1s/Ix5MrH5KALX1g/jMQMyChknRjy8ssOknVu0oGLkAAIP4ADA=
+  </chunk>
+   <chunk x="32" y="16" width="16" height="16">
+   eJxjYEAARgbKADn6GdHwUAOsDKjuZ0YTIwSQ1Q1E+ONyy3AxgxAe6QAAaMQALQ==
+  </chunk>
+   <chunk x="48" y="16" width="16" height="16">
+   eJxjYEAARgbKwKj+Uf301s+IhkcBaQAAJqQAEA==
+  </chunk>
+  </data>
+ </layer>
 </map>
