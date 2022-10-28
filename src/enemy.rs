@@ -51,6 +51,7 @@ fn player_x(world: &World, player_id: Entity) -> Option<f32> {
 pub(crate) struct Enemy {
     kind: EnemyKind,
     dir: f32,
+    jumped: bool,
     pub hp: i32,
 }
 
@@ -59,6 +60,7 @@ impl Enemy {
         Self {
             kind,
             dir: 0.0,
+            jumped: false,
             hp: 3,
         }
     }
@@ -69,15 +71,24 @@ impl Enemy {
             .query::<(&mut Actor, &mut Enemy, &IntRect, &mut DogSprite)>()
             .iter()
         {
-            if with_prob(0.1) {
+            if (actor.grounded || enemy.jumped) && with_prob(0.1) {
                 if player_x.is_some() && with_prob(0.5) {
                     enemy.dir = (player_x.unwrap() - rect.centre().x).signum() * 5.0;
                 } else {
                     enemy.dir = 5.0 * rand_sign();
                 }
             }
-            if actor.grounded && with_prob(enemy.kind.jump_prob()) {
-                actor.vy = enemy.kind.jump_vel()
+            if actor.grounded {
+                if with_prob(enemy.kind.jump_prob()) {
+                    actor.vy = enemy.kind.jump_vel();
+                    enemy.jumped = true;
+                } else {
+                    enemy.jumped = false
+                }
+            } else {
+                if !enemy.jumped {
+                    enemy.dir = 0.0;
+                }
             }
             actor.vx += enemy.dir;
             if actor.vx < 0.0 {

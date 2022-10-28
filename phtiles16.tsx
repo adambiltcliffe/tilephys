@@ -31,4 +31,9 @@
    <property name="background" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="8">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+  </properties>
+ </tile>
 </tileset>

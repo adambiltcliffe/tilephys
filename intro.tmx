@@ -22,7 +22,7 @@
    eJxjYCANMOJgU1s/Ix5MrH5KALX1g/jMQMyChknRjy8ssOknVu0oGLkAAIP4ADA=
   </chunk>
    <chunk x="32" y="16" width="16" height="16">
-   eJxjYBhYwEgkptQOWulnZaDM/dTw3ygYBeQCAFcMAB0=
+   eJxjYBhYwEgkptQOcgEnAf2sDJS5nxr+GwWjgFwAAHDsACY=
   </chunk>
   </data>
  </layer>
@@ -89,7 +89,10 @@
  <layer id="6" name="door" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="0" y="0" width="16" height="16">
-   eJxjYBgFo2BkAKYhrp8WAAAI+AAH
+   eJxjYBgFo2BkADYK9fNQqF+IQv20AAAe0AAl
+  </chunk>
+   <chunk x="32" y="16" width="16" height="16">
+   eJxjYBj6gI1C/UJUccUoGAVDDwAATSAAGQ==
   </chunk>
   </data>
  </layer>
