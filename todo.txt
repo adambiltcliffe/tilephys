@@ -4,10 +4,13 @@ vfx
 player damage and death
 * god mode cheat for debugging!
 * health pickups
+fps counter
 more efficient collision testing
 move resources into structure of some sort
 visible switches or other interactibles
 rewrite scripting layer
+non-hard-coded map loader
+* test map(s)
 top level menu-play-report loop
 weapons/ammo
 * ammo pickups
