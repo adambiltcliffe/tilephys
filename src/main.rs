@@ -37,6 +37,7 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf())]
 async fn main() {
+    set_pc_assets_folder("assets");
     let mut loader = LoadingManager::new();
     let map = loader.load("intro.tmx").await.unwrap();
 
