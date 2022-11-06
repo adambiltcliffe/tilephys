@@ -1,4 +1,4 @@
-player graphic
+projectile graphic
 vfx
 * enemy death sprites?
 player damage and death
@@ -15,5 +15,5 @@ top level menu-play-report loop
 weapons/ammo
 * ammo pickups
 more tiles
-nice script debug output
+nice script debug output/tidy up console output
 better error handling in general

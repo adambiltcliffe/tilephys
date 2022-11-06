@@ -1,5 +1,5 @@
 use camera::{add_camera, PlayerCamera};
-use draw::ColorRect;
+use draw::PlayerSprite;
 use enemy::Enemy;
 use hecs::CommandBuffer;
 use input::Input;
@@ -54,13 +54,13 @@ async fn main() {
     let (player_id, mut eye, mut cam) = {
         let mut world = world_ref.borrow_mut();
 
-        let player_rect = IntRect::new(player_start.0 - 12, player_start.1 - 24, 24, 24);
+        let player_rect = IntRect::new(player_start.0 - 8, player_start.1 - 24, 16, 24);
         let player_eye = player_rect.centre();
         let camera_pos = add_camera(&mut world, player_rect.centre());
         let player = Actor::new(&player_rect, 0.6);
         let controller = Controller::new();
-        let color = ColorRect::new(GREEN);
-        let player_id = world.spawn((player_rect, player, controller, color));
+        let sprite = PlayerSprite::new();
+        let player_id = world.spawn((player_rect, player, controller, sprite));
 
         (player_id, player_eye, camera_pos)
     };
@@ -71,7 +71,10 @@ async fn main() {
     let mut clock = Timer::new();
     let mut input = Input::new();
 
-    let tex = load_texture("robodog.png").await.unwrap();
+    let tex = [
+        load_texture("princess.png").await.unwrap(),
+        load_texture("robodog.png").await.unwrap(),
+    ];
     loop {
         input.update();
 

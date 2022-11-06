@@ -13,6 +13,22 @@ impl ColorRect {
     }
 }
 
+pub(crate) struct PlayerSprite {
+    pub n: i32,
+    pub firing: bool,
+    pub flipped: bool,
+}
+
+impl PlayerSprite {
+    pub fn new() -> Self {
+        Self {
+            n: 0,
+            firing: false,
+            flipped: true,
+        }
+    }
+}
+
 pub(crate) struct DogSprite {
     pub n: i32,
     pub flipped: bool,
@@ -30,7 +46,7 @@ impl DogSprite {
 pub(crate) fn draw(
     world: &mut World,
     tsi: &TilesetInfo,
-    tex: &Texture2D,
+    tex: &[Texture2D; 2],
     draw_order: &Vec<Entity>,
 ) {
     // we don't actually need mutable access to the world but having it lets us tell
@@ -81,9 +97,25 @@ pub(crate) fn draw(
         );
     }
 
+    for (_, (rect, spr)) in world.query::<(&IntRect, &PlayerSprite)>().iter() {
+        let frame = if spr.firing { 2 } else { spr.n * 5 % 2 };
+        draw_texture_ex(
+            tex[0],
+            rect.x as f32,
+            rect.y as f32,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(16.0, 24.0)),
+                source: Some(Rect::new(0.0, 24.0 * frame as f32, 16.0, 24.0)),
+                flip_x: spr.flipped,
+                ..Default::default()
+            },
+        );
+    }
+
     for (_, (rect, spr)) in world.query::<(&IntRect, &DogSprite)>().iter() {
         draw_texture_ex(
-            *tex,
+            tex[1],
             rect.x as f32,
             rect.y as f32,
             WHITE,

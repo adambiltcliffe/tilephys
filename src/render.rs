@@ -102,7 +102,7 @@ impl Renderer {
         eye: Vec2,
         cam: Vec2,
         tsi: &TilesetInfo,
-        tex: &Texture2D,
+        tex: &[Texture2D; 2],
         draw_order: &Vec<Entity>,
     ) {
         // draw the basic graphics

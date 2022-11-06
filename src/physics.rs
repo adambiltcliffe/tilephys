@@ -1,3 +1,4 @@
+use crate::draw::PlayerSprite;
 use crate::enemy::Enemy;
 use crate::input::{Input, VirtualKey};
 use crate::loader::TileFlags;
@@ -213,6 +214,7 @@ pub struct Controller {
     jump_frames: u32,
     triggers: HashSet<String>,
     facing: i8,
+    fire_timer: u32,
 }
 
 impl Controller {
@@ -221,13 +223,14 @@ impl Controller {
             jump_frames: 0,
             triggers: HashSet::new(),
             facing: 1,
+            fire_timer: 100000,
         }
     }
 
     pub fn update(world: &World, buffer: &mut CommandBuffer, input: &Input) -> HashSet<String> {
         let mut result: HashSet<String> = HashSet::new();
-        let mut q = world.query::<(&mut Actor, &IntRect, &mut Controller)>();
-        for (_, (player, p_rect, controller)) in q.iter() {
+        let mut q = world.query::<(&mut Actor, &IntRect, &mut PlayerSprite, &mut Controller)>();
+        for (_, (player, p_rect, sprite, controller)) in q.iter() {
             let mut new_triggers: HashSet<String> = HashSet::new();
             for (_, (trigger, t_rect)) in world.query::<(&TriggerZone, &IntRect)>().iter() {
                 if p_rect.intersects(&t_rect) {
@@ -242,16 +245,20 @@ impl Controller {
             if input.is_down(VirtualKey::Left) {
                 player.vx -= 3.0;
                 controller.facing = -1;
+                sprite.flipped = false;
             }
             if input.is_down(VirtualKey::Right) {
                 player.vx += 3.0;
                 controller.facing = 1;
+                sprite.flipped = true;
             }
             if input.is_pressed(VirtualKey::Fire) {
                 let color = crate::draw::ColorRect::new(RED);
                 let proj = Projectile::new(p_rect, controller.facing as f32 * 10.0, 0.0);
                 buffer.spawn((p_rect.clone(), color, proj));
-                player.vx -= controller.facing as f32 * 5.0;
+                player.vx -= controller.facing as f32 * 10.0;
+                controller.fire_timer = 0;
+                sprite.firing = true;
             }
             if player.grounded && input.is_pressed(VirtualKey::Jump) {
                 player.vy = -6.0;
@@ -261,6 +268,13 @@ impl Controller {
                 controller.jump_frames -= 1;
             } else {
                 controller.jump_frames = 0;
+            }
+            if player.grounded {
+                sprite.n += player.vx.abs() as i32;
+            }
+            controller.fire_timer += 1;
+            if controller.fire_timer > 5 {
+                sprite.firing = false;
             }
         }
         result
