@@ -54,7 +54,7 @@ async fn main() {
     let (player_id, mut eye, mut cam) = {
         let mut world = world_ref.borrow_mut();
 
-        let player_rect = IntRect::new(player_start.0 - 8, player_start.1 - 24, 16, 24);
+        let player_rect = IntRect::new(player_start.0 - 8, player_start.1 - 24, 14, 24);
         let player_eye = player_rect.centre();
         let camera_pos = add_camera(&mut world, player_rect.centre());
         let player = Actor::new(&player_rect, 0.6);

@@ -101,7 +101,7 @@ pub(crate) fn draw(
         let frame = if spr.firing { 2 } else { spr.n * 5 % 2 };
         draw_texture_ex(
             tex[0],
-            rect.x as f32,
+            (rect.x - 1) as f32,
             rect.y as f32,
             WHITE,
             DrawTextureParams {
