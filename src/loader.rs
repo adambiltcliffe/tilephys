@@ -20,6 +20,7 @@ pub(crate) struct LoadedMap {
     pub tileset_info: TilesetInfo,
     pub player_start: (i32, i32),
     pub draw_order: Vec<Entity>,
+    pub secret_count: u32,
 }
 
 #[derive(Clone)]
@@ -127,6 +128,7 @@ impl LoadingManager {
         let mut body_ids: HashMap<String, Entity> = HashMap::new();
         let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
         let (mut psx, mut psy) = (0, 0);
+        let mut secret_count = 0;
 
         if map.tilesets().len() != 1 {
             return Err("map should contain only one tileset".to_owned());
@@ -238,13 +240,22 @@ impl LoadingManager {
                             }
                             tiled::ObjectData {
                                 name,
+                                obj_type,
                                 shape: tiled::ObjectShape::Rect { width, height },
                                 x,
                                 y,
                                 ..
                             } => {
-                                println!("found a trigger zone named {}", name);
-                                let tz = TriggerZone { name: name.clone() };
+                                let secret = obj_type == "secret";
+                                if secret {
+                                    secret_count += 1
+                                }
+                                println!(
+                                    "found a{} trigger zone named {}",
+                                    if secret { " secret" } else { "" },
+                                    name
+                                );
+                                let tz = TriggerZone::new(name.clone(), secret);
                                 let rect = IntRect::new(
                                     *x as i32,
                                     *y as i32,
@@ -283,6 +294,7 @@ impl LoadingManager {
             tileset_info,
             player_start: (psx, psy),
             draw_order,
+            secret_count,
         })
     }
 }

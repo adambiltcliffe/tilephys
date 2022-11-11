@@ -58,8 +58,29 @@ fn feet_rect(rect: &IntRect) -> IntRect {
     IntRect::new(rect.x, rect.y + rect.h, rect.w, 1)
 }
 
+#[derive(PartialEq, Eq)]
+pub enum Secrecy {
+    NotSecret,
+    HiddenSecret,
+    FoundSecret,
+}
+
 pub struct TriggerZone {
     pub name: String,
+    pub secrecy: Secrecy,
+}
+
+impl TriggerZone {
+    pub fn new(name: String, secret: bool) -> Self {
+        Self {
+            name,
+            secrecy: if secret {
+                Secrecy::HiddenSecret
+            } else {
+                Secrecy::NotSecret
+            },
+        }
+    }
 }
 
 pub struct TileBody {
@@ -227,16 +248,25 @@ impl Controller {
         }
     }
 
-    pub fn update(world: &World, buffer: &mut CommandBuffer, input: &Input) -> HashSet<String> {
+    pub fn update(
+        world: &World,
+        buffer: &mut CommandBuffer,
+        input: &Input,
+    ) -> (HashSet<String>, u32) {
         let mut result: HashSet<String> = HashSet::new();
+        let mut secret_count = 0;
         let mut q = world.query::<(&mut Actor, &IntRect, &mut PlayerSprite, &mut Controller)>();
         for (_, (player, p_rect, sprite, controller)) in q.iter() {
             let mut new_triggers: HashSet<String> = HashSet::new();
-            for (_, (trigger, t_rect)) in world.query::<(&TriggerZone, &IntRect)>().iter() {
+            for (_, (trigger, t_rect)) in world.query::<(&mut TriggerZone, &IntRect)>().iter() {
                 if p_rect.intersects(&t_rect) {
                     let name = trigger.name.clone();
                     if !controller.triggers.contains(&name) {
                         result.insert(name.clone());
+                        if trigger.secrecy == Secrecy::HiddenSecret {
+                            trigger.secrecy = Secrecy::FoundSecret;
+                            secret_count += 1;
+                        }
                     }
                     new_triggers.insert(name);
                 }
@@ -277,7 +307,7 @@ impl Controller {
                 sprite.firing = false;
             }
         }
-        result
+        (result, secret_count)
     }
 }
 

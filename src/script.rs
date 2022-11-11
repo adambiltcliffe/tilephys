@@ -105,7 +105,7 @@ impl ScriptEngine {
             Some(ast) => self
                 .engine
                 .call_fn::<()>(&mut self.scope, &ast, name, ())
-                .unwrap(),
+                .unwrap_or_else(|_| println!("calling entry point {} failed", name)),
         }
     }
 }

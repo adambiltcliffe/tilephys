@@ -8,6 +8,7 @@ fn init() {
     set_path("releaser2", "right3");
     set_path("secretdoors", "door");
     set_path("secretplat", "right3");
+    set_path("falsewall", "drop3");
 
     set_path("doodler", "doodler");
     set_motion("doodler", ForwardCycle, 0.5);
@@ -36,4 +37,8 @@ fn releaser_trigger_enter() {
     set_motion_goto("releaser2", 1, 4.0);
     set_motion_goto("secretdoors", 1, 4.0);
     set_motion_goto("secretplat", 1, 4.0);
+}
+
+fn compartment_enter() {
+    set_motion_goto("falsewall", 1, 4.0);
 }

@@ -49,8 +49,12 @@ async fn main() {
         world_ref,
         player_start,
         draw_order,
+        secret_count,
         ..
     } = map;
+
+    println!("map has {} secret areas", secret_count);
+
     let (player_id, mut eye, mut cam) = {
         let mut world = world_ref.borrow_mut();
 
@@ -83,7 +87,7 @@ async fn main() {
             let mut buffer = CommandBuffer::new();
             ConstantMotion::apply(&world);
             PathMotion::apply(&world);
-            let new_triggers = Controller::update(&world, &mut buffer, &input);
+            let (new_triggers, new_secrets) = Controller::update(&world, &mut buffer, &input);
             Enemy::update(&world, player_id);
             Actor::update(&world);
             Projectile::update(&world, &mut buffer);
@@ -99,6 +103,10 @@ async fn main() {
             }
 
             drop(world);
+
+            if new_secrets > 0 {
+                println!("found a secret area!");
+            }
 
             for t in new_triggers {
                 println!("entered new trigger zone {}", t);
