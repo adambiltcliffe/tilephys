@@ -10,6 +10,7 @@ use player::Controller;
 use render::Renderer;
 use resources::Resources;
 use script::ScriptEngine;
+use std::rc::Rc;
 use timer::Timer;
 use visibility::compute_obscurers;
 
@@ -50,12 +51,11 @@ async fn main() {
     script_engine.call_entry_point("init");
 
     let LoadedMap {
-        world_ref,
         player_start,
-        draw_order,
         secret_count,
         ..
     } = map;
+    let world_ref = Rc::clone(&map.world_ref);
 
     println!("map has {} secret areas", secret_count);
 
@@ -79,7 +79,7 @@ async fn main() {
     let mut clock = Timer::new();
     let mut input = Input::new();
 
-    let resources = Resources::new().await;
+    let resources = Resources::new(&map).await;
 
     loop {
         input.update();
@@ -125,7 +125,6 @@ async fn main() {
             cam,
             &map.tileset_info,
             &resources,
-            &draw_order,
             clock.get_fps(),
         );
 
