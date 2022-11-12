@@ -2,7 +2,7 @@ use crate::draw::PlayerSprite;
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Projectile, Secrecy, TriggerZone};
 use hecs::{CommandBuffer, World};
-use macroquad::prelude::RED;
+use macroquad::prelude::Color;
 use std::collections::HashSet;
 
 pub struct Controller {
@@ -57,9 +57,15 @@ impl Controller {
                 sprite.flipped = true;
             }
             if input.is_pressed(VirtualKey::Fire) {
-                let color = crate::draw::ColorRect::new(RED);
-                let proj = Projectile::new(p_rect, controller.facing as f32 * 10.0, 0.0);
-                buffer.spawn((p_rect.clone(), color, proj));
+                let color = crate::draw::ColorRect::new(Color::new(0.58, 1.0, 0.25, 1.0));
+                let rect = IntRect::new(
+                    p_rect.x + 3 + controller.facing as i32 * 9,
+                    p_rect.y + 11,
+                    8,
+                    5,
+                );
+                let proj = Projectile::new(&rect, controller.facing as f32 * 10.0, 0.0);
+                buffer.spawn((rect, color, proj));
                 player.vx -= controller.facing as f32 * 10.0;
                 controller.fire_timer = 0;
                 sprite.firing = true;
