@@ -126,6 +126,7 @@ async fn main() {
             &map.tileset_info,
             &tex,
             &draw_order,
+            clock.get_fps(),
         );
 
         next_frame().await;

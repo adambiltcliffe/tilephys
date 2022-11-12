@@ -104,6 +104,7 @@ impl Renderer {
         tsi: &TilesetInfo,
         tex: &[Texture2D; 2],
         draw_order: &Vec<Entity>,
+        fps: u32,
     ) {
         // draw the basic graphics
         gl_use_default_material();
@@ -184,6 +185,21 @@ impl Renderer {
             },
         );
 
+        // draw text here (it's not affected by visibility but does need scaling)
+        gl_use_default_material();
+        let (font_size, font_scale, font_scale_aspect) = camera_font_scale(16.0);
+        draw_text_ex(
+            &format!("FPS: {}", fps),
+            WALL_VISION_DEPTH.ceil(),
+            self.height - WALL_VISION_DEPTH.ceil() - 8.0,
+            TextParams {
+                font_size,
+                font_scale: -font_scale,
+                font_scale_aspect: -font_scale_aspect,
+                ..Default::default()
+            },
+        );
+
         // finally draw to the screen
         gl_use_default_material();
         let sw = screen_width();
@@ -214,7 +230,7 @@ impl Renderer {
                 dest_size: Some(vec2(zoomed_width, zoomed_height)),
                 ..Default::default()
             },
-        )
+        );
     }
 }
 
