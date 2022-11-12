@@ -8,6 +8,7 @@ use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, IntRect, PathMotion, Projectile};
 use player::Controller;
 use render::Renderer;
+use resources::Resources;
 use script::ScriptEngine;
 use timer::Timer;
 use visibility::compute_obscurers;
@@ -20,6 +21,7 @@ mod loader;
 mod physics;
 mod player;
 mod render;
+mod resources;
 mod script;
 mod timer;
 mod visibility;
@@ -77,10 +79,8 @@ async fn main() {
     let mut clock = Timer::new();
     let mut input = Input::new();
 
-    let tex = [
-        load_texture("princess.png").await.unwrap(),
-        load_texture("robodog.png").await.unwrap(),
-    ];
+    let resources = Resources::new().await;
+
     loop {
         input.update();
 
@@ -124,7 +124,7 @@ async fn main() {
             eye,
             cam,
             &map.tileset_info,
-            &tex,
+            &resources,
             &draw_order,
             clock.get_fps(),
         );

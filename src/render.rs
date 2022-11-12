@@ -1,5 +1,6 @@
 use crate::draw::draw;
 use crate::loader::TilesetInfo;
+use crate::resources::Resources;
 use crate::visibility::draw_visibility;
 use hecs::Entity;
 use macroquad::prelude::*;
@@ -102,7 +103,7 @@ impl Renderer {
         eye: Vec2,
         cam: Vec2,
         tsi: &TilesetInfo,
-        tex: &[Texture2D; 2],
+        resources: &Resources,
         draw_order: &Vec<Entity>,
         fps: u32,
     ) {
@@ -113,7 +114,7 @@ impl Renderer {
             cam,
             Origin::TopLeft,
         ));
-        draw(world, tsi, tex, draw_order);
+        draw(world, tsi, resources, draw_order);
 
         // initialise the offscreen texture for jump flood algorithm
         gl_use_material(self.jfa_init_material);

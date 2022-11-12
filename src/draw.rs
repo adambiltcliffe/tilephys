@@ -1,5 +1,6 @@
 use crate::loader::TilesetInfo;
 use crate::physics::{IntRect, TileBody};
+use crate::resources::Resources;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
 
@@ -46,7 +47,7 @@ impl DogSprite {
 pub(crate) fn draw(
     world: &mut World,
     tsi: &TilesetInfo,
-    tex: &[Texture2D; 2],
+    resources: &Resources,
     draw_order: &Vec<Entity>,
 ) {
     // we don't actually need mutable access to the world but having it lets us tell
@@ -100,7 +101,7 @@ pub(crate) fn draw(
     for (_, (rect, spr)) in world.query::<(&IntRect, &PlayerSprite)>().iter() {
         let frame = if spr.firing { 2 } else { spr.n * 5 % 2 };
         draw_texture_ex(
-            tex[0],
+            resources.player_sprite,
             (rect.x - 1) as f32,
             rect.y as f32,
             WHITE,
@@ -115,7 +116,7 @@ pub(crate) fn draw(
 
     for (_, (rect, spr)) in world.query::<(&IntRect, &DogSprite)>().iter() {
         draw_texture_ex(
-            tex[1],
+            resources.dog_sprite,
             rect.x as f32,
             rect.y as f32,
             WHITE,
