@@ -1,4 +1,5 @@
-use crate::physics::{Actor, Controller, IntRect};
+use crate::physics::{Actor, IntRect};
+use crate::player::Controller;
 use hecs::World;
 use macroquad::prelude::*;
 
