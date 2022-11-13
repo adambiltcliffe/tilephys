@@ -19,6 +19,7 @@ mod draw;
 mod enemy;
 mod input;
 mod loader;
+mod messages;
 mod physics;
 mod player;
 mod render;
@@ -79,7 +80,7 @@ async fn main() {
     let mut clock = Timer::new();
     let mut input = Input::new();
 
-    let resources = Resources::new(&map).await;
+    let mut resources = Resources::new(&map).await;
 
     loop {
         input.update();
@@ -107,7 +108,7 @@ async fn main() {
             drop(world);
 
             if new_secrets > 0 {
-                println!("found a secret area!");
+                resources.messages.add("Found a secret area!".to_owned());
             }
 
             for t in new_triggers {
@@ -116,6 +117,7 @@ async fn main() {
             }
 
             input.reset();
+            resources.messages.update();
         }
 
         // this interface is getting busy

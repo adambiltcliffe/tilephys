@@ -1,5 +1,6 @@
 use crate::draw::draw;
 use crate::loader::TilesetInfo;
+use crate::messages::Messages;
 use crate::resources::Resources;
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
@@ -191,13 +192,11 @@ impl Renderer {
             vec2(self.width / 2., self.height / 2.),
             Origin::TopLeft,
         ));
-        draw_text(
-            &format!("FPS: {}", fps),
-            WALL_VISION_DEPTH.ceil(),
-            WALL_VISION_DEPTH.ceil() + 9.0, // why is it 9?
-            16.0,
-            WHITE,
-        );
+        let mut y = WALL_VISION_DEPTH.ceil() - resources.messages.offset as f32 + 9.0; // why is it 9?
+        for m in resources.messages.iter_messages() {
+            draw_text(m, WALL_VISION_DEPTH.ceil(), y, 16.0, WHITE);
+            y += Messages::HEIGHT as f32;
+        }
 
         // finally draw to the screen
         gl_use_default_material();
