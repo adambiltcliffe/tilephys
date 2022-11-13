@@ -36,7 +36,7 @@ fn releaser_trigger_enter() {
     set_motion_goto("releaser", 1, 4.0);
     set_motion_goto("releaser2", 1, 4.0);
     set_motion_goto("secretdoors", 1, 4.0);
-    set_motion_goto("secretplat", 1, 4.0);
+    set_motion_goto("secretplat", 1, 0.5);
 }
 
 fn compartment_enter() {

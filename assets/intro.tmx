@@ -4,7 +4,7 @@
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYBgFo4Aw4EbDhNRQagc64ELD2IAghfphegUJ6BcgoJ9c+/EBYvTjk4e5G90cANcPAgw=
+   eJxjYBgFo4Aw4EbDhNSQAwTx6OdCw/jsF6RQPyH7BXDoxweIsR+fPDH6CdkvgMUcAMrfAes=
   </chunk>
    <chunk x="0" y="-16" width="16" height="16">
    eJxjYBgFo4AywI2EydUvSKF+SuyH2U2ufkoBFxALQGl6AwDU+AC1
@@ -16,7 +16,7 @@
    eJxjYBgFo4BywI2EKdEvOMD2D6R+QQr0kwsA5NAA0w==
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJxjYCAOcOHA+OSIweTqJ+RGBhxsATQxUvUT4w5084jVj89+XOZT0/0CFOonxX5c/sGnH9192PSjxy8++4l1P7HpkNr6CQFi1eEDAK0MBdc=
+   eJxjYGBg4KIAMwyQfmwAl7nIbAE0MVL1E+MOdPOI1Y/PflzmU9P9AhTqJ8V+XP7Bpx/dfdj0o8cvPvuJdT+x6ZDa+gkBYtXhAwAOIgYx
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
    eJzjYmBg4MKBBfDIUYKRzUUGMDl0QIyZuNRRQz8+QE39xIhjUyeAxKaG+3HFDy0BobghRT0t0y42O2htFz7/UwoAYyMGPw==
@@ -64,7 +64,7 @@
  <layer id="9" name="doodler" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYBgFo2AUDAfASIYeAAQ0AAI=
+   eJxjYBgFo2AUDAbAOAB2AgAEdAAC
   </chunk>
    <chunk x="0" y="-16" width="16" height="16">
    eJxjYBgFo2AUDCRgHEC7AQR8AAI=
@@ -196,7 +196,7 @@
    <polyline points="0,0 48,0"/>
   </object>
   <object id="18" name="unlock_trigger" x="368" y="336" width="48" height="32"/>
-  <object id="20" name="doodler" x="-208" y="0">
+  <object id="20" name="doodler" x="-208" y="-16">
    <polyline points="0,0 32,0"/>
   </object>
   <object id="24" name="piston" x="544" y="192">
@@ -227,7 +227,7 @@
  <layer id="1" name="main" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYBgFowA/YCRCDB8fxGZCw6Tqp9T+oaAfV/jg0o9PDSH9MAAAL6wALQ==
+   eJxjYBgFowA/YCRCDB8fxGZCw6Tqp9R+eujH5T9a2Y+O0e1HxrgAADMMADc=
   </chunk>
    <chunk x="0" y="-16" width="16" height="16">
    eJxjYBgFo4B8wEiAPxL0MyHhwWA/KRgAGDgAJg==
@@ -239,7 +239,7 @@
    eJxjYBgFo4AywEiAP6qfdvoZoZgJCZOiHwAS0AAW
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJytkVsKQCEIRNWK7v5XfPtICEGdHgMHEps0ZSLiiSywwVOUQ6T+fuCzlEEdtCXWs1cXiZE/ev149Xf6sbuR5D7NOzf1JcghfmT+0Yyz+SP+V/tHtOP/QH/GjfSNH09nAJY=
+   eJxjZKAMMFJJPzsZ+tAxMxCzADErEh/GxmUvMXxi/IjLPbjsJ8U9IDYTGibkfiYK7WfCI0eMfmLCH18YEwp/YvRTK/6JAaTo5yBSPyFMCYCZAQAgSwCK
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
    eJxjYBhYwIiEsYkxYtOEwxxSxEnRjw9T035SzEUHTBTaT65+QuGDLQ4JyRNjx0gChNIdJeEPAHxYAEY=
