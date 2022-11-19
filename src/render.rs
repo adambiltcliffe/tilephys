@@ -200,14 +200,15 @@ impl Renderer {
             y += Messages::HEIGHT as f32;
         }
         if let Ok(c) = world.get::<&Controller>(resources.player_id) {
-            for ii in 0..c.hp {
+            for ii in 0..3 {
+                let sy = if ii < c.hp { 0.0 } else { 16.0 };
                 draw_texture_ex(
                     resources.ui_sprite,
                     wvdc + 16.0 * ii as f32,
                     self.height - wvdc - 16.0,
                     WHITE,
                     DrawTextureParams {
-                        source: Some(Rect::new(0.0, 0.0, 16.0, 16.0)),
+                        source: Some(Rect::new(0.0, sy, 16.0, 16.0)),
                         ..Default::default()
                     },
                 );
