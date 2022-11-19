@@ -1,5 +1,6 @@
 use crate::draw::DogSprite;
 use crate::physics::{Actor, IntRect};
+use crate::player::Controller;
 use crate::resources::Resources;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
@@ -103,6 +104,13 @@ impl Enemy {
                 spr.flipped = true
             }
             spr.n += 1;
+            if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
+                if let Some((c, p_rect)) = q.get() {
+                    if rect.intersects(p_rect) {
+                        c.hurt();
+                    }
+                }
+            }
         }
     }
 }

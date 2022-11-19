@@ -10,6 +10,7 @@ pub struct Controller {
     triggers: HashSet<String>,
     facing: i8,
     fire_timer: u32,
+    hurt_timer: u8,
     pub hp: u8,
 }
 
@@ -20,6 +21,7 @@ impl Controller {
             triggers: HashSet::new(),
             facing: 1,
             fire_timer: 100000,
+            hurt_timer: 0,
             hp: 3,
         }
     }
@@ -32,7 +34,7 @@ impl Controller {
         let mut result: HashSet<String> = HashSet::new();
         let mut secret_count = 0;
         let mut q = world.query::<(&mut Actor, &IntRect, &mut PlayerSprite, &mut Controller)>();
-        for (_, (player, p_rect, sprite, controller)) in q.iter() {
+        for (id, (player, p_rect, sprite, controller)) in q.iter() {
             let mut new_triggers: HashSet<String> = HashSet::new();
             for (_, (trigger, t_rect)) in world.query::<(&mut TriggerZone, &IntRect)>().iter() {
                 if p_rect.intersects(&t_rect) {
@@ -91,7 +93,24 @@ impl Controller {
             if controller.fire_timer > 5 {
                 sprite.firing = false;
             }
+            if controller.hurt_timer > 0 {
+                controller.hurt_timer -= 1;
+                sprite.blink = (controller.hurt_timer / 3) % 2 == 0;
+            } else {
+                sprite.blink = false;
+            }
+            if controller.hp == 0 {
+                //sprite.blink = true;
+                buffer.remove_one::<Controller>(id);
+            }
         }
         (result, secret_count)
+    }
+
+    pub fn hurt(&mut self) {
+        if self.hurt_timer == 0 && self.hp > 0 {
+            self.hp -= 1;
+            self.hurt_timer = 24;
+        }
     }
 }

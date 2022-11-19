@@ -18,6 +18,7 @@ pub(crate) struct PlayerSprite {
     pub n: i32,
     pub firing: bool,
     pub flipped: bool,
+    pub blink: bool,
 }
 
 impl PlayerSprite {
@@ -26,6 +27,7 @@ impl PlayerSprite {
             n: 0,
             firing: false,
             flipped: true,
+            blink: false,
         }
     }
 }
@@ -94,6 +96,9 @@ pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo, resources: &Resources) 
     }
 
     for (_, (rect, spr)) in world.query::<(&IntRect, &PlayerSprite)>().iter() {
+        if spr.blink {
+            continue;
+        }
         let frame = if spr.firing { 2 } else { spr.n * 5 % 2 };
         draw_texture_ex(
             resources.player_sprite,
