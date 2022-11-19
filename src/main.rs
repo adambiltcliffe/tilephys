@@ -6,6 +6,7 @@ use input::Input;
 use loader::{LoadedMap, LoadingManager};
 use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, IntRect, PathMotion, Projectile};
+use pickup::Pickup;
 use player::Controller;
 use render::Renderer;
 use resources::Resources;
@@ -21,6 +22,7 @@ mod input;
 mod loader;
 mod messages;
 mod physics;
+mod pickup;
 mod player;
 mod render;
 mod resources;
@@ -95,6 +97,7 @@ async fn main() {
             Enemy::update(&world, &resources);
             Actor::update(&world);
             Projectile::update(&world, &mut resources, &mut buffer);
+            Pickup::update(&world, &mut resources, &mut buffer);
             buffer.run_on(&mut world);
 
             if let Ok(rect) = world.get::<&IntRect>(player_id) {

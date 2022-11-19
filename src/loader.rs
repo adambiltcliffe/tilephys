@@ -1,5 +1,6 @@
 use crate::enemy::{add_enemy, EnemyKind};
 use crate::physics::{IntRect, TileBody, TriggerZone};
+use crate::pickup::add_pickup;
 use bitflags::bitflags;
 use hecs::{Entity, World};
 use macroquad::{
@@ -275,6 +276,8 @@ impl LoadingManager {
                                     add_enemy(&mut world, EnemyKind::JumpyDog, *x as i32, *y as i32)
                                 } else if obj_type == "walker_enemy" {
                                     add_enemy(&mut world, EnemyKind::Dog, *x as i32, *y as i32);
+                                } else if obj_type == "heart" {
+                                    add_pickup(&mut world, *x as i32, *y as i32);
                                 } else {
                                     println!("found an unknown point object type: {}", obj_type)
                                 }

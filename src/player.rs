@@ -107,6 +107,7 @@ impl Controller {
                 // eventually maybe replace with a player corpse rather than vanishing
                 buffer.remove_one::<PlayerSprite>(id);
                 buffer.remove_one::<Controller>(id);
+                resources.messages.add("You have died.".to_owned());
             }
             if is_key_down(KeyCode::Q) && is_key_down(KeyCode::D) && !controller.god_mode {
                 controller.god_mode = true;
@@ -125,5 +126,13 @@ impl Controller {
 
     pub fn was_hurt(&self) -> bool {
         self.hurt_timer >= 23
+    }
+
+    pub fn can_heal(&self) -> bool {
+        self.hp < 3
+    }
+
+    pub fn heal(&mut self) {
+        self.hp += 1;
     }
 }

@@ -6,6 +6,7 @@ use macroquad::prelude::*;
 pub struct Resources {
     pub player_sprite: Texture2D,
     pub dog_sprite: Texture2D,
+    pub pickup_sprite: Texture2D,
     pub ui_sprite: Texture2D,
 
     pub player_id: Entity,
@@ -18,6 +19,7 @@ impl Resources {
         Self {
             player_sprite: load_texture("princess.png").await.unwrap(),
             dog_sprite: load_texture("robodog.png").await.unwrap(),
+            pickup_sprite: load_texture("pickup.png").await.unwrap(),
             ui_sprite: load_texture("ui-heart.png").await.unwrap(),
             player_id,
             draw_order: map.draw_order.clone(),

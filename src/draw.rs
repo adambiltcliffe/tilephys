@@ -46,6 +46,14 @@ impl DogSprite {
     }
 }
 
+pub(crate) struct PickupSprite {}
+
+impl PickupSprite {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo, resources: &Resources) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
@@ -93,6 +101,10 @@ pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo, resources: &Resources) 
             rect.h as f32,
             draw.color,
         );
+    }
+
+    for (_, (rect, _spr)) in world.query::<(&IntRect, &PickupSprite)>().iter() {
+        draw_texture(resources.pickup_sprite, rect.x as f32, rect.y as f32, WHITE);
     }
 
     for (_, (rect, spr)) in world.query::<(&IntRect, &PlayerSprite)>().iter() {
