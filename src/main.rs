@@ -80,7 +80,7 @@ async fn main() {
     let mut clock = Timer::new();
     let mut input = Input::new();
 
-    let mut resources = Resources::new(&map).await;
+    let mut resources = Resources::new(&map, player_id).await;
 
     loop {
         input.update();
@@ -91,7 +91,7 @@ async fn main() {
             ConstantMotion::apply(&world);
             PathMotion::apply(&world);
             let (new_triggers, new_secrets) = Controller::update(&world, &mut buffer, &input);
-            Enemy::update(&world, player_id);
+            Enemy::update(&world, &resources);
             Actor::update(&world);
             Projectile::update(&world, &mut resources, &mut buffer);
             buffer.run_on(&mut world);

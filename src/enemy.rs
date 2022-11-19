@@ -1,5 +1,6 @@
 use crate::draw::DogSprite;
 use crate::physics::{Actor, IntRect};
+use crate::resources::Resources;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
 
@@ -65,8 +66,8 @@ impl Enemy {
         }
     }
 
-    pub fn update(world: &World, player_id: Entity) {
-        let player_x = player_x(world, player_id);
+    pub fn update(world: &World, resources: &Resources) {
+        let player_x = player_x(world, resources.player_id);
         for (_, (actor, enemy, rect, spr)) in world
             .query::<(&mut Actor, &mut Enemy, &IntRect, &mut DogSprite)>()
             .iter()

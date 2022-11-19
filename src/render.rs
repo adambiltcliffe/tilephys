@@ -1,6 +1,7 @@
 use crate::draw::draw;
 use crate::loader::TilesetInfo;
 use crate::messages::Messages;
+use crate::player::Controller;
 use crate::resources::Resources;
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
@@ -198,16 +199,20 @@ impl Renderer {
             draw_text(m, wvdc, y, 16.0, WHITE);
             y += Messages::HEIGHT as f32;
         }
-        draw_texture_ex(
-            resources.ui_sprite,
-            wvdc,
-            self.height - wvdc - 16.0,
-            WHITE,
-            DrawTextureParams {
-                source: Some(Rect::new(0.0, 0.0, 16.0, 16.0)),
-                ..Default::default()
-            },
-        );
+        if let Ok(c) = world.get::<&Controller>(resources.player_id) {
+            for ii in 0..c.hp {
+                draw_texture_ex(
+                    resources.ui_sprite,
+                    wvdc + 16.0 * ii as f32,
+                    self.height - wvdc - 16.0,
+                    WHITE,
+                    DrawTextureParams {
+                        source: Some(Rect::new(0.0, 0.0, 16.0, 16.0)),
+                        ..Default::default()
+                    },
+                );
+            }
+        }
 
         // finally draw to the screen
         gl_use_default_material();

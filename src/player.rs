@@ -10,6 +10,7 @@ pub struct Controller {
     triggers: HashSet<String>,
     facing: i8,
     fire_timer: u32,
+    pub hp: u8,
 }
 
 impl Controller {
@@ -19,6 +20,7 @@ impl Controller {
             triggers: HashSet::new(),
             facing: 1,
             fire_timer: 100000,
+            hp: 3,
         }
     }
 
