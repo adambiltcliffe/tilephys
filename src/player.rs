@@ -100,7 +100,8 @@ impl Controller {
                 sprite.blink = false;
             }
             if controller.hp == 0 {
-                //sprite.blink = true;
+                // eventually maybe replace with a player corpse rather than vanishing
+                buffer.remove_one::<PlayerSprite>(id);
                 buffer.remove_one::<Controller>(id);
             }
         }

@@ -101,7 +101,7 @@ async fn main() {
                 *eye = *player_pos;
             }
 
-            if let Some(camera_pos) = PlayerCamera::update_and_get(&world) {
+            if let Some(camera_pos) = PlayerCamera::update_and_get(&world, &resources) {
                 *cam = *camera_pos;
             }
 

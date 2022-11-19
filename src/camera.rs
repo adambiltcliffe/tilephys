@@ -1,5 +1,5 @@
 use crate::physics::{Actor, IntRect};
-use crate::player::Controller;
+use crate::resources::Resources;
 use hecs::World;
 use macroquad::prelude::*;
 
@@ -24,15 +24,13 @@ impl PlayerCamera {
         Self { floor }
     }
 
-    pub fn update_and_get(world: &World) -> Option<Vec2> {
-        let (player_pos, player_grounded) = match world
-            .query::<(&Actor, &Controller, &IntRect)>()
-            .iter()
-            .next()
-        {
-            None => return None,
-            Some((_, (actor, _, rect))) => (rect.centre(), actor.grounded),
-        };
+    pub fn update_and_get(world: &World, resources: &Resources) -> Option<Vec2> {
+        let mut q = world
+            .query_one::<(&Actor, &IntRect)>(resources.player_id)
+            .ok()?;
+        let (player_pos, player_grounded) = q
+            .get()
+            .map(|(actor, rect)| (rect.centre(), actor.grounded))?;
         for (_, (cam, v)) in world.query::<(&mut PlayerCamera, &mut Vec2)>().iter() {
             v.x =
                 v.x.max(player_pos.x - CAMERA_BUFFER_X)
