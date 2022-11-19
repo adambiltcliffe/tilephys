@@ -93,7 +93,7 @@ async fn main() {
             let (new_triggers, new_secrets) = Controller::update(&world, &mut buffer, &input);
             Enemy::update(&world, player_id);
             Actor::update(&world);
-            Projectile::update(&world, &mut buffer);
+            Projectile::update(&world, &mut resources, &mut buffer);
             buffer.run_on(&mut world);
 
             if let Ok(rect) = world.get::<&IntRect>(player_id) {

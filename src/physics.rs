@@ -1,5 +1,6 @@
 use crate::enemy::Enemy;
 use crate::loader::TileFlags;
+use crate::resources::Resources;
 use hecs::{CommandBuffer, Entity, World};
 use macroquad::math::{vec2, Vec2};
 use std::collections::HashSet;
@@ -197,7 +198,7 @@ impl Projectile {
         }
     }
 
-    pub fn update(world: &World, buffer: &mut CommandBuffer) {
+    pub fn update(world: &World, resources: &mut Resources, buffer: &mut CommandBuffer) {
         for (e, (proj, rect)) in world.query::<(&mut Projectile, &mut IntRect)>().iter() {
             proj.prec_x += proj.vx;
             proj.prec_y += proj.vy;
@@ -219,6 +220,7 @@ impl Projectile {
                         buffer.despawn(e);
                         en.hp -= 1;
                         if en.hp <= 0 {
+                            resources.messages.add("Hound disabled.".to_owned());
                             buffer.despawn(e_id)
                         }
                         live = false;
