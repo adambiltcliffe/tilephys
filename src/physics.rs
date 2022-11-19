@@ -220,7 +220,7 @@ impl Projectile {
                         buffer.despawn(e);
                         en.hp -= 1;
                         if en.hp <= 0 {
-                            resources.messages.add("Hound disabled.".to_owned());
+                            resources.messages.add("Destroyed a hound.".to_owned());
                             buffer.despawn(e_id)
                         }
                         live = false;
