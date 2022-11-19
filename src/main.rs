@@ -90,7 +90,8 @@ async fn main() {
             let mut buffer = CommandBuffer::new();
             ConstantMotion::apply(&world);
             PathMotion::apply(&world);
-            let (new_triggers, new_secrets) = Controller::update(&world, &mut buffer, &input);
+            let (new_triggers, new_secrets) =
+                Controller::update(&world, &mut resources, &mut buffer, &input);
             Enemy::update(&world, &resources);
             Actor::update(&world);
             Projectile::update(&world, &mut resources, &mut buffer);

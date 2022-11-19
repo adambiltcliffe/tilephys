@@ -1,8 +1,9 @@
 use crate::draw::PlayerSprite;
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Projectile, Secrecy, TriggerZone};
+use crate::resources::Resources;
 use hecs::{CommandBuffer, World};
-use macroquad::prelude::Color;
+use macroquad::prelude::{is_key_down, Color, KeyCode};
 use std::collections::HashSet;
 
 pub struct Controller {
@@ -12,6 +13,7 @@ pub struct Controller {
     fire_timer: u32,
     hurt_timer: u8,
     pub hp: u8,
+    god_mode: bool,
 }
 
 impl Controller {
@@ -23,11 +25,13 @@ impl Controller {
             fire_timer: 100000,
             hurt_timer: 0,
             hp: 3,
+            god_mode: false,
         }
     }
 
     pub fn update(
         world: &World,
+        resources: &mut Resources,
         buffer: &mut CommandBuffer,
         input: &Input,
     ) -> (HashSet<String>, u32) {
@@ -104,12 +108,16 @@ impl Controller {
                 buffer.remove_one::<PlayerSprite>(id);
                 buffer.remove_one::<Controller>(id);
             }
+            if is_key_down(KeyCode::Q) && is_key_down(KeyCode::D) && !controller.god_mode {
+                controller.god_mode = true;
+                resources.messages.add("God mode enabled!".to_owned());
+            }
         }
         (result, secret_count)
     }
 
     pub fn hurt(&mut self) {
-        if self.hurt_timer == 0 && self.hp > 0 {
+        if self.hurt_timer == 0 && self.hp > 0 && !self.god_mode {
             self.hp -= 1;
             self.hurt_timer = 24;
         }

@@ -1,9 +1,7 @@
 projectile graphic
 vfx
 * enemy death sprites?
-player damage and death
-* god mode cheat for debugging!
-* health pickups
+health pickups
 more efficient collision testing
 visible switches or other interactibles
 rewrite scripting layer
