@@ -122,4 +122,8 @@ impl Controller {
             self.hurt_timer = 24;
         }
     }
+
+    pub fn was_hurt(&self) -> bool {
+        self.hurt_timer >= 23
+    }
 }

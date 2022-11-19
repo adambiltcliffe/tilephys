@@ -107,6 +107,15 @@ impl Renderer {
         resources: &Resources,
         fps: u32,
     ) {
+        let (flash, hp) = match world.get::<&Controller>(resources.player_id) {
+            Ok(c) => (c.was_hurt(), c.hp),
+            Err(_) => (false, 0),
+        };
+        if flash {
+            clear_background(RED);
+            return;
+        }
+
         // draw the basic graphics
         gl_use_default_material();
         set_camera(&get_camera_for_target(
@@ -199,20 +208,18 @@ impl Renderer {
             draw_text(m, wvdc, y, 16.0, WHITE);
             y += Messages::HEIGHT as f32;
         }
-        if let Ok(c) = world.get::<&Controller>(resources.player_id) {
-            for ii in 0..3 {
-                let sy = if ii < c.hp { 0.0 } else { 16.0 };
-                draw_texture_ex(
-                    resources.ui_sprite,
-                    wvdc + 16.0 * ii as f32,
-                    self.height - wvdc - 16.0,
-                    WHITE,
-                    DrawTextureParams {
-                        source: Some(Rect::new(0.0, sy, 16.0, 16.0)),
-                        ..Default::default()
-                    },
-                );
-            }
+        for ii in 0..3 {
+            let sy = if ii < hp { 0.0 } else { 16.0 };
+            draw_texture_ex(
+                resources.ui_sprite,
+                wvdc + 16.0 * ii as f32,
+                self.height - wvdc - 16.0,
+                WHITE,
+                DrawTextureParams {
+                    source: Some(Rect::new(0.0, sy, 16.0, 16.0)),
+                    ..Default::default()
+                },
+            );
         }
 
         // finally draw to the screen
