@@ -1,7 +1,6 @@
 projectile graphic
 vfx
 * enemy death sprites?
-health pickups
 more efficient collision testing
 visible switches or other interactibles
 rewrite scripting layer
