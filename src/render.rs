@@ -185,18 +185,29 @@ impl Renderer {
             },
         );
 
-        // draw text here (it's not affected by visibility but does need scaling)
+        // draw text and ui here (it's not affected by visibility but does need scaling)
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
             vec2(self.width / 2., self.height / 2.),
             Origin::TopLeft,
         ));
-        let mut y = WALL_VISION_DEPTH.ceil() - resources.messages.offset as f32 + 9.0; // why is it 9?
+        let wvdc = WALL_VISION_DEPTH.ceil();
+        let mut y = wvdc - resources.messages.offset as f32 + 9.0; // why is it 9?
         for m in resources.messages.iter_messages() {
-            draw_text(m, WALL_VISION_DEPTH.ceil(), y, 16.0, WHITE);
+            draw_text(m, wvdc, y, 16.0, WHITE);
             y += Messages::HEIGHT as f32;
         }
+        draw_texture_ex(
+            resources.ui_sprite,
+            wvdc,
+            self.height - wvdc - 16.0,
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(0.0, 0.0, 16.0, 16.0)),
+                ..Default::default()
+            },
+        );
 
         // finally draw to the screen
         gl_use_default_material();
