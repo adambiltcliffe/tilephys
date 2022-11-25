@@ -1,10 +1,17 @@
+use crate::camera::add_camera;
+use crate::draw::PlayerSprite;
 use crate::enemy::{add_enemy, EnemyKind};
-use crate::physics::{IntRect, TileBody, TriggerZone};
+use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
 use crate::pickup::add_pickup;
+use crate::player::Controller;
+use crate::resources::Resources;
 use crate::resources::TilesetInfo;
+use crate::script::ScriptEngine;
+use crate::visibility::compute_obscurers;
 use bitflags::bitflags;
 use hecs::{Entity, World};
-use macroquad::{file::load_file, prelude::*, texture::load_texture};
+use macroquad::prelude::*;
+use macroquad::{file::load_file, texture::load_texture};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -288,5 +295,44 @@ impl LoadingManager {
             draw_order,
             secret_count,
         })
+    }
+
+    pub(crate) async fn load_level(
+        &mut self,
+        name: &str,
+    ) -> Result<(Rc<RefCell<World>>, Resources), String> {
+        let map = self.load(name).await.unwrap();
+
+        let mut script_engine = ScriptEngine::new(&map);
+        script_engine.load_file("intro.rhai").await;
+        script_engine.call_entry_point("init");
+
+        let LoadedMap {
+            player_start,
+            secret_count,
+            ..
+        } = map;
+        let world_ref = Rc::clone(&map.world_ref);
+
+        println!("map has {} secret areas", secret_count);
+
+        let (player_id, eye, cam) = {
+            let mut world = world_ref.borrow_mut();
+
+            let player_rect = IntRect::new(player_start.0 - 8, player_start.1 - 24, 14, 24);
+            let player_eye = player_rect.centre();
+            let camera_pos = add_camera(&mut world, player_rect.centre());
+            let player = Actor::new(&player_rect, 0.6);
+            let controller = Controller::new();
+            let sprite = PlayerSprite::new();
+            let player_id = world.spawn((player_rect, player, controller, sprite));
+
+            (player_id, player_eye, camera_pos)
+        };
+
+        compute_obscurers(&mut world_ref.borrow_mut());
+
+        let resources = Resources::new(&map, script_engine, player_id, eye, cam).await;
+        Ok((world_ref, resources))
     }
 }
