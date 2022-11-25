@@ -1,5 +1,4 @@
 use crate::draw::draw;
-use crate::loader::TilesetInfo;
 use crate::messages::Messages;
 use crate::player::Controller;
 use crate::resources::Resources;
@@ -103,7 +102,6 @@ impl Renderer {
         world: &mut hecs::World,
         eye: Vec2,
         cam: Vec2,
-        tsi: &TilesetInfo,
         resources: &Resources,
         fps: u32,
     ) {
@@ -123,7 +121,7 @@ impl Renderer {
             cam,
             Origin::TopLeft,
         ));
-        draw(world, tsi, resources);
+        draw(world, resources);
 
         // initialise the offscreen texture for jump flood algorithm
         gl_use_material(self.jfa_init_material);

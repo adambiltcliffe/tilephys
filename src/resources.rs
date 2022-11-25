@@ -11,6 +11,7 @@ pub struct Resources {
 
     pub player_id: Entity,
     pub draw_order: Vec<Entity>,
+    pub tileset_info: TilesetInfo,
     pub messages: Messages,
 }
 
@@ -23,7 +24,16 @@ impl Resources {
             ui_sprite: load_texture("ui-heart.png").await.unwrap(),
             player_id,
             draw_order: map.draw_order.clone(),
+            tileset_info: map.tileset_info.clone(),
             messages: Messages::new(),
         }
     }
+}
+
+#[derive(Clone)]
+pub struct TilesetInfo {
+    pub texture: Texture2D,
+    pub tile_width: u32,
+    pub tile_height: u32,
+    pub columns: u32,
 }

@@ -1,13 +1,10 @@
 use crate::enemy::{add_enemy, EnemyKind};
 use crate::physics::{IntRect, TileBody, TriggerZone};
 use crate::pickup::add_pickup;
+use crate::resources::TilesetInfo;
 use bitflags::bitflags;
 use hecs::{Entity, World};
-use macroquad::{
-    file::load_file,
-    prelude::*,
-    texture::{load_texture, Texture2D},
-};
+use macroquad::{file::load_file, prelude::*, texture::load_texture};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -22,14 +19,6 @@ pub(crate) struct LoadedMap {
     pub player_start: (i32, i32),
     pub draw_order: Vec<Entity>,
     pub secret_count: u32,
-}
-
-#[derive(Clone)]
-pub(crate) struct TilesetInfo {
-    pub texture: Texture2D,
-    pub tile_width: u32,
-    pub tile_height: u32,
-    pub columns: u32,
 }
 
 bitflags! {

@@ -129,7 +129,6 @@ async fn main() {
             &mut world_ref.borrow_mut(),
             eye,
             cam,
-            &map.tileset_info,
             &resources,
             clock.get_fps(),
         );

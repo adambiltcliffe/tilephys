@@ -1,4 +1,3 @@
-use crate::loader::TilesetInfo;
 use crate::physics::{IntRect, TileBody};
 use crate::resources::Resources;
 use hecs::World;
@@ -54,7 +53,7 @@ impl PickupSprite {
     }
 }
 
-pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo, resources: &Resources) {
+pub(crate) fn draw(world: &mut World, resources: &Resources) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
     clear_background(DARKGRAY);
@@ -67,6 +66,7 @@ pub(crate) fn draw(world: &mut World, tsi: &TilesetInfo, resources: &Resources) 
         let mut ty = chunk.y;
         for ii in 0..(chunk.data.len()) {
             if chunk.data[ii].is_visible() {
+                let tsi = &resources.tileset_info;
                 let sx = (chunk.tiles[ii] as u32 % tsi.columns) * tsi.tile_width;
                 let sy = (chunk.tiles[ii] as u32 / tsi.columns) * tsi.tile_height;
                 draw_texture_ex(
