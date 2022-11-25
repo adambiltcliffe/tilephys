@@ -1,6 +1,7 @@
 use crate::camera::add_camera;
 use crate::draw::PlayerSprite;
 use crate::enemy::{add_enemy, EnemyKind};
+use crate::messages::Messages;
 use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
 use crate::pickup::add_pickup;
 use crate::player::Controller;
@@ -17,13 +18,6 @@ use std::collections::HashMap;
 use std::io::Cursor;
 use std::path::Path;
 use std::rc::Rc;
-
-pub(crate) struct LoadedMap {
-    pub world_ref: Rc<RefCell<World>>,
-    pub tileset_info: TilesetInfo,
-    pub player_start: (i32, i32),
-    pub draw_order: Vec<Entity>,
-}
 
 bitflags! {
     pub struct TileFlags: u8 {
@@ -293,17 +287,9 @@ impl LoadingManager {
         script_engine.load_file("intro.rhai").await;
         script_engine.call_entry_point("init");
 
-        let map = LoadedMap {
-            world_ref,
-            tileset_info,
-            player_start: (psx, psy),
-            draw_order,
-        };
+        let player_start = (psx, psy);
 
-        let LoadedMap { player_start, .. } = map;
-        let world_ref = Rc::clone(&map.world_ref);
-
-        let (player_id, eye, cam) = {
+        let (player_id, eye_pos, camera_pos) = {
             let mut world = world_ref.borrow_mut();
 
             let player_rect = IntRect::new(player_start.0 - 8, player_start.1 - 24, 14, 24);
@@ -319,7 +305,20 @@ impl LoadingManager {
 
         compute_obscurers(&mut world_ref.borrow_mut());
 
-        let resources = Resources::new(&map, script_engine, player_id, eye, cam).await;
+        let resources = Resources {
+            script_engine,
+            player_sprite: load_texture("princess.png").await.unwrap(),
+            dog_sprite: load_texture("robodog.png").await.unwrap(),
+            pickup_sprite: load_texture("pickup.png").await.unwrap(),
+            ui_sprite: load_texture("ui-heart.png").await.unwrap(),
+            player_id,
+            eye_pos,
+            camera_pos,
+            draw_order,
+            tileset_info,
+            messages: Messages::new(),
+        };
+
         Ok((world_ref, resources))
     }
 }
