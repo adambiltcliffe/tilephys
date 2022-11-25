@@ -97,8 +97,10 @@ impl LoadingManager {
     }
 
     // eventually this should probably not use String as its error type
-    pub(crate) async fn load(&mut self, name: &str) -> Result<(LoadedMap, ScriptEngine), String> {
-        //self.loader.reader_mut().preload("testset.tsx").await; // MEGA HACK
+    pub(crate) async fn load_level(
+        &mut self,
+        name: &str,
+    ) -> Result<(Rc<RefCell<World>>, Resources), String> {
         self.loader.reader_mut().preload(name).await;
 
         let map = loop {
@@ -291,22 +293,12 @@ impl LoadingManager {
         script_engine.load_file("intro.rhai").await;
         script_engine.call_entry_point("init");
 
-        Ok((
-            LoadedMap {
-                world_ref,
-                tileset_info,
-                player_start: (psx, psy),
-                draw_order,
-            },
-            script_engine,
-        ))
-    }
-
-    pub(crate) async fn load_level(
-        &mut self,
-        name: &str,
-    ) -> Result<(Rc<RefCell<World>>, Resources), String> {
-        let (map, engine) = self.load(name).await.unwrap();
+        let map = LoadedMap {
+            world_ref,
+            tileset_info,
+            player_start: (psx, psy),
+            draw_order,
+        };
 
         let LoadedMap { player_start, .. } = map;
         let world_ref = Rc::clone(&map.world_ref);
@@ -327,7 +319,7 @@ impl LoadingManager {
 
         compute_obscurers(&mut world_ref.borrow_mut());
 
-        let resources = Resources::new(&map, engine, player_id, eye, cam).await;
+        let resources = Resources::new(&map, script_engine, player_id, eye, cam).await;
         Ok((world_ref, resources))
     }
 }
