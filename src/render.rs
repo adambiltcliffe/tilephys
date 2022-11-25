@@ -97,14 +97,7 @@ impl Renderer {
         }
     }
 
-    pub(crate) fn draw(
-        &self,
-        world: &mut hecs::World,
-        eye: Vec2,
-        cam: Vec2,
-        resources: &Resources,
-        fps: u32,
-    ) {
+    pub(crate) fn draw(&self, world: &mut hecs::World, resources: &Resources, fps: u32) {
         let (flash, hp) = match world.get::<&Controller>(resources.player_id) {
             Ok(c) => (c.was_hurt(), c.hp),
             Err(_) => (false, 0),
@@ -118,7 +111,7 @@ impl Renderer {
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
-            cam,
+            resources.camera_pos,
             Origin::TopLeft,
         ));
         draw(world, resources);
@@ -127,12 +120,12 @@ impl Renderer {
         gl_use_material(self.jfa_init_material);
         set_camera(&get_camera_for_target(
             &self.vis_targets[0],
-            cam,
+            resources.camera_pos,
             Origin::TopLeft,
         ));
         draw_rectangle(
-            cam.x - self.width / 2.,
-            cam.y - self.height / 2.,
+            resources.camera_pos.x - self.width / 2.,
+            resources.camera_pos.y - self.height / 2.,
             self.width,
             self.height,
             WHITE,
@@ -140,9 +133,9 @@ impl Renderer {
 
         // draw black shapes from each obscurer into an offscreen texture
         gl_use_default_material();
-        let e = eye - cam;
+        let e = resources.eye_pos - resources.camera_pos;
         let r = e.x.max(self.width - e.x).max(e.y).max(self.height - e.y) + 1.;
-        draw_visibility(&world, eye, r);
+        draw_visibility(&world, resources.eye_pos, r);
 
         let mut current_rt = 1;
         let mut step_size = 2_u32.pow(WALL_VISION_DEPTH.log2().ceil() as u32);

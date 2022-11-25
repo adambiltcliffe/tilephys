@@ -24,29 +24,32 @@ impl PlayerCamera {
         Self { floor }
     }
 
-    pub fn update_and_get(world: &World, resources: &Resources) -> Option<Vec2> {
-        let mut q = world
-            .query_one::<(&Actor, &IntRect)>(resources.player_id)
-            .ok()?;
-        let (player_pos, player_grounded) = q
-            .get()
-            .map(|(actor, rect)| (rect.centre(), actor.grounded))?;
-        for (_, (cam, v)) in world.query::<(&mut PlayerCamera, &mut Vec2)>().iter() {
-            v.x =
-                v.x.max(player_pos.x - CAMERA_BUFFER_X)
-                    .min(player_pos.x + CAMERA_BUFFER_X);
-            v.y =
-                v.y.max(player_pos.y - CAMERA_BUFFER_BELOW)
-                    .min(player_pos.y + CAMERA_BUFFER_ABOVE);
-            if player_grounded {
-                cam.floor = player_pos.y - CAMERA_FLOOR_OFFSET;
-            }
-            v.y = cam
-                .floor
-                .max(v.y - CAMERA_V_SPEED)
-                .min(v.y + CAMERA_V_SPEED);
-            return Some(*v);
+    pub fn update(world: &World, resources: &mut Resources) {
+        let q = world.query_one::<(&Actor, &IntRect)>(resources.player_id);
+        if q.is_err() {
+            return;
         }
-        return None;
+        let mut q = q.unwrap();
+        if let Some((player_pos, player_grounded)) =
+            q.get().map(|(actor, rect)| (rect.centre(), actor.grounded))
+        {
+            resources.eye_pos = player_pos;
+            for (_, (cam, v)) in world.query::<(&mut PlayerCamera, &mut Vec2)>().iter() {
+                v.x =
+                    v.x.max(player_pos.x - CAMERA_BUFFER_X)
+                        .min(player_pos.x + CAMERA_BUFFER_X);
+                v.y =
+                    v.y.max(player_pos.y - CAMERA_BUFFER_BELOW)
+                        .min(player_pos.y + CAMERA_BUFFER_ABOVE);
+                if player_grounded {
+                    cam.floor = player_pos.y - CAMERA_FLOOR_OFFSET;
+                }
+                v.y = cam
+                    .floor
+                    .max(v.y - CAMERA_V_SPEED)
+                    .min(v.y + CAMERA_V_SPEED);
+                resources.camera_pos = *v;
+            }
+        }
     }
 }

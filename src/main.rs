@@ -62,7 +62,7 @@ async fn main() {
 
     println!("map has {} secret areas", secret_count);
 
-    let (player_id, mut eye, mut cam) = {
+    let (player_id, eye, cam) = {
         let mut world = world_ref.borrow_mut();
 
         let player_rect = IntRect::new(player_start.0 - 8, player_start.1 - 24, 14, 24);
@@ -82,7 +82,7 @@ async fn main() {
     let mut clock = Timer::new();
     let mut input = Input::new();
 
-    let mut resources = Resources::new(&map, player_id).await;
+    let mut resources = Resources::new(&map, player_id, eye, cam).await;
 
     loop {
         input.update();
@@ -100,14 +100,7 @@ async fn main() {
             Pickup::update(&world, &mut resources, &mut buffer);
             buffer.run_on(&mut world);
 
-            if let Ok(rect) = world.get::<&IntRect>(player_id) {
-                let player_pos = rect.centre();
-                *eye = *player_pos;
-            }
-
-            if let Some(camera_pos) = PlayerCamera::update_and_get(&world, &resources) {
-                *cam = *camera_pos;
-            }
+            PlayerCamera::update(&world, &mut resources);
 
             drop(world);
 
@@ -124,15 +117,7 @@ async fn main() {
             resources.messages.update();
         }
 
-        // this interface is getting busy
-        renderer.draw(
-            &mut world_ref.borrow_mut(),
-            eye,
-            cam,
-            &resources,
-            clock.get_fps(),
-        );
-
+        renderer.draw(&mut world_ref.borrow_mut(), &resources, clock.get_fps());
         next_frame().await;
     }
 }
