@@ -20,12 +20,9 @@ use std::rc::Rc;
 
 pub(crate) struct LoadedMap {
     pub world_ref: Rc<RefCell<World>>,
-    pub body_ids: Rc<HashMap<String, Entity>>,
-    pub paths: Rc<HashMap<String, Vec<(f32, f32)>>>,
     pub tileset_info: TilesetInfo,
     pub player_start: (i32, i32),
     pub draw_order: Vec<Entity>,
-    pub secret_count: u32,
 }
 
 bitflags! {
@@ -100,7 +97,7 @@ impl LoadingManager {
     }
 
     // eventually this should probably not use String as its error type
-    pub(crate) async fn load(&mut self, name: &str) -> Result<LoadedMap, String> {
+    pub(crate) async fn load(&mut self, name: &str) -> Result<(LoadedMap, ScriptEngine), String> {
         //self.loader.reader_mut().preload("testset.tsx").await; // MEGA HACK
         self.loader.reader_mut().preload(name).await;
 
@@ -286,35 +283,33 @@ impl LoadingManager {
             }
         }
 
-        Ok(LoadedMap {
-            world_ref: Rc::new(RefCell::new(world)),
-            body_ids: Rc::new(body_ids),
-            paths: Rc::new(paths),
-            tileset_info,
-            player_start: (psx, psy),
-            draw_order,
-            secret_count,
-        })
+        println!("map has {} secret areas", secret_count);
+
+        let world_ref = Rc::new(RefCell::new(world));
+        let mut script_engine =
+            ScriptEngine::new(Rc::clone(&world_ref), Rc::new(body_ids), Rc::new(paths));
+        script_engine.load_file("intro.rhai").await;
+        script_engine.call_entry_point("init");
+
+        Ok((
+            LoadedMap {
+                world_ref,
+                tileset_info,
+                player_start: (psx, psy),
+                draw_order,
+            },
+            script_engine,
+        ))
     }
 
     pub(crate) async fn load_level(
         &mut self,
         name: &str,
     ) -> Result<(Rc<RefCell<World>>, Resources), String> {
-        let map = self.load(name).await.unwrap();
+        let (map, engine) = self.load(name).await.unwrap();
 
-        let mut script_engine = ScriptEngine::new(&map);
-        script_engine.load_file("intro.rhai").await;
-        script_engine.call_entry_point("init");
-
-        let LoadedMap {
-            player_start,
-            secret_count,
-            ..
-        } = map;
+        let LoadedMap { player_start, .. } = map;
         let world_ref = Rc::clone(&map.world_ref);
-
-        println!("map has {} secret areas", secret_count);
 
         let (player_id, eye, cam) = {
             let mut world = world_ref.borrow_mut();
@@ -332,7 +327,7 @@ impl LoadingManager {
 
         compute_obscurers(&mut world_ref.borrow_mut());
 
-        let resources = Resources::new(&map, script_engine, player_id, eye, cam).await;
+        let resources = Resources::new(&map, engine, player_id, eye, cam).await;
         Ok((world_ref, resources))
     }
 }

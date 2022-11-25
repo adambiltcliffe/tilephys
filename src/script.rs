@@ -1,7 +1,9 @@
-use crate::loader::LoadedMap;
 use crate::physics::{ConstantMotion, PathMotion, PathMotionType, TileBody};
+use hecs::{Entity, World};
 use macroquad::file::load_string;
 use rhai::{Engine, Scope, AST};
+use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 
 pub struct ScriptEngine {
@@ -11,7 +13,11 @@ pub struct ScriptEngine {
 }
 
 impl ScriptEngine {
-    pub(crate) fn new(map: &LoadedMap) -> Self {
+    pub(crate) fn new(
+        world_ref: Rc<RefCell<World>>,
+        body_ids: Rc<HashMap<String, Entity>>,
+        paths: Rc<HashMap<String, Vec<(f32, f32)>>>,
+    ) -> Self {
         let mut engine = Engine::new();
         let mut scope = Scope::new();
 
@@ -20,8 +26,8 @@ impl ScriptEngine {
         scope.push("ForwardOnce", PathMotionType::ForwardOnce);
         scope.push("ForwardCycle", PathMotionType::ForwardCycle);
 
-        let cloned_world = Rc::clone(&map.world_ref);
-        let cloned_body_ids = Rc::clone(&map.body_ids);
+        let cloned_world = Rc::clone(&world_ref);
+        let cloned_body_ids = Rc::clone(&body_ids);
         engine.register_fn(
             "set_constant_motion",
             move |name: &str, vx: i32, vy: i32| {
@@ -32,9 +38,9 @@ impl ScriptEngine {
             },
         );
 
-        let cloned_world = Rc::clone(&map.world_ref);
-        let cloned_body_ids = Rc::clone(&map.body_ids);
-        let cloned_paths = Rc::clone(&map.paths);
+        let cloned_world = Rc::clone(&world_ref);
+        let cloned_body_ids = Rc::clone(&body_ids);
+        let cloned_paths = Rc::clone(&paths);
         engine.register_fn("set_path", move |body_name: &str, path_name: &str| {
             let id = cloned_body_ids[body_name];
             let mut world = cloned_world.borrow_mut();
@@ -58,8 +64,8 @@ impl ScriptEngine {
                 .unwrap();
         });
 
-        let cloned_world = Rc::clone(&map.world_ref);
-        let cloned_body_ids = Rc::clone(&map.body_ids);
+        let cloned_world = Rc::clone(&world_ref);
+        let cloned_body_ids = Rc::clone(&body_ids);
         engine.register_fn(
             "set_motion",
             move |body_name: &str, motion_type: PathMotionType, speed: f32| {
@@ -71,8 +77,8 @@ impl ScriptEngine {
             },
         );
 
-        let cloned_world = Rc::clone(&map.world_ref);
-        let cloned_body_ids = Rc::clone(&map.body_ids);
+        let cloned_world = Rc::clone(&world_ref);
+        let cloned_body_ids = Rc::clone(&body_ids);
         engine.register_fn(
             "set_motion_goto",
             move |body_name: &str, index: i32, speed: f32| {
