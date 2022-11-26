@@ -2,7 +2,7 @@ use crate::draw::draw;
 use crate::messages::Messages;
 use crate::player::Controller;
 use crate::resources::Resources;
-use crate::transition::{Fade, Open, TransitionEffect};
+use crate::transition::{Fade, Open, Shatter, TransitionEffect};
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
 
@@ -284,7 +284,7 @@ impl Renderer {
                 ..Default::default()
             },
         );
-        self.transition = Some((ff, Box::new(Open::new())));
+        self.transition = Some((ff, Box::new(Shatter::new())));
     }
 
     pub fn tick(&mut self) {

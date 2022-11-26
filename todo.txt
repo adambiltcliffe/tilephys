@@ -1,6 +1,7 @@
 projectile graphic
 vfx
 * enemy death sprites?
+restart after death
 more efficient collision testing
 visible switches or other interactibles
 rewrite scripting layer

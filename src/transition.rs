@@ -1,5 +1,6 @@
 use crate::render::WALL_VISION_DEPTH;
 use macroquad::prelude::*;
+use quad_rand::gen_range;
 
 pub trait TransitionEffect {
     fn tick(&mut self);
@@ -74,5 +75,62 @@ impl TransitionEffect for Open {
     }
     fn finished(&self) -> bool {
         self.n > 160
+    }
+}
+
+pub struct Shatter {
+    data: Vec<Vec<(f32, f32, f32, f32)>>,
+}
+
+impl Shatter {
+    pub fn new() -> Self {
+        let mut data = Vec::new();
+        for y in 0..15 {
+            let mut v = Vec::new();
+            for x in 0..20 {
+                let a = gen_range(0.0, std::f32::consts::PI * 2.0);
+                v.push((
+                    x as f32 * 16.0,
+                    y as f32 * 16.0,
+                    a.cos() * 5.0,
+                    a.sin() * 5.0,
+                ));
+            }
+            data.push(v);
+        }
+        Self { data }
+    }
+}
+
+impl TransitionEffect for Shatter {
+    fn tick(&mut self) {
+        for y in 0..15 {
+            for x in 0..20 {
+                let (px, py, vx, vy) = self.data[y][x];
+                self.data[y][x] = (px + vx, py + vy, vx, vy + 1.0);
+            }
+        }
+    }
+    fn draw(&self, freeze_frame: &Texture2D) {
+        for y in 0..15 {
+            for x in 0..20 {
+                let (px, py, _, _) = self.data[y][x];
+                let sx = x as f32 * 16.0;
+                let sy = y as f32 * 16.0;
+                draw_texture_ex(
+                    *freeze_frame,
+                    WALL_VISION_DEPTH.ceil() + px,
+                    WALL_VISION_DEPTH.ceil() + py,
+                    WHITE,
+                    DrawTextureParams {
+                        source: Some(Rect::new(sx, sy, 16.0, 16.0)),
+                        ..Default::default()
+                    },
+                );
+            }
+        }
+    }
+    fn finished(&self) -> bool {
+        false
     }
 }
