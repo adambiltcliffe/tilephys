@@ -28,6 +28,7 @@ mod resources;
 mod scene;
 mod script;
 mod timer;
+mod transition;
 mod visibility;
 
 const RENDER_W: u32 = 320;
@@ -50,12 +51,13 @@ async fn main() {
     let (mut world_ref, mut resources): (Rc<RefCell<World>>, Resources) =
         loader.load_level("intro.tmx").await.unwrap();
 
-    let renderer = Renderer::new(RENDER_W, RENDER_H);
+    let mut renderer = Renderer::new(RENDER_W, RENDER_H);
     let mut clock = Timer::new();
     let mut input = Input::new();
 
     loop {
         if resources.transition == SceneTransition::Restart {
+            renderer.start_transition();
             (world_ref, resources) = loader.load_level("intro.tmx").await.unwrap();
             clock = Timer::new();
             input = Input::new();
@@ -93,6 +95,7 @@ async fn main() {
 
             input.reset();
             resources.messages.update();
+            renderer.tick();
         }
 
         renderer.draw(&mut world_ref.borrow_mut(), &resources, clock.get_fps());

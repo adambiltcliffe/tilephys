@@ -2,10 +2,11 @@ use crate::draw::draw;
 use crate::messages::Messages;
 use crate::player::Controller;
 use crate::resources::Resources;
+use crate::transition::{Fade, TransitionEffect};
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
 
-const WALL_VISION_DEPTH: f32 = 16.5;
+pub const WALL_VISION_DEPTH: f32 = 16.5;
 
 enum Origin {
     TopLeft,
@@ -35,6 +36,7 @@ pub struct Renderer {
     height: f32,
     final_width: f32,
     final_height: f32,
+    transition: Option<(RenderTarget, Box<dyn TransitionEffect>)>,
     draw_target: RenderTarget,
     vis_targets: [RenderTarget; 2],
     jfa_init_material: Material,
@@ -89,6 +91,7 @@ impl Renderer {
             height: height as f32,
             final_width: final_width as f32,
             final_height: final_height as f32,
+            transition: None,
             draw_target,
             vis_targets: [render_target(width, height), render_target(width, height)],
             jfa_init_material,
@@ -186,6 +189,17 @@ impl Renderer {
             },
         );
 
+        // draw the outgoing scene if there is one
+        if let Some((ff, effect)) = &self.transition {
+            gl_use_default_material();
+            set_camera(&get_camera_for_target(
+                &self.draw_target,
+                vec2(self.width / 2., self.height / 2.),
+                Origin::TopLeft,
+            ));
+            effect.draw(&ff.texture);
+        }
+
         // draw text and ui here (it's not affected by visibility but does need scaling)
         gl_use_default_material();
         set_camera(&get_camera_for_target(
@@ -244,6 +258,42 @@ impl Renderer {
                 ..Default::default()
             },
         );
+    }
+
+    pub fn start_transition(&mut self) {
+        let ff = render_target(self.final_width as u32, self.final_height as u32);
+        ff.texture.set_filter(FilterMode::Nearest);
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &ff,
+            vec2(self.final_width / 2., self.final_height / 2.),
+            Origin::TopLeft,
+        ));
+        draw_texture_ex(
+            self.draw_target.texture,
+            0.0,
+            0.0,
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(
+                    WALL_VISION_DEPTH.ceil(),
+                    WALL_VISION_DEPTH.ceil(),
+                    self.final_width,
+                    self.final_height,
+                )),
+                ..Default::default()
+            },
+        );
+        self.transition = Some((ff, Box::new(Fade::new())));
+    }
+
+    pub fn tick(&mut self) {
+        if let Some((_, ref mut effect)) = self.transition {
+            effect.tick();
+            if effect.finished() {
+                self.transition = None;
+            }
+        }
     }
 }
 
