@@ -1,4 +1,5 @@
 use crate::messages::Messages;
+use crate::scene::SceneTransition;
 use crate::script::ScriptEngine;
 use hecs::Entity;
 use macroquad::prelude::*;
@@ -17,6 +18,7 @@ pub struct Resources {
     pub draw_order: Vec<Entity>,
     pub tileset_info: TilesetInfo,
     pub messages: Messages,
+    pub transition: SceneTransition,
 }
 
 #[derive(Clone)]

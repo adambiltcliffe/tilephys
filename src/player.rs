@@ -113,6 +113,9 @@ impl Controller {
                 controller.god_mode = true;
                 resources.messages.add("God mode enabled!".to_owned());
             }
+            if input.is_pressed(VirtualKey::DebugRestart) {
+                resources.transition = crate::scene::SceneTransition::Restart;
+            }
         }
         (result, secret_count)
     }

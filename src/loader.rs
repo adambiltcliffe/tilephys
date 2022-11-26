@@ -7,6 +7,7 @@ use crate::pickup::add_pickup;
 use crate::player::Controller;
 use crate::resources::Resources;
 use crate::resources::TilesetInfo;
+use crate::scene::SceneTransition;
 use crate::script::ScriptEngine;
 use crate::visibility::compute_obscurers;
 use bitflags::bitflags;
@@ -317,6 +318,7 @@ impl LoadingManager {
             draw_order,
             tileset_info,
             messages: Messages::new(),
+            transition: SceneTransition::None,
         };
 
         Ok((world_ref, resources))

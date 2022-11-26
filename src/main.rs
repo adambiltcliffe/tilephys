@@ -9,6 +9,7 @@ use pickup::Pickup;
 use player::Controller;
 use render::Renderer;
 use resources::Resources;
+use scene::SceneTransition;
 use std::cell::RefCell;
 use std::rc::Rc;
 use timer::Timer;
@@ -24,6 +25,7 @@ mod pickup;
 mod player;
 mod render;
 mod resources;
+mod scene;
 mod script;
 mod timer;
 mod visibility;
@@ -45,7 +47,7 @@ fn window_conf() -> Conf {
 async fn main() {
     set_pc_assets_folder("assets");
     let mut loader = LoadingManager::new();
-    let (world_ref, mut resources): (Rc<RefCell<World>>, Resources) =
+    let (mut world_ref, mut resources): (Rc<RefCell<World>>, Resources) =
         loader.load_level("intro.tmx").await.unwrap();
 
     let renderer = Renderer::new(RENDER_W, RENDER_H);
@@ -53,6 +55,12 @@ async fn main() {
     let mut input = Input::new();
 
     loop {
+        if resources.transition == SceneTransition::Restart {
+            (world_ref, resources) = loader.load_level("intro.tmx").await.unwrap();
+            clock = Timer::new();
+            input = Input::new();
+        }
+
         input.update();
 
         for _ in 0..clock.get_num_updates() {
