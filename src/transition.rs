@@ -34,3 +34,45 @@ impl TransitionEffect for Fade {
         self.alpha <= 0.0
     }
 }
+
+pub struct Open {
+    n: i32,
+}
+
+impl Open {
+    pub fn new() -> Self {
+        Self { n: 0 }
+    }
+}
+
+impl TransitionEffect for Open {
+    fn tick(&mut self) {
+        self.n += 1;
+    }
+    fn draw(&self, freeze_frame: &Texture2D) {
+        let d = (self.n.pow(2)).min(self.n * 10) as f32;
+        draw_texture_ex(
+            *freeze_frame,
+            WALL_VISION_DEPTH.ceil() - d,
+            WALL_VISION_DEPTH.ceil(),
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(0.0, 0.0, 160.0, 240.0)),
+                ..Default::default()
+            },
+        );
+        draw_texture_ex(
+            *freeze_frame,
+            WALL_VISION_DEPTH.ceil() + d + 160.0,
+            WALL_VISION_DEPTH.ceil(),
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(160.0, 0.0, 160.0, 240.0)),
+                ..Default::default()
+            },
+        );
+    }
+    fn finished(&self) -> bool {
+        self.n > 160
+    }
+}
