@@ -114,7 +114,7 @@ impl Controller {
                 resources.messages.add("God mode enabled!".to_owned());
             }
             if input.is_pressed(VirtualKey::DebugRestart) {
-                resources.transition = crate::scene::SceneTransition::Restart;
+                resources.new_scene = Some(crate::scene::NewScene::PlayLevel);
             }
         }
         (result, secret_count)

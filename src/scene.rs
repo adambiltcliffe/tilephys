@@ -1,9 +1,16 @@
+use hecs::World;
+use std::cell::RefCell;
+use std::rc::Rc;
+
 pub enum Scene {
-    Play,
+    PreLevel,
+    PlayLevel(Rc<RefCell<World>>),
+    PostLevel,
 }
 
 #[derive(PartialEq, Eq)]
-pub enum SceneTransition {
-    None,
-    Restart,
+pub enum NewScene {
+    PreLevel,
+    PlayLevel,
+    PostLevel,
 }

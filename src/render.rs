@@ -2,6 +2,7 @@ use crate::draw::draw;
 use crate::messages::Messages;
 use crate::player::Controller;
 use crate::resources::Resources;
+use crate::scene::Scene;
 use crate::transition::{Fade, Open, Shatter, TransitionEffect};
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
@@ -100,7 +101,61 @@ impl Renderer {
         }
     }
 
-    pub(crate) fn draw(&self, world: &mut hecs::World, resources: &Resources, fps: u32) {
+    pub(crate) fn draw_scene(&self, scene: &Scene, resources: &Resources, fps: u32) {
+        // draw the current scene
+        match scene {
+            Scene::PreLevel => (),
+            Scene::PlayLevel(world_ref) => {
+                self.draw_world(&mut world_ref.borrow_mut(), resources);
+            }
+            Scene::PostLevel => (),
+        }
+
+        // draw the outgoing scene if there is one
+        if let Some((ff, effect)) = &self.transition {
+            gl_use_default_material();
+            set_camera(&get_camera_for_target(
+                &self.draw_target,
+                vec2(self.width / 2., self.height / 2.),
+                Origin::TopLeft,
+            ));
+            effect.draw(&ff.texture);
+        }
+
+        // finally draw to the screen
+        gl_use_default_material();
+        let sw = screen_width();
+        let sh = screen_height();
+        set_camera(&Camera2D {
+            zoom: (vec2(2. / sw, 2. / sh)),
+            target: vec2(sw / 2., sh / 2.),
+            ..Default::default()
+        });
+        let scale = (sw / self.final_width)
+            .min(sh / self.final_height)
+            .floor()
+            .max(1.);
+        let zoomed_width = self.final_width * scale;
+        let zoomed_height = self.final_height * scale;
+        draw_texture_ex(
+            self.draw_target.texture,
+            ((sw - zoomed_width) / 2.).floor(),
+            ((sh - zoomed_height) / 2.).floor(),
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(
+                    WALL_VISION_DEPTH.ceil(),
+                    WALL_VISION_DEPTH.ceil(),
+                    self.final_width,
+                    self.final_height,
+                )),
+                dest_size: Some(vec2(zoomed_width, zoomed_height)),
+                ..Default::default()
+            },
+        );
+    }
+
+    pub(crate) fn draw_world(&self, world: &mut hecs::World, resources: &Resources) {
         let (flash, hp) = match world.get::<&Controller>(resources.player_id) {
             Ok(c) => (c.was_hurt(), c.hp),
             Err(_) => (false, 0),
@@ -189,17 +244,6 @@ impl Renderer {
             },
         );
 
-        // draw the outgoing scene if there is one
-        if let Some((ff, effect)) = &self.transition {
-            gl_use_default_material();
-            set_camera(&get_camera_for_target(
-                &self.draw_target,
-                vec2(self.width / 2., self.height / 2.),
-                Origin::TopLeft,
-            ));
-            effect.draw(&ff.texture);
-        }
-
         // draw text and ui here (it's not affected by visibility but does need scaling)
         gl_use_default_material();
         set_camera(&get_camera_for_target(
@@ -226,38 +270,6 @@ impl Renderer {
                 },
             );
         }
-
-        // finally draw to the screen
-        gl_use_default_material();
-        let sw = screen_width();
-        let sh = screen_height();
-        set_camera(&Camera2D {
-            zoom: (vec2(2. / sw, 2. / sh)),
-            target: vec2(sw / 2., sh / 2.),
-            ..Default::default()
-        });
-        let scale = (sw / self.final_width)
-            .min(sh / self.final_height)
-            .floor()
-            .max(1.);
-        let zoomed_width = self.final_width * scale;
-        let zoomed_height = self.final_height * scale;
-        draw_texture_ex(
-            self.draw_target.texture,
-            ((sw - zoomed_width) / 2.).floor(),
-            ((sh - zoomed_height) / 2.).floor(),
-            WHITE,
-            DrawTextureParams {
-                source: Some(Rect::new(
-                    WALL_VISION_DEPTH.ceil(),
-                    WALL_VISION_DEPTH.ceil(),
-                    self.final_width,
-                    self.final_height,
-                )),
-                dest_size: Some(vec2(zoomed_width, zoomed_height)),
-                ..Default::default()
-            },
-        );
     }
 
     pub fn start_transition(&mut self) {

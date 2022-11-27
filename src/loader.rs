@@ -7,7 +7,7 @@ use crate::pickup::add_pickup;
 use crate::player::Controller;
 use crate::resources::Resources;
 use crate::resources::TilesetInfo;
-use crate::scene::SceneTransition;
+use crate::scene::Scene;
 use crate::script::ScriptEngine;
 use crate::visibility::compute_obscurers;
 use bitflags::bitflags;
@@ -92,10 +92,7 @@ impl LoadingManager {
     }
 
     // eventually this should probably not use String as its error type
-    pub(crate) async fn load_level(
-        &mut self,
-        name: &str,
-    ) -> Result<(Rc<RefCell<World>>, Resources), String> {
+    pub(crate) async fn load_level(&mut self, name: &str) -> Result<(Scene, Resources), String> {
         self.loader.reader_mut().preload(name).await;
 
         let map = loop {
@@ -318,9 +315,9 @@ impl LoadingManager {
             draw_order,
             tileset_info,
             messages: Messages::new(),
-            transition: SceneTransition::None,
+            new_scene: None,
         };
 
-        Ok((world_ref, resources))
+        Ok((Scene::PlayLevel(world_ref), resources))
     }
 }

@@ -3,6 +3,7 @@ vfx
 * enemy death sprites?
 restart after death
 more efficient collision testing
+make sure shatter transition ends
 visible switches or other interactibles
 rewrite scripting layer
 non-hard-coded map loader
