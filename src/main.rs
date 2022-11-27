@@ -11,6 +11,7 @@ use render::Renderer;
 use resources::Resources;
 use scene::{NewScene, Scene};
 use timer::Timer;
+use transition::TransitionEffectType;
 
 mod camera;
 mod draw;
@@ -46,8 +47,10 @@ fn window_conf() -> Conf {
 async fn main() {
     set_pc_assets_folder("assets");
     let mut loader = LoadingManager::new();
+    // need a way to initialise resources without loading a level
     let (mut scene, mut resources): (Scene, Resources) =
         loader.load_level("intro.tmx").await.unwrap();
+    scene = Scene::PreLevel;
 
     let mut renderer = Renderer::new(RENDER_W, RENDER_H);
     let mut clock = Timer::new();
@@ -56,20 +59,22 @@ async fn main() {
     loop {
         match resources.new_scene {
             None => (),
-            Some(NewScene::PreLevel) => (),
-            Some(NewScene::PlayLevel) => {
-                renderer.start_transition();
+            Some((NewScene::PreLevel, _typ)) => {}
+            Some((NewScene::PlayLevel, typ)) => {
+                renderer.start_transition(typ);
                 (scene, resources) = loader.load_level("intro.tmx").await.unwrap();
                 clock = Timer::new();
                 input = Input::new();
             }
-            Some(NewScene::PostLevel) => (),
+            Some((NewScene::PostLevel, _typ)) => (),
         }
 
         input.update();
 
         match scene {
-            Scene::PreLevel => (),
+            Scene::PreLevel => {
+                resources.new_scene = Some((NewScene::PlayLevel, TransitionEffectType::Open))
+            }
             Scene::PlayLevel(ref world_ref) => {
                 for _ in 0..clock.get_num_updates() {
                     let mut world = world_ref.borrow_mut();

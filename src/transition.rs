@@ -2,6 +2,21 @@ use crate::render::WALL_VISION_DEPTH;
 use macroquad::prelude::*;
 use quad_rand::gen_range;
 
+#[derive(PartialEq, Eq, Copy, Clone)]
+pub enum TransitionEffectType {
+    Fade,
+    Open,
+    Shatter,
+}
+
+pub fn new_transition(typ: TransitionEffectType) -> Box<dyn TransitionEffect> {
+    match typ {
+        TransitionEffectType::Fade => Box::new(Fade::new()),
+        TransitionEffectType::Open => Box::new(Open::new()),
+        TransitionEffectType::Shatter => Box::new(Shatter::new()),
+    }
+}
+
 pub trait TransitionEffect {
     fn tick(&mut self);
     fn draw(&self, freeze_frame: &Texture2D);

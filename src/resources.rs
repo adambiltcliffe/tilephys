@@ -1,6 +1,7 @@
 use crate::messages::Messages;
 use crate::scene::NewScene;
 use crate::script::ScriptEngine;
+use crate::transition::TransitionEffectType;
 use hecs::Entity;
 use macroquad::prelude::*;
 
@@ -11,6 +12,7 @@ pub struct Resources {
     pub dog_sprite: Texture2D,
     pub pickup_sprite: Texture2D,
     pub ui_sprite: Texture2D,
+    pub interstitial: Texture2D,
 
     pub player_id: Entity,
     pub eye_pos: Vec2,
@@ -18,7 +20,7 @@ pub struct Resources {
     pub draw_order: Vec<Entity>,
     pub tileset_info: TilesetInfo,
     pub messages: Messages,
-    pub new_scene: Option<NewScene>,
+    pub new_scene: Option<(NewScene, TransitionEffectType)>,
 }
 
 #[derive(Clone)]

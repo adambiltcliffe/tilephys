@@ -3,7 +3,7 @@ use crate::messages::Messages;
 use crate::player::Controller;
 use crate::resources::Resources;
 use crate::scene::Scene;
-use crate::transition::{Fade, Open, Shatter, TransitionEffect};
+use crate::transition::{new_transition, TransitionEffect, TransitionEffectType};
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
 
@@ -104,7 +104,9 @@ impl Renderer {
     pub(crate) fn draw_scene(&self, scene: &Scene, resources: &Resources, fps: u32) {
         // draw the current scene
         match scene {
-            Scene::PreLevel => (),
+            Scene::PreLevel => {
+                self.draw_prelevel(resources);
+            }
             Scene::PlayLevel(world_ref) => {
                 self.draw_world(&mut world_ref.borrow_mut(), resources);
             }
@@ -152,6 +154,43 @@ impl Renderer {
                 dest_size: Some(vec2(zoomed_width, zoomed_height)),
                 ..Default::default()
             },
+        );
+    }
+
+    pub(crate) fn draw_prelevel(&self, resources: &Resources) {
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            vec2(self.width / 2., self.height / 2.),
+            Origin::TopLeft,
+        ));
+        let wvdc = WALL_VISION_DEPTH.ceil();
+        for x in 0..8 {
+            for y in 0..5 {
+                draw_texture(
+                    resources.interstitial,
+                    wvdc + x as f32 * 40.0,
+                    wvdc + y as f32 * 40.0,
+                    WHITE,
+                );
+            }
+        }
+        let level_name = "Entryway";
+        let td1 = measure_text(level_name, None, 32, 1.0);
+        draw_text(
+            level_name,
+            wvdc + 160.0 - td1.width / 2.,
+            wvdc + 100.0,
+            32.0,
+            WHITE,
+        );
+        let td2 = measure_text("Loading", None, 16, 1.0);
+        draw_text(
+            "Loading",
+            (wvdc + 160.0 - td2.width / 2.).floor(),
+            (wvdc + 100.0 - td1.height - 6.0).floor(),
+            16.0,
+            WHITE,
         );
     }
 
@@ -244,7 +283,7 @@ impl Renderer {
             },
         );
 
-        // draw text and ui here (it's not affected by visibility but does need scaling)
+        // draw text and ui here
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -272,7 +311,7 @@ impl Renderer {
         }
     }
 
-    pub fn start_transition(&mut self) {
+    pub fn start_transition(&mut self, typ: TransitionEffectType) {
         let ff = render_target(self.final_width as u32, self.final_height as u32);
         ff.texture.set_filter(FilterMode::Nearest);
         gl_use_default_material();
@@ -296,7 +335,7 @@ impl Renderer {
                 ..Default::default()
             },
         );
-        self.transition = Some((ff, Box::new(Shatter::new())));
+        self.transition = Some((ff, new_transition(typ)));
     }
 
     pub fn tick(&mut self) {

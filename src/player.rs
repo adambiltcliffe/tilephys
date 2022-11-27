@@ -2,6 +2,7 @@ use crate::draw::PlayerSprite;
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Projectile, Secrecy, TriggerZone};
 use crate::resources::Resources;
+use crate::transition::TransitionEffectType;
 use hecs::{CommandBuffer, World};
 use macroquad::prelude::{is_key_down, Color, KeyCode};
 use std::collections::HashSet;
@@ -114,7 +115,10 @@ impl Controller {
                 resources.messages.add("God mode enabled!".to_owned());
             }
             if input.is_pressed(VirtualKey::DebugRestart) {
-                resources.new_scene = Some(crate::scene::NewScene::PlayLevel);
+                resources.new_scene = Some((
+                    crate::scene::NewScene::PlayLevel,
+                    TransitionEffectType::Shatter,
+                ));
             }
         }
         (result, secret_count)
