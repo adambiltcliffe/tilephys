@@ -209,17 +209,19 @@ impl Renderer {
             Origin::TopLeft,
         ));
         let wvdc = WALL_VISION_DEPTH.ceil();
-        clear_background(BLACK);
-        /*for x in 0..8 {
-            for y in 0..5 {
-                draw_texture(
-                    resources.interstitial,
-                    wvdc + x as f32 * 40.0,
-                    wvdc + y as f32 * 40.0,
-                    WHITE,
-                );
-            }
-        }*/
+        if self.transition.is_some() {
+            draw_texture(
+                self.transition.as_ref().unwrap().0.texture,
+                wvdc,
+                wvdc,
+                Color {
+                    r: 0.2,
+                    g: 0.,
+                    b: 0.,
+                    a: 1.0,
+                },
+            );
+        }
         let level_name = "Entryway";
         let td1 = measure_text(level_name, None, 32, 1.0);
         draw_text(

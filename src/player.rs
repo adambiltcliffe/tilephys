@@ -2,7 +2,6 @@ use crate::draw::PlayerSprite;
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Projectile, Secrecy, TriggerZone};
 use crate::resources::Resources;
-use crate::transition::TransitionEffectType;
 use hecs::{CommandBuffer, World};
 use macroquad::prelude::{is_key_down, Color, KeyCode};
 use std::collections::HashSet;
