@@ -1,7 +1,7 @@
 use camera::PlayerCamera;
 use enemy::Enemy;
 use hecs::CommandBuffer;
-use input::Input;
+use input::{Input, VirtualKey};
 use loader::LoadingManager;
 use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, PathMotion, Projectile};
@@ -59,21 +59,36 @@ async fn main() {
     loop {
         match resources.new_scene {
             None => (),
-            Some((NewScene::PreLevel, _typ)) => {}
+            Some((NewScene::PreLevel, typ)) => {
+                renderer.start_transition(typ);
+                scene = Scene::PreLevel;
+                resources.new_scene = None;
+                println!("transitioning to prelevel");
+            }
             Some((NewScene::PlayLevel, typ)) => {
                 renderer.start_transition(typ);
                 (scene, resources) = loader.load_level("intro.tmx").await.unwrap();
                 clock = Timer::new();
                 input = Input::new();
             }
-            Some((NewScene::PostLevel, _typ)) => (),
+            Some((NewScene::PostLevel, typ)) => {
+                renderer.start_transition(typ);
+                scene = Scene::PostLevel;
+                resources.new_scene = None;
+                println!("transitioning to postlevel");
+            }
         }
 
         input.update();
 
         match scene {
             Scene::PreLevel => {
-                resources.new_scene = Some((NewScene::PlayLevel, TransitionEffectType::Open))
+                for _ in 0..clock.get_num_updates() {
+                    renderer.tick();
+                }
+                if input.is_any_pressed() {
+                    resources.new_scene = Some((NewScene::PlayLevel, TransitionEffectType::Open))
+                }
             }
             Scene::PlayLevel(ref world_ref) => {
                 for _ in 0..clock.get_num_updates() {
@@ -104,12 +119,35 @@ async fn main() {
                             .call_entry_point(&format!("{}_enter", t));
                     }
 
+                    if input.is_pressed(VirtualKey::DebugRestart) {
+                        resources.new_scene = Some((
+                            crate::scene::NewScene::PlayLevel,
+                            TransitionEffectType::Shatter,
+                        ));
+                    }
+                    if input.is_pressed(VirtualKey::DebugWin) {
+                        resources.new_scene = Some((
+                            crate::scene::NewScene::PostLevel,
+                            TransitionEffectType::Shatter,
+                        ));
+                    }
+
                     input.reset();
                     resources.messages.update();
                     renderer.tick();
                 }
             }
-            Scene::PostLevel => (),
+            Scene::PostLevel => {
+                for _ in 0..clock.get_num_updates() {
+                    renderer.tick();
+                }
+                if input.is_any_pressed() {
+                    resources.new_scene = Some((
+                        crate::scene::NewScene::PreLevel,
+                        TransitionEffectType::Shatter,
+                    ));
+                }
+            }
         }
 
         renderer.draw_scene(&scene, &resources, clock.get_fps());

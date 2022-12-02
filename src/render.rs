@@ -110,7 +110,9 @@ impl Renderer {
             Scene::PlayLevel(world_ref) => {
                 self.draw_world(&mut world_ref.borrow_mut(), resources);
             }
-            Scene::PostLevel => (),
+            Scene::PostLevel => {
+                self.draw_postlevel(resources);
+            }
         }
 
         // draw the outgoing scene if there is one
@@ -187,6 +189,44 @@ impl Renderer {
         let td2 = measure_text("Loading", None, 16, 1.0);
         draw_text(
             "Loading",
+            (wvdc + 160.0 - td2.width / 2.).floor(),
+            (wvdc + 100.0 - td1.height - 6.0).floor(),
+            16.0,
+            WHITE,
+        );
+    }
+
+    pub(crate) fn draw_postlevel(&self, _resources: &Resources) {
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            vec2(self.width / 2., self.height / 2.),
+            Origin::TopLeft,
+        ));
+        let wvdc = WALL_VISION_DEPTH.ceil();
+        clear_background(BLACK);
+        /*for x in 0..8 {
+            for y in 0..5 {
+                draw_texture(
+                    resources.interstitial,
+                    wvdc + x as f32 * 40.0,
+                    wvdc + y as f32 * 40.0,
+                    WHITE,
+                );
+            }
+        }*/
+        let level_name = "Entryway";
+        let td1 = measure_text(level_name, None, 32, 1.0);
+        draw_text(
+            level_name,
+            wvdc + 160.0 - td1.width / 2.,
+            wvdc + 100.0,
+            32.0,
+            WHITE,
+        );
+        let td2 = measure_text("Completed", None, 16, 1.0);
+        draw_text(
+            "Completed",
             (wvdc + 160.0 - td2.width / 2.).floor(),
             (wvdc + 100.0 - td1.height - 6.0).floor(),
             16.0,

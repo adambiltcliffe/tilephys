@@ -114,12 +114,6 @@ impl Controller {
                 controller.god_mode = true;
                 resources.messages.add("God mode enabled!".to_owned());
             }
-            if input.is_pressed(VirtualKey::DebugRestart) {
-                resources.new_scene = Some((
-                    crate::scene::NewScene::PlayLevel,
-                    TransitionEffectType::Shatter,
-                ));
-            }
         }
         (result, secret_count)
     }
