@@ -89,12 +89,13 @@ impl TransitionEffect for Open {
         );
     }
     fn finished(&self) -> bool {
-        self.n > 160
+        self.n > 16
     }
 }
 
 pub struct Shatter {
     data: Vec<Vec<(f32, f32, f32, f32)>>,
+    finished: bool,
 }
 
 impl Shatter {
@@ -113,18 +114,26 @@ impl Shatter {
             }
             data.push(v);
         }
-        Self { data }
+        Self {
+            data,
+            finished: false,
+        }
     }
 }
 
 impl TransitionEffect for Shatter {
     fn tick(&mut self) {
+        let mut finished = true;
         for y in 0..15 {
             for x in 0..20 {
                 let (px, py, vx, vy) = self.data[y][x];
                 self.data[y][x] = (px + vx, py + vy, vx, vy + 1.0);
+                if py < 240.0 {
+                    finished = false;
+                }
             }
         }
+        self.finished = finished;
     }
     fn draw(&self, freeze_frame: &Texture2D) {
         for y in 0..15 {
@@ -146,6 +155,6 @@ impl TransitionEffect for Shatter {
         }
     }
     fn finished(&self) -> bool {
-        false
+        self.finished
     }
 }

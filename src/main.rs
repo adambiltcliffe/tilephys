@@ -86,7 +86,7 @@ async fn main() {
                 for _ in 0..clock.get_num_updates() {
                     renderer.tick();
                 }
-                if input.is_any_pressed() {
+                if renderer.transition_finished() {
                     resources.new_scene = Some((NewScene::PlayLevel, TransitionEffectType::Open))
                 }
             }

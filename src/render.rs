@@ -186,9 +186,14 @@ impl Renderer {
             32.0,
             WHITE,
         );
-        let td2 = measure_text("Loading", None, 16, 1.0);
+        let msg = if self.transition_finished() {
+            "Entering"
+        } else {
+            "Loading"
+        };
+        let td2 = measure_text(msg, None, 16, 1.0);
         draw_text(
-            "Loading",
+            msg,
             (wvdc + 160.0 - td2.width / 2.).floor(),
             (wvdc + 100.0 - td1.height - 6.0).floor(),
             16.0,
@@ -376,6 +381,10 @@ impl Renderer {
             },
         );
         self.transition = Some((ff, new_transition(typ)));
+    }
+
+    pub fn transition_finished(&self) -> bool {
+        self.transition.is_none()
     }
 
     pub fn tick(&mut self) {
