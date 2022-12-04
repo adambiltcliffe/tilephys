@@ -199,9 +199,10 @@ impl Renderer {
             16.0,
             WHITE,
         );
+        println!("{}", 100.0 - td1.height - 6.0);
     }
 
-    pub(crate) fn draw_postlevel(&self, _resources: &Resources) {
+    pub(crate) fn draw_postlevel(&self, resources: &Resources) {
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -222,21 +223,38 @@ impl Renderer {
                 },
             );
         }
-        let level_name = "Entryway";
-        let td1 = measure_text(level_name, None, 32, 1.0);
-        draw_text(
-            level_name,
-            wvdc + 160.0 - td1.width / 2.,
-            wvdc + 100.0,
-            32.0,
-            WHITE,
+        self.draw_centred_text("Completed", 16, 72.0);
+        self.draw_centred_text("Entryway", 32, 100.0);
+        self.draw_centred_text(
+            &format!("Time: {}", resources.stats.pretty_time()),
+            16,
+            128.0,
         );
-        let td2 = measure_text("Completed", None, 16, 1.0);
+        self.draw_centred_text(
+            &format!("Enemies defeated: ?/{}", resources.stats.max_kills),
+            16,
+            144.0,
+        );
+        self.draw_centred_text(
+            &format!("Items found: ?/{}", resources.stats.max_items),
+            16,
+            160.0,
+        );
+        self.draw_centred_text(
+            &format!("Secrets entered: ?/{}", resources.stats.max_secrets),
+            16,
+            176.0,
+        );
+    }
+
+    pub fn draw_centred_text(&self, text: &str, size: u16, y: f32) {
+        let wvdc = WALL_VISION_DEPTH.ceil();
+        let td1 = measure_text(text, None, size, 1.0);
         draw_text(
-            "Completed",
-            (wvdc + 160.0 - td2.width / 2.).floor(),
-            (wvdc + 100.0 - td1.height - 6.0).floor(),
-            16.0,
+            text,
+            (wvdc + 160.0 - td1.width / 2.).floor(),
+            (wvdc + y).floor(),
+            size as f32,
             WHITE,
         );
     }

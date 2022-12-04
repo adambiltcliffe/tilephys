@@ -26,6 +26,7 @@ mod render;
 mod resources;
 mod scene;
 mod script;
+mod stats;
 mod timer;
 mod transition;
 mod visibility;
@@ -134,6 +135,7 @@ async fn main() {
 
                     input.reset();
                     resources.messages.update();
+                    resources.stats.frames += 1;
                     renderer.tick();
                 }
             }

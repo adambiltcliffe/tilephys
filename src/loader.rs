@@ -9,6 +9,7 @@ use crate::resources::Resources;
 use crate::resources::TilesetInfo;
 use crate::scene::Scene;
 use crate::script::ScriptEngine;
+use crate::stats::LevelStats;
 use crate::visibility::compute_obscurers;
 use bitflags::bitflags;
 use hecs::{Entity, World};
@@ -116,7 +117,9 @@ impl LoadingManager {
         let mut body_ids: HashMap<String, Entity> = HashMap::new();
         let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
         let (mut psx, mut psy) = (0, 0);
-        let mut secret_count = 0;
+        let mut max_kills = 0;
+        let mut max_items = 0;
+        let mut max_secrets = 0;
 
         if map.tilesets().len() != 1 {
             return Err("map should contain only one tileset".to_owned());
@@ -236,7 +239,7 @@ impl LoadingManager {
                             } => {
                                 let secret = obj_type == "secret";
                                 if secret {
-                                    secret_count += 1
+                                    max_secrets += 1
                                 }
                                 println!(
                                     "found a{} trigger zone named {}",
@@ -260,11 +263,19 @@ impl LoadingManager {
                                 if obj_type == "player" {
                                     (psx, psy) = (*x as i32, *y as i32);
                                 } else if obj_type == "enemy" {
-                                    add_enemy(&mut world, EnemyKind::JumpyDog, *x as i32, *y as i32)
+                                    add_enemy(
+                                        &mut world,
+                                        EnemyKind::JumpyDog,
+                                        *x as i32,
+                                        *y as i32,
+                                    );
+                                    max_kills += 1;
                                 } else if obj_type == "walker_enemy" {
                                     add_enemy(&mut world, EnemyKind::Dog, *x as i32, *y as i32);
+                                    max_kills += 1;
                                 } else if obj_type == "heart" {
                                     add_pickup(&mut world, *x as i32, *y as i32);
+                                    max_items += 1;
                                 } else {
                                     println!("found an unknown point object type: {}", obj_type)
                                 }
@@ -276,8 +287,6 @@ impl LoadingManager {
                 _ => println!("(Something other than an infinite tiled layer)"),
             }
         }
-
-        println!("map has {} secret areas", secret_count);
 
         let world_ref = Rc::new(RefCell::new(world));
         let mut script_engine =
@@ -303,6 +312,8 @@ impl LoadingManager {
 
         compute_obscurers(&mut world_ref.borrow_mut());
 
+        let stats = LevelStats::new(max_kills, max_items, max_secrets);
+
         let resources = Resources {
             script_engine,
             player_sprite: load_texture("princess.png").await.unwrap(),
@@ -316,6 +327,7 @@ impl LoadingManager {
             draw_order,
             tileset_info,
             messages: Messages::new(),
+            stats,
             new_scene: None,
         };
 
