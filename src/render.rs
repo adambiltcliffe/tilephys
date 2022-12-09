@@ -231,17 +231,26 @@ impl Renderer {
             128.0,
         );
         self.draw_centred_text(
-            &format!("Enemies defeated: ?/{}", resources.stats.max_kills),
+            &format!(
+                "Enemies defeated: {}/{}",
+                resources.stats.kills, resources.stats.max_kills
+            ),
             16,
             144.0,
         );
         self.draw_centred_text(
-            &format!("Items found: ?/{}", resources.stats.max_items),
+            &format!(
+                "Items found: {}/{}",
+                resources.stats.items, resources.stats.max_items
+            ),
             16,
             160.0,
         );
         self.draw_centred_text(
-            &format!("Secrets entered: ?/{}", resources.stats.max_secrets),
+            &format!(
+                "Secrets entered: {}/{}",
+                resources.stats.secrets, resources.stats.max_secrets
+            ),
             16,
             176.0,
         );

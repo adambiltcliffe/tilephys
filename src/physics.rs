@@ -216,12 +216,13 @@ impl Projectile {
                 .query::<(&mut Enemy, &IntRect)>()
                 .iter()
                 .for_each(|(e_id, (en, e_rect))| {
-                    if live && rect.intersects(&e_rect) {
+                    if live && en.hp > 0 && rect.intersects(&e_rect) {
                         buffer.despawn(e);
                         en.hp -= 1;
                         if en.hp <= 0 {
                             resources.messages.add("Destroyed a hound.".to_owned());
-                            buffer.despawn(e_id)
+                            buffer.despawn(e_id);
+                            resources.stats.kills += 1
                         }
                         live = false;
                     }

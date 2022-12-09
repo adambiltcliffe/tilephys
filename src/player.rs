@@ -48,6 +48,7 @@ impl Controller {
                         if trigger.secrecy == Secrecy::HiddenSecret {
                             trigger.secrecy = Secrecy::FoundSecret;
                             secret_count += 1;
+                            resources.stats.secrets += 1;
                         }
                     }
                     new_triggers.insert(name);
