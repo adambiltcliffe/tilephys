@@ -42,3 +42,7 @@ fn releaser_trigger_enter() {
 fn compartment_enter() {
     set_motion_goto("falsewall", 1, 4.0);
 }
+
+fn finish_enter() {
+    win();
+}

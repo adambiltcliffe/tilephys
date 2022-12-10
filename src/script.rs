@@ -6,10 +6,15 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+pub struct ScriptFlags {
+    win: bool,
+}
+
 pub struct ScriptEngine {
     engine: Engine,
     scope: Scope<'static>,
     ast: Option<AST>,
+    flags: Rc<RefCell<ScriptFlags>>,
 }
 
 impl ScriptEngine {
@@ -20,6 +25,7 @@ impl ScriptEngine {
     ) -> Self {
         let mut engine = Engine::new();
         let mut scope = Scope::new();
+        let mut flags = Rc::new(RefCell::new(ScriptFlags { win: false }));
 
         engine.register_type_with_name::<PathMotionType>("PathMotionType");
         scope.push("Static", PathMotionType::Static);
@@ -90,10 +96,16 @@ impl ScriptEngine {
             },
         );
 
+        let cloned_flags = Rc::clone(&flags);
+        engine.register_fn("win", move || {
+            cloned_flags.borrow_mut().win = true;
+        });
+
         Self {
             engine,
             scope,
             ast: None,
+            flags,
         }
     }
 
@@ -113,5 +125,9 @@ impl ScriptEngine {
                 .call_fn::<()>(&mut self.scope, &ast, name, ())
                 .unwrap_or_else(|_| println!("calling entry point {} failed", name)),
         }
+    }
+
+    pub fn win_flag(&self) -> bool {
+        self.flags.borrow().win
     }
 }

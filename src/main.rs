@@ -126,7 +126,8 @@ async fn main() {
                             TransitionEffectType::Shatter,
                         ));
                     }
-                    if input.is_pressed(VirtualKey::DebugWin) {
+                    if input.is_pressed(VirtualKey::DebugWin) || resources.script_engine.win_flag()
+                    {
                         resources.new_scene = Some((
                             crate::scene::NewScene::PostLevel,
                             TransitionEffectType::Shatter,
