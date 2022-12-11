@@ -9,6 +9,8 @@ non-hard-coded map loader
 weapons/ammo
 * ammo pickups
 more tiles
+avoid reloading sprites
+more general sprite handling
 nicer text rendering
 nice script debug output/tidy up console output
 better error handling in general

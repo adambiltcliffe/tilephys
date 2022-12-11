@@ -12,6 +12,7 @@ pub struct Resources {
     pub player_sprite: Texture2D,
     pub dog_sprite: Texture2D,
     pub pickup_sprite: Texture2D,
+    pub switch_sprite: Texture2D,
     pub ui_sprite: Texture2D,
     pub interstitial: Texture2D,
 

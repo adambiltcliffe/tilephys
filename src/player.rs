@@ -1,7 +1,8 @@
-use crate::draw::PlayerSprite;
+use crate::draw::{PlayerSprite, SwitchSprite};
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Projectile, Secrecy, TriggerZone};
 use crate::resources::Resources;
+use crate::switch::Switch;
 use hecs::{CommandBuffer, World};
 use macroquad::prelude::{is_key_down, Color, KeyCode};
 use std::collections::HashSet;
@@ -64,6 +65,14 @@ impl Controller {
                 player.vx += 3.0;
                 controller.facing = 1;
                 sprite.flipped = true;
+            }
+            if input.is_pressed(VirtualKey::Interact) {
+                let mut q = world.query::<(&Actor, &IntRect, &Switch, &mut SwitchSprite)>();
+                for (_, (_, s_rect, _, spr)) in q.iter() {
+                    if p_rect.intersects(s_rect) {
+                        spr.on = true;
+                    }
+                }
             }
             if input.is_pressed(VirtualKey::Fire) {
                 let color = crate::draw::ColorRect::new(Color::new(0.58, 1.0, 0.25, 1.0));

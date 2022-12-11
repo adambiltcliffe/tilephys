@@ -27,6 +27,7 @@ mod resources;
 mod scene;
 mod script;
 mod stats;
+mod switch;
 mod timer;
 mod transition;
 mod visibility;

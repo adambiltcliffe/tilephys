@@ -10,6 +10,7 @@ use crate::resources::TilesetInfo;
 use crate::scene::Scene;
 use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
+use crate::switch::add_switch;
 use crate::visibility::compute_obscurers;
 use bitflags::bitflags;
 use hecs::{Entity, World};
@@ -276,6 +277,8 @@ impl LoadingManager {
                                 } else if obj_type == "heart" {
                                     add_pickup(&mut world, *x as i32, *y as i32);
                                     max_items += 1;
+                                } else if obj_type == "switch" {
+                                    add_switch(&mut world, *x as i32, *y as i32);
                                 } else {
                                     println!("found an unknown point object type: {}", obj_type)
                                 }
@@ -319,6 +322,7 @@ impl LoadingManager {
             player_sprite: load_texture("princess.png").await.unwrap(),
             dog_sprite: load_texture("robodog.png").await.unwrap(),
             pickup_sprite: load_texture("pickup.png").await.unwrap(),
+            switch_sprite: load_texture("switch.png").await.unwrap(),
             ui_sprite: load_texture("ui-heart.png").await.unwrap(),
             interstitial: load_texture("interstitial.png").await.unwrap(),
             player_id,

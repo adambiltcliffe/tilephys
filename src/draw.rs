@@ -53,6 +53,16 @@ impl PickupSprite {
     }
 }
 
+pub(crate) struct SwitchSprite {
+    pub on: bool,
+}
+
+impl SwitchSprite {
+    pub fn new() -> Self {
+        Self { on: false }
+    }
+}
+
 pub(crate) fn draw(world: &mut World, resources: &Resources) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
@@ -100,6 +110,21 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
             rect.w as f32,
             rect.h as f32,
             draw.color,
+        );
+    }
+
+    for (_, (rect, spr)) in world.query::<(&IntRect, &SwitchSprite)>().iter() {
+        let frame = if spr.on { 1 } else { 0 };
+        draw_texture_ex(
+            resources.switch_sprite,
+            rect.x as f32,
+            rect.y as f32,
+            WHITE,
+            DrawTextureParams {
+                //dest_size: Some(vec2(16.0, 24.0)),
+                source: Some(Rect::new(16.0 * frame as f32, 0.0, 16.0, 16.0)),
+                ..Default::default()
+            },
         );
     }
 
