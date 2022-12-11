@@ -259,6 +259,7 @@ impl LoadingManager {
                             tiled::ObjectData {
                                 shape: tiled::ObjectShape::Point(x, y),
                                 obj_type,
+                                name,
                                 ..
                             } => {
                                 if obj_type == "player" {
@@ -278,7 +279,7 @@ impl LoadingManager {
                                     add_pickup(&mut world, *x as i32, *y as i32);
                                     max_items += 1;
                                 } else if obj_type == "switch" {
-                                    add_switch(&mut world, *x as i32, *y as i32);
+                                    add_switch(&mut world, name.clone(), *x as i32, *y as i32);
                                 } else {
                                     println!("found an unknown point object type: {}", obj_type)
                                 }

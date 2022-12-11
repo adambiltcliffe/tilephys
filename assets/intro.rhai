@@ -46,3 +46,7 @@ fn compartment_enter() {
 fn finish_enter() {
     win();
 }
+
+fn final_switch_interact() {
+    win();
+}

@@ -66,8 +66,11 @@ impl Controller {
             }
             if input.is_pressed(VirtualKey::Interact) {
                 let mut q = world.query::<(&Actor, &IntRect, &Switch, &mut SwitchSprite)>();
-                for (_, (_, s_rect, _, spr)) in q.iter() {
+                for (_, (_, s_rect, s, spr)) in q.iter() {
                     if p_rect.intersects(s_rect) {
+                        resources
+                            .triggers
+                            .insert(format!("{}_interact", s.name).to_owned());
                         spr.on = true;
                     }
                 }
