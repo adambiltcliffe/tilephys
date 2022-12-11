@@ -35,21 +35,19 @@ impl Controller {
         resources: &mut Resources,
         buffer: &mut CommandBuffer,
         input: &Input,
-    ) -> (HashSet<String>, u32) {
-        let mut result: HashSet<String> = HashSet::new();
-        let mut secret_count = 0;
+    ) {
         let mut q = world.query::<(&mut Actor, &IntRect, &mut PlayerSprite, &mut Controller)>();
         for (id, (player, p_rect, sprite, controller)) in q.iter() {
             let mut new_triggers: HashSet<String> = HashSet::new();
             for (_, (trigger, t_rect)) in world.query::<(&mut TriggerZone, &IntRect)>().iter() {
                 if p_rect.intersects(&t_rect) {
-                    let name = trigger.name.clone();
+                    let name = format!("{}_enter", trigger.name).to_owned();
                     if !controller.triggers.contains(&name) {
-                        result.insert(name.clone());
+                        resources.triggers.insert(name.clone());
                         if trigger.secrecy == Secrecy::HiddenSecret {
                             trigger.secrecy = Secrecy::FoundSecret;
-                            secret_count += 1;
                             resources.stats.secrets += 1;
+                            resources.messages.add("Found a secret area!".to_owned());
                         }
                     }
                     new_triggers.insert(name);
@@ -124,7 +122,6 @@ impl Controller {
                 resources.messages.add("God mode enabled!".to_owned());
             }
         }
-        (result, secret_count)
     }
 
     pub fn hurt(&mut self) {

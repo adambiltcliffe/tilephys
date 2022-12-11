@@ -17,7 +17,7 @@ use hecs::{Entity, World};
 use macroquad::prelude::*;
 use macroquad::{file::load_file, texture::load_texture};
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::io::Cursor;
 use std::path::Path;
 use std::rc::Rc;
@@ -332,6 +332,7 @@ impl LoadingManager {
             tileset_info,
             messages: Messages::new(),
             stats,
+            triggers: HashSet::new(),
             new_scene: None,
         };
 

@@ -98,8 +98,7 @@ async fn main() {
                     let mut buffer = CommandBuffer::new();
                     ConstantMotion::apply(&world);
                     PathMotion::apply(&world);
-                    let (new_triggers, new_secrets) =
-                        Controller::update(&world, &mut resources, &mut buffer, &input);
+                    Controller::update(&world, &mut resources, &mut buffer, &input);
                     Enemy::update(&world, &resources);
                     Actor::update(&world);
                     Projectile::update(&world, &mut resources, &mut buffer);
@@ -110,16 +109,11 @@ async fn main() {
 
                     drop(world);
 
-                    if new_secrets > 0 {
-                        resources.messages.add("Found a secret area!".to_owned());
+                    for t in &resources.triggers {
+                        println!("calling entry point {}", t);
+                        resources.script_engine.call_entry_point(&t);
                     }
-
-                    for t in new_triggers {
-                        println!("entered new trigger zone {}", t);
-                        resources
-                            .script_engine
-                            .call_entry_point(&format!("{}_enter", t));
-                    }
+                    resources.triggers.clear();
 
                     if input.is_pressed(VirtualKey::DebugRestart) {
                         resources.new_scene = Some((

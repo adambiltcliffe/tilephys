@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::messages::Messages;
 use crate::scene::NewScene;
 use crate::script::ScriptEngine;
@@ -23,6 +25,7 @@ pub struct Resources {
     pub tileset_info: TilesetInfo,
     pub messages: Messages,
     pub stats: LevelStats,
+    pub triggers: HashSet<String>,
     pub new_scene: Option<(NewScene, TransitionEffectType)>,
 }
 
