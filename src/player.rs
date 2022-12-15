@@ -3,6 +3,7 @@ use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Projectile, Secrecy, TriggerZone};
 use crate::resources::Resources;
 use crate::switch::Switch;
+use crate::vfx::ZapFlash;
 use hecs::{CommandBuffer, World};
 use macroquad::prelude::{is_key_down, Color, KeyCode};
 use std::collections::HashSet;
@@ -76,12 +77,8 @@ impl Controller {
                 }
             }
             if input.is_pressed(VirtualKey::Fire) {
-                let rect = IntRect::new(
-                    p_rect.x + 3 + controller.facing as i32 * 9,
-                    p_rect.y + 11,
-                    8,
-                    5,
-                );
+                let new_x = p_rect.x + 3 + controller.facing as i32 * 9;
+                let rect = IntRect::new(new_x, p_rect.y + 11, 8, 5);
                 let proj = Projectile::new(&rect, controller.facing as f32 * 10.0, 0.0);
                 buffer.spawn((rect, ZapSprite::new(), proj));
                 player.vx -= controller.facing as f32 * 10.0;
