@@ -269,6 +269,13 @@ impl Renderer {
     }
 
     pub(crate) fn draw_world(&self, world: &mut hecs::World, resources: &Resources) {
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            resources.camera_pos,
+            Origin::TopLeft,
+        ));
+
         let (flash, hp) = match world.get::<&Controller>(resources.player_id) {
             Ok(c) => (c.was_hurt(), c.hp),
             Err(_) => (false, 0),
@@ -279,12 +286,6 @@ impl Renderer {
         }
 
         // draw the basic graphics
-        gl_use_default_material();
-        set_camera(&get_camera_for_target(
-            &self.draw_target,
-            resources.camera_pos,
-            Origin::TopLeft,
-        ));
         draw(world, resources);
 
         // initialise the offscreen texture for jump flood algorithm
