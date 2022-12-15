@@ -1,6 +1,6 @@
-projectile graphic
-vfx
-* enemy death sprites?
+vfx - muzzle flash, impact, explosion?
+* enemy death sprites
+* player death sprite
 more efficient collision testing (speed up move_actor)
 rewrite scripting layer
 non-hard-coded map loader

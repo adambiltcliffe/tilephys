@@ -1,6 +1,6 @@
-use crate::enemy::Enemy;
 use crate::loader::TileFlags;
 use crate::resources::Resources;
+use crate::{enemy::Enemy, vfx::ZapFlash};
 use hecs::{CommandBuffer, Entity, World};
 use macroquad::math::{vec2, Vec2};
 use std::collections::HashSet;
@@ -200,6 +200,8 @@ impl Projectile {
 
     pub fn update(world: &World, resources: &mut Resources, buffer: &mut CommandBuffer) {
         for (e, (proj, rect)) in world.query::<(&mut Projectile, &mut IntRect)>().iter() {
+            let ox = rect.x;
+            let oy = rect.y;
             proj.prec_x += proj.vx;
             proj.prec_y += proj.vy;
             rect.x = proj.prec_x.round() as i32;
@@ -209,7 +211,10 @@ impl Projectile {
                 .iter()
                 .any(|(_, c)| c.collide(rect, CollisionType::Blocker))
             {
-                buffer.despawn(e)
+                buffer.despawn(e);
+                let (x, y) = find_collision_pos(world, ox, oy, rect);
+                let sx = if (proj.vx > 0.0) { x + 7 } else { x };
+                buffer.spawn((ZapFlash::new_from_centre(sx, y + 2),));
             }
             let mut live = true;
             world
@@ -229,6 +234,36 @@ impl Projectile {
                 });
         }
     }
+}
+
+fn find_collision_pos(world: &World, ox: i32, oy: i32, rect: &IntRect) -> (i32, i32) {
+    // this function can be slow as it's only called to generate the vfx when a projectile hits a wall
+    let mut r = rect.clone();
+    let dx = (ox - r.x).signum();
+    let mut n = 0;
+    while r.x != ox {
+        r.x += dx;
+        n += 1;
+        if !world
+            .query::<&TileBody>()
+            .iter()
+            .any(|(_, c)| c.collide(&r, CollisionType::Blocker))
+        {
+            return (r.x, r.y);
+        }
+    }
+    let dy = (oy - r.y).signum();
+    while r.y != oy {
+        r.y += dy;
+        if !world
+            .query::<&TileBody>()
+            .iter()
+            .any(|(_, c)| c.collide(&r, CollisionType::Blocker))
+        {
+            return (r.x, r.y);
+        }
+    }
+    (r.x, r.y)
 }
 
 pub struct ConstantMotion {

@@ -16,6 +16,7 @@ pub struct Resources {
     pub pickup_sprite: Texture2D,
     pub switch_sprite: Texture2D,
     pub ui_sprite: Texture2D,
+    pub zap_sprite: Texture2D,
     pub interstitial: Texture2D,
 
     pub player_id: Entity,

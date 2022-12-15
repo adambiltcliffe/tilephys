@@ -1,5 +1,6 @@
 use crate::physics::{IntRect, TileBody};
 use crate::resources::Resources;
+use crate::vfx::ZapFlash;
 use hecs::World;
 use macroquad::prelude::*;
 
@@ -60,6 +61,14 @@ pub(crate) struct SwitchSprite {
 impl SwitchSprite {
     pub fn new() -> Self {
         Self { on: false }
+    }
+}
+
+pub(crate) struct ZapSprite {}
+
+impl ZapSprite {
+    pub fn new() -> Self {
+        Self {}
     }
 }
 
@@ -132,6 +141,20 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
         draw_texture(resources.pickup_sprite, rect.x as f32, rect.y as f32, WHITE);
     }
 
+    for (_, (rect, _spr)) in world.query::<(&IntRect, &ZapSprite)>().iter() {
+        draw_texture_ex(
+            resources.zap_sprite,
+            rect.x as f32,
+            rect.y as f32,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(8.0, 5.0)),
+                source: Some(Rect::new(0.0, 2.0, 8.0, 5.0)),
+                ..Default::default()
+            },
+        );
+    }
+
     for (_, (rect, spr)) in world.query::<(&IntRect, &PlayerSprite)>().iter() {
         if spr.blink {
             continue;
@@ -161,6 +184,20 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
                 dest_size: Some(vec2(24.0, 16.0)),
                 source: Some(Rect::new(0.0, 16.0 * (spr.n / 5 % 2) as f32, 24.0, 16.0)),
                 flip_x: spr.flipped,
+                ..Default::default()
+            },
+        );
+    }
+
+    for (_, zap) in world.query::<&ZapFlash>().iter() {
+        draw_texture_ex(
+            resources.zap_sprite,
+            zap.x as f32,
+            zap.y as f32,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(9.0, 9.0)),
+                source: Some(Rect::new(0.0, 9.0 * (zap.n) as f32, 9.0, 9.0)),
                 ..Default::default()
             },
         );

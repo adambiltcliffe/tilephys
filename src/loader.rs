@@ -325,6 +325,7 @@ impl LoadingManager {
             pickup_sprite: load_texture("pickup.png").await.unwrap(),
             switch_sprite: load_texture("switch.png").await.unwrap(),
             ui_sprite: load_texture("ui-heart.png").await.unwrap(),
+            zap_sprite: load_texture("zap.png").await.unwrap(),
             interstitial: load_texture("interstitial.png").await.unwrap(),
             player_id,
             eye_pos,

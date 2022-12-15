@@ -12,6 +12,7 @@ use resources::Resources;
 use scene::{NewScene, Scene};
 use timer::Timer;
 use transition::TransitionEffectType;
+use vfx::update_vfx;
 
 mod camera;
 mod draw;
@@ -30,6 +31,7 @@ mod stats;
 mod switch;
 mod timer;
 mod transition;
+mod vfx;
 mod visibility;
 
 const RENDER_W: u32 = 320;
@@ -103,6 +105,7 @@ async fn main() {
                     Actor::update(&world);
                     Projectile::update(&world, &mut resources, &mut buffer);
                     Pickup::update(&world, &mut resources, &mut buffer);
+                    update_vfx(&world, &mut buffer);
                     buffer.run_on(&mut world);
 
                     PlayerCamera::update(&world, &mut resources);

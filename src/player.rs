@@ -1,4 +1,4 @@
-use crate::draw::{PlayerSprite, SwitchSprite};
+use crate::draw::{PlayerSprite, SwitchSprite, ZapSprite};
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Projectile, Secrecy, TriggerZone};
 use crate::resources::Resources;
@@ -76,7 +76,6 @@ impl Controller {
                 }
             }
             if input.is_pressed(VirtualKey::Fire) {
-                let color = crate::draw::ColorRect::new(Color::new(0.58, 1.0, 0.25, 1.0));
                 let rect = IntRect::new(
                     p_rect.x + 3 + controller.facing as i32 * 9,
                     p_rect.y + 11,
@@ -84,7 +83,7 @@ impl Controller {
                     5,
                 );
                 let proj = Projectile::new(&rect, controller.facing as f32 * 10.0, 0.0);
-                buffer.spawn((rect, color, proj));
+                buffer.spawn((rect, ZapSprite::new(), proj));
                 player.vx -= controller.facing as f32 * 10.0;
                 controller.fire_timer = 0;
                 sprite.firing = true;
