@@ -213,7 +213,7 @@ impl Projectile {
             {
                 buffer.despawn(e);
                 let (x, y) = find_collision_pos(world, ox, oy, rect);
-                let sx = if (proj.vx > 0.0) { x + 7 } else { x };
+                let sx = if proj.vx > 0.0 { x + 7 } else { x };
                 buffer.spawn((ZapFlash::new_from_centre(sx, y + 2),));
             }
             let mut live = true;
@@ -223,6 +223,8 @@ impl Projectile {
                 .for_each(|(e_id, (en, e_rect))| {
                     if live && en.hp > 0 && rect.intersects(&e_rect) {
                         buffer.despawn(e);
+                        let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
+                        buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
                         en.hp -= 1;
                         if en.hp <= 0 {
                             resources.messages.add("Destroyed a hound.".to_owned());
