@@ -18,8 +18,8 @@ fn init() {
     set_motion("piston", ForwardCycle, 0.5);
 }
 
-fn door_trigger_enter() {
-    set_motion_goto("door", 1, 1.0);
+fn door_switch_interact() {
+    set_motion_goto("door", 1, 2.0);
 }
 
 fn hatch_trigger_enter() {
@@ -27,7 +27,7 @@ fn hatch_trigger_enter() {
     set_motion_goto("hatchright", 2, 4.0);
 }
 
-fn unlock_trigger_enter() {
+fn unlock_switch_interact() {
     set_motion_goto("finaldoor", 1, 1.0);
     set_motion_goto("towerhatch", 1, 4.0);
 }
