@@ -1,8 +1,7 @@
 projectile graphic
 vfx
 * enemy death sprites?
-more efficient collision testing
-visible switches or other interactibles
+more efficient collision testing (speed up move_actor)
 rewrite scripting layer
 non-hard-coded map loader
 * test map(s)
