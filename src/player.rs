@@ -101,6 +101,7 @@ impl Controller {
                 sprite.n += player.vx.abs() as i32;
             }
             controller.fire_timer += 1;
+            sprite.muzzle_flash = controller.fire_timer;
             if controller.fire_timer > 5 {
                 sprite.firing = false;
             }

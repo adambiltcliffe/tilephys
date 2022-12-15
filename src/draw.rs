@@ -1,4 +1,5 @@
 use crate::physics::{IntRect, TileBody};
+use crate::player::Controller;
 use crate::resources::Resources;
 use crate::vfx::ZapFlash;
 use hecs::World;
@@ -19,6 +20,7 @@ pub(crate) struct PlayerSprite {
     pub firing: bool,
     pub flipped: bool,
     pub blink: bool,
+    pub muzzle_flash: u32,
 }
 
 impl PlayerSprite {
@@ -28,6 +30,7 @@ impl PlayerSprite {
             firing: false,
             flipped: true,
             blink: false,
+            muzzle_flash: 0,
         }
     }
 }
@@ -158,6 +161,19 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
     for (_, (rect, spr)) in world.query::<(&IntRect, &PlayerSprite)>().iter() {
         if spr.blink {
             continue;
+        }
+        if spr.muzzle_flash < 6 {
+            draw_texture_ex(
+                resources.zap_sprite,
+                rect.x as f32 + if spr.flipped { 11.0 } else { -6.0 },
+                rect.y as f32 + 9.0,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(9.0, 9.0)),
+                    source: Some(Rect::new(0.0, 9.0 * spr.muzzle_flash as f32, 9.0, 9.0)),
+                    ..Default::default()
+                },
+            );
         }
         let frame = if spr.firing { 2 } else { spr.n * 5 % 2 };
         draw_texture_ex(
