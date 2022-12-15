@@ -397,6 +397,7 @@ fn move_actor(
 }
 
 fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
+    let start = std::time::Instant::now();
     // this is a fiddly mess of borrows and drops but we should be able to skip
     // this in many cases if there are no actors in position to be pushed
     for _ii in 0..(vx.abs()) {
@@ -440,6 +441,9 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
             let mut rect = world.get::<&mut IntRect>(e).unwrap();
             move_actor(&mut *actor, &mut *rect, 0.0, vy.signum() as f32, &world);
         }
+    }
+    if start.elapsed().as_micros() > 250 {
+        println!("call to move_actor took {:?}", start.elapsed());
     }
 }
 
