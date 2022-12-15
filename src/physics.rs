@@ -360,24 +360,37 @@ fn move_actor(
     let mut collided_y = false;
     while rect.y != targ_y {
         let dy = (targ_y - rect.y).signum();
-        let clo: Box<dyn FnMut((_, &TileBody)) -> bool> = if dy == -1 {
-            Box::new(|(_, c): (_, &TileBody)| {
-                c.collide(&offset_rect_up(rect), CollisionType::Blocker)
-            })
+        if dy == -1 {
+            if world
+                .query::<&TileBody>()
+                .iter()
+                .any(|(_, c): (_, &TileBody)| {
+                    c.collide(&offset_rect_up(rect), CollisionType::Blocker)
+                })
+            {
+                actor.prec_y = rect.y as f32;
+                collided_y = true;
+                break;
+            } else {
+                rect.y += dy
+            }
         } else {
-            Box::new(|(_, c): (_, &TileBody)| {
-                c.collide(
-                    &offset_rect_down(rect),
-                    CollisionType::TopOfBlockerOrPlatform,
-                )
-            })
-        };
-        if world.query::<&TileBody>().iter().any(clo) {
-            actor.prec_y = rect.y as f32;
-            collided_y = true;
-            break;
-        } else {
-            rect.y += dy
+            if world
+                .query::<&TileBody>()
+                .iter()
+                .any(|(_, c): (_, &TileBody)| {
+                    c.collide(
+                        &offset_rect_down(rect),
+                        CollisionType::TopOfBlockerOrPlatform,
+                    )
+                })
+            {
+                actor.prec_y = rect.y as f32;
+                collided_y = true;
+                break;
+            } else {
+                rect.y += dy
+            }
         }
     }
     (collided_x, collided_y)
