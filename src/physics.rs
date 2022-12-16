@@ -57,6 +57,15 @@ fn feet_rect(rect: &IntRect) -> IntRect {
     IntRect::new(rect.x, rect.y + rect.h, rect.w, 1)
 }
 
+fn motion_rect(rect: &IntRect, targ_x: i32, targ_y: i32) -> IntRect {
+    IntRect::new(
+        rect.x.min(targ_x),
+        rect.y.min(targ_y),
+        rect.w + (rect.x - targ_x).abs(),
+        rect.h + (rect.y - targ_y).abs(),
+    )
+}
+
 #[derive(PartialEq, Eq)]
 pub enum Secrecy {
     NotSecret,
@@ -172,14 +181,14 @@ impl Actor {
         }
     }
 
-    pub fn update(world: &World) {
+    pub fn update(world: &World, resources: &Resources) {
         for (_, (actor, rect)) in world.query::<(&mut Actor, &mut IntRect)>().iter() {
             actor.vy += 1.0;
             actor.vx *= actor.drag;
             actor.vy = actor.vy.min(16.0);
             let vx = actor.vx;
             let vy = actor.vy;
-            let (cx, cy) = move_actor(actor, rect, vx, vy, &world);
+            let (cx, cy) = move_actor(actor, rect, vx, vy, &world, &resources.body_index);
             if cx {
                 actor.vx = 0.0;
             }
@@ -384,18 +393,24 @@ fn move_actor(
     vx: f32,
     vy: f32,
     world: &World,
+    body_index: &SpatialIndex,
 ) -> (bool, bool) {
     let start = std::time::Instant::now();
     actor.prec_x += vx;
     let targ_x = actor.prec_x.round() as i32;
     let mut collided_x = false;
+    actor.prec_y += vy;
+    let targ_y = actor.prec_y.round() as i32;
+    let mut collided_y = false;
+    let blockers = body_index.entities(&motion_rect(rect, targ_x, targ_y));
     while rect.x != targ_x {
         let dx = (targ_x - rect.x).signum();
-        if world
-            .query::<&TileBody>()
-            .iter()
-            .any(|(_, c)| c.collide(&offset_rect(rect, dx, 0), CollisionType::Blocker))
-        {
+        if blockers.iter().any(|id| {
+            world
+                .get::<&TileBody>(*id)
+                .unwrap()
+                .collide(&offset_rect(rect, dx, 0), CollisionType::Blocker)
+        }) {
             actor.prec_x = rect.x as f32;
             collided_x = true;
             break;
@@ -403,19 +418,15 @@ fn move_actor(
             rect.x += dx;
         }
     }
-    actor.prec_y += vy;
-    let targ_y = actor.prec_y.round() as i32;
-    let mut collided_y = false;
     while rect.y != targ_y {
         let dy = (targ_y - rect.y).signum();
         if dy == -1 {
-            if world
-                .query::<&TileBody>()
-                .iter()
-                .any(|(_, c): (_, &TileBody)| {
-                    c.collide(&offset_rect_up(rect), CollisionType::Blocker)
-                })
-            {
+            if blockers.iter().any(|id| {
+                world
+                    .get::<&TileBody>(*id)
+                    .unwrap()
+                    .collide(&offset_rect_up(rect), CollisionType::Blocker)
+            }) {
                 actor.prec_y = rect.y as f32;
                 collided_y = true;
                 break;
@@ -423,16 +434,12 @@ fn move_actor(
                 rect.y += dy
             }
         } else {
-            if world
-                .query::<&TileBody>()
-                .iter()
-                .any(|(_, c): (_, &TileBody)| {
-                    c.collide(
-                        &offset_rect_down(rect),
-                        CollisionType::TopOfBlockerOrPlatform,
-                    )
-                })
-            {
+            if blockers.iter().any(|id| {
+                world.get::<&TileBody>(*id).unwrap().collide(
+                    &offset_rect_down(rect),
+                    CollisionType::TopOfBlockerOrPlatform,
+                )
+            }) {
                 actor.prec_y = rect.y as f32;
                 collided_y = true;
                 break;
@@ -442,7 +449,11 @@ fn move_actor(
         }
     }
     if start.elapsed().as_micros() > 250 {
-        println!("call to move_actor took {:?}", start.elapsed());
+        println!(
+            "call to move_actor took {:?} with {} blockers",
+            start.elapsed(),
+            blockers.len()
+        );
     }
     (collided_x, collided_y)
 }
@@ -472,7 +483,14 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
         for e in should_move {
             let mut actor = world.get::<&mut Actor>(e).unwrap();
             let mut rect = world.get::<&mut IntRect>(e).unwrap();
-            move_actor(&mut *actor, &mut *rect, vx.signum() as f32, 0.0, &world);
+            move_actor(
+                &mut *actor,
+                &mut *rect,
+                vx.signum() as f32,
+                0.0,
+                &world,
+                spatial_index,
+            );
         }
     }
     for _ii in 0..(vy.abs()) {
@@ -493,7 +511,14 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
         for e in should_move {
             let mut actor = world.get::<&mut Actor>(e).unwrap();
             let mut rect = world.get::<&mut IntRect>(e).unwrap();
-            move_actor(&mut *actor, &mut *rect, 0.0, vy.signum() as f32, &world);
+            move_actor(
+                &mut *actor,
+                &mut *rect,
+                0.0,
+                vy.signum() as f32,
+                &world,
+                spatial_index,
+            );
         }
     }
     let mut body = world.get::<&mut TileBody>(index).unwrap();

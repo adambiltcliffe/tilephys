@@ -42,7 +42,6 @@ impl SpatialIndex {
 
     pub fn remove_at(&mut self, entity: Entity, rect: &IntRect) {
         let (min_kx, max_kx, min_ky, max_ky) = get_bounds(rect);
-        let mut n = 0;
         for kx in min_kx..=max_kx {
             for ky in min_ky..=max_ky {
                 let v = self
@@ -50,9 +49,23 @@ impl SpatialIndex {
                     .entry((kx, ky))
                     .or_insert_with(|| SmallSet::new());
                 v.remove(&entity);
-                n += 1;
             }
         }
+    }
+
+    pub fn entities(&self, rect: &IntRect) -> SmallSet<[Entity; 8]> {
+        let mut result: SmallSet<[Entity; 8]> = SmallSet::new();
+        let (min_kx, max_kx, min_ky, max_ky) = get_bounds(rect);
+        for kx in min_kx..=max_kx {
+            for ky in min_ky..=max_ky {
+                if let Some(set) = self.buckets.get(&(kx, ky)) {
+                    for id in set.iter() {
+                        result.insert(*id);
+                    }
+                }
+            }
+        }
+        result
     }
 
     pub fn debug(&self) {
