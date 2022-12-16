@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use crate::index::SpatialIndex;
 use crate::messages::Messages;
 use crate::scene::NewScene;
 use crate::script::ScriptEngine;
@@ -7,6 +6,7 @@ use crate::stats::LevelStats;
 use crate::transition::TransitionEffectType;
 use hecs::Entity;
 use macroquad::prelude::*;
+use std::collections::HashSet;
 
 pub struct Resources {
     pub script_engine: ScriptEngine,
@@ -23,6 +23,7 @@ pub struct Resources {
     pub eye_pos: Vec2,
     pub camera_pos: Vec2,
     pub draw_order: Vec<Entity>,
+    pub body_index: SpatialIndex,
     pub tileset_info: TilesetInfo,
     pub messages: Messages,
     pub stats: LevelStats,

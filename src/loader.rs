@@ -1,6 +1,7 @@
 use crate::camera::add_camera;
 use crate::draw::PlayerSprite;
 use crate::enemy::{add_enemy, EnemyKind};
+use crate::index::SpatialIndex;
 use crate::messages::Messages;
 use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
 use crate::pickup::add_pickup;
@@ -117,6 +118,7 @@ impl LoadingManager {
         let mut world: World = World::new();
         let mut body_ids: HashMap<String, Entity> = HashMap::new();
         let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
+        let mut body_index = SpatialIndex::new();
         let (mut psx, mut psy) = (0, 0);
         let mut max_kills = 0;
         let mut max_items = 0;
@@ -203,16 +205,19 @@ impl LoadingManager {
                             tiles.push(t.map(|t| t.id() as u16).unwrap_or(0));
                         }
                     }
-                    let id = world.spawn((TileBody::new(
+                    let body = TileBody::new(
                         x0 * map.tile_width as i32,
                         y0 * map.tile_height as i32,
                         tileset_info.tile_width as i32,
                         (x1 - x0) + 1,
                         data,
                         tiles,
-                    ),));
+                    );
+                    let rect = body.get_rect();
+                    let id = world.spawn((body,));
                     body_ids.insert(layer.name.clone(), id);
                     draw_order.push(id);
+                    body_index.insert_at(id, &rect);
                 }
                 tiled::LayerType::Objects(data) => {
                     for obj in data.objects() {
@@ -318,6 +323,8 @@ impl LoadingManager {
 
         let stats = LevelStats::new(max_kills, max_items, max_secrets);
 
+        body_index.debug();
+
         let resources = Resources {
             script_engine,
             player_sprite: load_texture("princess.png").await.unwrap(),
@@ -331,6 +338,7 @@ impl LoadingManager {
             eye_pos,
             camera_pos,
             draw_order,
+            body_index,
             tileset_info,
             messages: Messages::new(),
             stats,

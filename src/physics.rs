@@ -111,6 +111,15 @@ impl TileBody {
         }
     }
 
+    pub fn get_rect(&self) -> IntRect {
+        IntRect {
+            x: self.x,
+            y: self.y,
+            w: self.width * self.size,
+            h: (self.data.len() as i32 / self.width) * self.size,
+        }
+    }
+
     fn collide(&self, rect: &IntRect, typ: CollisionType) -> bool {
         let adjustment = match typ {
             CollisionType::Blocker => 0,

@@ -17,6 +17,7 @@ use vfx::update_vfx;
 mod camera;
 mod draw;
 mod enemy;
+mod index;
 mod input;
 mod loader;
 mod messages;
