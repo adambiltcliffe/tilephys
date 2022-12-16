@@ -99,8 +99,8 @@ async fn main() {
                 for _ in 0..clock.get_num_updates() {
                     let mut world = world_ref.borrow_mut();
                     let mut buffer = CommandBuffer::new();
-                    ConstantMotion::apply(&world);
-                    PathMotion::apply(&world);
+                    ConstantMotion::apply(&world, &mut resources);
+                    PathMotion::apply(&world, &mut resources);
                     Controller::update(&world, &mut resources, &mut buffer, &input);
                     Enemy::update(&world, &resources);
                     Actor::update(&world);
@@ -137,6 +137,10 @@ async fn main() {
                     resources.messages.update();
                     resources.stats.frames += 1;
                     renderer.tick();
+
+                    if resources.stats.frames % 100 == 0 {
+                        resources.body_index.debug();
+                    }
                 }
             }
             Scene::PostLevel => {

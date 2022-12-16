@@ -1,3 +1,4 @@
+use crate::index::SpatialIndex;
 use crate::loader::TileFlags;
 use crate::resources::Resources;
 use crate::{enemy::Enemy, vfx::ZapFlash};
@@ -286,9 +287,9 @@ impl ConstantMotion {
     pub fn new(vx: i32, vy: i32) -> Self {
         Self { vx, vy }
     }
-    pub fn apply(world: &World) {
+    pub fn apply(world: &World, resources: &mut Resources) {
         for (e, cm) in world.query::<&ConstantMotion>().iter() {
-            move_body(&world, e, cm.vx, cm.vy);
+            move_body(&world, &mut resources.body_index, e, cm.vx, cm.vy);
         }
     }
 }
@@ -331,7 +332,7 @@ impl PathMotion {
         }
     }
 
-    pub fn apply(world: &World) {
+    pub fn apply(world: &World, resources: &mut Resources) {
         for (e, pm) in world.query::<&mut PathMotion>().iter() {
             let dest = {
                 let body = world.get::<&TileBody>(e).unwrap();
@@ -372,7 +373,7 @@ impl PathMotion {
                     pm.prec_y.round() as i32 - body.y,
                 )
             };
-            move_body(&world, e, dx, dy);
+            move_body(&world, &mut resources.body_index, e, dx, dy);
         }
     }
 }
@@ -384,6 +385,7 @@ fn move_actor(
     vy: f32,
     world: &World,
 ) -> (bool, bool) {
+    let start = std::time::Instant::now();
     actor.prec_x += vx;
     let targ_x = actor.prec_x.round() as i32;
     let mut collided_x = false;
@@ -439,11 +441,17 @@ fn move_actor(
             }
         }
     }
+    if start.elapsed().as_micros() > 250 {
+        println!("call to move_actor took {:?}", start.elapsed());
+    }
     (collided_x, collided_y)
 }
 
-fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
+fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx: i32, vy: i32) {
     let start = std::time::Instant::now();
+    let mut body = world.get::<&mut TileBody>(index).unwrap();
+    spatial_index.remove_at(index, &body.get_rect());
+    drop(body);
     // this is a fiddly mess of borrows and drops but we should be able to skip
     // this in many cases if there are no actors in position to be pushed
     for _ii in 0..(vx.abs()) {
@@ -488,8 +496,11 @@ fn move_body(world: &World, index: Entity, vx: i32, vy: i32) {
             move_actor(&mut *actor, &mut *rect, 0.0, vy.signum() as f32, &world);
         }
     }
+    let mut body = world.get::<&mut TileBody>(index).unwrap();
+    spatial_index.insert_at(index, &body.get_rect());
+    drop(body);
     if start.elapsed().as_micros() > 250 {
-        println!("call to move_actor took {:?}", start.elapsed());
+        println!("call to move_body took {:?}", start.elapsed());
     }
 }
 

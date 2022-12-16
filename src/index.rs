@@ -11,10 +11,10 @@ pub struct SpatialIndex {
 
 fn get_bounds(rect: &IntRect) -> (i32, i32, i32, i32) {
     (
-        rect.x / BUCKET_SIZE,
-        (rect.x + rect.w - 1) / BUCKET_SIZE,
-        rect.y / BUCKET_SIZE,
-        (rect.y + rect.h - 1) / BUCKET_SIZE,
+        rect.x.div_euclid(BUCKET_SIZE),
+        (rect.x + rect.w - 1).div_euclid(BUCKET_SIZE),
+        rect.y.div_euclid(BUCKET_SIZE),
+        (rect.y + rect.h - 1).div_euclid(BUCKET_SIZE),
     )
 }
 
@@ -38,10 +38,25 @@ impl SpatialIndex {
                 n += 1;
             }
         }
-        println!("inserted into {} buckets", n);
+    }
+
+    pub fn remove_at(&mut self, entity: Entity, rect: &IntRect) {
+        let (min_kx, max_kx, min_ky, max_ky) = get_bounds(rect);
+        let mut n = 0;
+        for kx in min_kx..=max_kx {
+            for ky in min_ky..=max_ky {
+                let v = self
+                    .buckets
+                    .entry((kx, ky))
+                    .or_insert_with(|| SmallSet::new());
+                v.remove(&entity);
+                n += 1;
+            }
+        }
     }
 
     pub fn debug(&self) {
+        println!("spatial index has {} buckets", self.buckets.len());
         let mut counts = HashMap::<usize, usize>::new();
         for (_, s) in &self.buckets {
             *counts.entry(s.len()).or_insert(0) += 1;
