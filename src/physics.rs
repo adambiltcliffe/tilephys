@@ -1,3 +1,5 @@
+use crate::corpse::Corpse;
+use crate::draw::{CorpseSprite, DogSprite};
 use crate::index::SpatialIndex;
 use crate::loader::TileFlags;
 use crate::resources::Resources;
@@ -312,9 +314,9 @@ impl Projectile {
             }
             let mut live = true;
             world
-                .query::<(&mut Enemy, &IntRect)>()
+                .query::<(&mut Enemy, &IntRect, &DogSprite)>()
                 .iter()
-                .for_each(|(e_id, (en, e_rect))| {
+                .for_each(|(e_id, (en, e_rect, e_spr))| {
                     if live && en.hp > 0 && rect.intersects(&e_rect) {
                         buffer.despawn(e);
                         let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
@@ -322,7 +324,8 @@ impl Projectile {
                         en.hp -= 1;
                         if en.hp <= 0 {
                             resources.messages.add("Destroyed a hound.".to_owned());
-                            buffer.despawn(e_id);
+                            buffer.remove::<(Enemy, DogSprite)>(e_id);
+                            buffer.insert(e_id, (Corpse::new(), CorpseSprite::new(e_spr.flipped)));
                             resources.stats.kills += 1
                         }
                         live = false;

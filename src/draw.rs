@@ -49,6 +49,17 @@ impl DogSprite {
     }
 }
 
+pub(crate) struct CorpseSprite {
+    pub frame: u8,
+    pub flipped: bool,
+}
+
+impl CorpseSprite {
+    pub fn new(flipped: bool) -> Self {
+        Self { frame: 0, flipped }
+    }
+}
+
 pub(crate) struct PickupSprite {}
 
 impl PickupSprite {
@@ -135,6 +146,20 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
             DrawTextureParams {
                 //dest_size: Some(vec2(16.0, 24.0)),
                 source: Some(Rect::new(16.0 * frame as f32, 0.0, 16.0, 16.0)),
+                ..Default::default()
+            },
+        );
+    }
+
+    for (_, (rect, spr)) in world.query::<(&IntRect, &CorpseSprite)>().iter() {
+        draw_texture_ex(
+            resources.dog_corpse_sprite,
+            rect.x as f32,
+            rect.y as f32,
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(0.0, 16.0 * spr.frame as f32, 24.0, 16.0)),
+                flip_x: spr.flipped,
                 ..Default::default()
             },
         );

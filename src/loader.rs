@@ -329,6 +329,7 @@ impl LoadingManager {
             script_engine,
             player_sprite: load_texture("princess.png").await.unwrap(),
             dog_sprite: load_texture("robodog.png").await.unwrap(),
+            dog_corpse_sprite: load_texture("robodog-dead.png").await.unwrap(),
             pickup_sprite: load_texture("pickup.png").await.unwrap(),
             switch_sprite: load_texture("switch.png").await.unwrap(),
             ui_sprite: load_texture("ui-heart.png").await.unwrap(),

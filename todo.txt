@@ -1,5 +1,4 @@
 explosions?
-enemy death sprites
 player death sprite
 non-hard-coded map loader
 * test map(s)

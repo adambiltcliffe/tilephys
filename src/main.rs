@@ -1,4 +1,5 @@
 use camera::PlayerCamera;
+use corpse::Corpse;
 use enemy::Enemy;
 use hecs::CommandBuffer;
 use input::{Input, VirtualKey};
@@ -15,6 +16,7 @@ use transition::TransitionEffectType;
 use vfx::update_vfx;
 
 mod camera;
+mod corpse;
 mod draw;
 mod enemy;
 mod index;
@@ -104,6 +106,7 @@ async fn main() {
                     Controller::update(&world, &mut resources, &mut buffer, &input);
                     Enemy::update(&world, &resources);
                     Actor::update(&world, &resources);
+                    Corpse::update(&world);
                     Projectile::update(&world, &mut resources, &mut buffer);
                     Pickup::update(&world, &mut resources, &mut buffer);
                     update_vfx(&world, &mut buffer);
