@@ -162,19 +162,16 @@ impl TileBody {
     fn collide_dist_up(&self, rect: &IntRect, max_dist: i32) -> i32 {
         let mut possible_dist = (rect.y - self.y).rem_euclid(self.size);
         let mut ky = (rect.y - self.y).div_euclid(self.size) - 1;
-        let min_kx = (rect.x - self.x).div_euclid(self.size);
-        let max_kx = (rect.x + rect.w - 1 - self.x).div_euclid(self.size);
+        let min_kx = (rect.x - self.x).div_euclid(self.size).max(0);
+        let max_kx = (rect.x + rect.w - 1 - self.x)
+            .div_euclid(self.size)
+            .min(self.width);
         if ky >= 0 {
             while possible_dist < max_dist {
                 for kx in min_kx..=max_kx {
-                    if kx >= 0 && kx <= self.width {
-                        let index = ky * self.width + kx;
-                        if index >= 0
-                            && index < self.data.len() as i32
-                            && self.data[index as usize].is_blocker()
-                        {
-                            return possible_dist;
-                        }
+                    let index = ky * self.width + kx;
+                    if index < self.data.len() as i32 && self.data[index as usize].is_blocker() {
+                        return possible_dist;
                     }
                 }
                 possible_dist += self.size;
@@ -187,20 +184,19 @@ impl TileBody {
     fn collide_dist_down(&self, rect: &IntRect, max_dist: i32) -> i32 {
         let mut possible_dist = (self.y - (rect.y + rect.h)).rem_euclid(self.size);
         let mut ky = (rect.y + rect.h - self.y + possible_dist).div_euclid(self.size);
-        let min_kx = (rect.x - self.x).div_euclid(self.size);
-        let max_kx = (rect.x + rect.w - 1 - self.x).div_euclid(self.size);
+        let min_kx = (rect.x - self.x).div_euclid(self.size).max(0);
+        let max_kx = (rect.x + rect.w - 1 - self.x)
+            .div_euclid(self.size)
+            .min(self.width);
         if ky >= 0 {
             while possible_dist < max_dist {
                 for kx in min_kx..=max_kx {
-                    if kx >= 0 && kx <= self.width {
-                        let index = ky * self.width + kx;
-                        if index >= 0
-                            && index < self.data.len() as i32
-                            && (self.data[index as usize].is_blocker()
-                                || self.data[index as usize].is_platform())
-                        {
-                            return possible_dist;
-                        }
+                    let index = ky * self.width + kx;
+                    if index < self.data.len() as i32
+                        && (self.data[index as usize].is_blocker()
+                            || self.data[index as usize].is_platform())
+                    {
+                        return possible_dist;
                     }
                 }
                 possible_dist += self.size;
@@ -213,20 +209,14 @@ impl TileBody {
     fn collide_dist_left(&self, rect: &IntRect, max_dist: i32) -> i32 {
         let mut possible_dist = (rect.x - self.x).rem_euclid(self.size);
         let mut kx = (rect.x - self.x).div_euclid(self.size) - 1;
-        let min_ky = (rect.y - self.y).div_euclid(self.size);
+        let min_ky = (rect.y - self.y).div_euclid(self.size).max(0);
         let max_ky = (rect.y + rect.h - 1 - self.y).div_euclid(self.size);
         while possible_dist < max_dist {
-            for ky in min_ky..=max_ky {
-                if ky >= 0 {
-                    // factor this out later
-                    if kx >= 0 && kx <= self.width {
-                        let index = ky * self.width + kx;
-                        if index >= 0
-                            && index < self.data.len() as i32
-                            && self.data[index as usize].is_blocker()
-                        {
-                            return possible_dist;
-                        }
+            if kx >= 0 && kx <= self.width {
+                for ky in min_ky..=max_ky {
+                    let index = ky * self.width + kx;
+                    if index < self.data.len() as i32 && self.data[index as usize].is_blocker() {
+                        return possible_dist;
                     }
                 }
             }
@@ -239,20 +229,14 @@ impl TileBody {
     fn collide_dist_right(&self, rect: &IntRect, max_dist: i32) -> i32 {
         let mut possible_dist = (self.x - (rect.x + rect.w)).rem_euclid(self.size);
         let mut kx = (rect.x + rect.w - self.x + possible_dist).div_euclid(self.size);
-        let min_ky = (rect.y - self.y).div_euclid(self.size);
+        let min_ky = (rect.y - self.y).div_euclid(self.size).max(0);
         let max_ky = (rect.y + rect.h - 1 - self.y).div_euclid(self.size);
         while possible_dist < max_dist {
-            for ky in min_ky..=max_ky {
-                if ky >= 0 {
-                    // factor this out later
-                    if kx >= 0 && kx <= self.width {
-                        let index = ky * self.width + kx;
-                        if index >= 0
-                            && index < self.data.len() as i32
-                            && self.data[index as usize].is_blocker()
-                        {
-                            return possible_dist;
-                        }
+            if kx >= 0 && kx <= self.width {
+                for ky in min_ky..=max_ky {
+                    let index = ky * self.width + kx;
+                    if index < self.data.len() as i32 && self.data[index as usize].is_blocker() {
+                        return possible_dist;
                     }
                 }
             }
