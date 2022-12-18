@@ -4,14 +4,12 @@ use quad_rand::gen_range;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum TransitionEffectType {
-    Fade,
     Open,
     Shatter,
 }
 
 pub fn new_transition(typ: TransitionEffectType) -> Box<dyn TransitionEffect> {
     match typ {
-        TransitionEffectType::Fade => Box::new(Fade::new()),
         TransitionEffectType::Open => Box::new(Open::new()),
         TransitionEffectType::Shatter => Box::new(Shatter::new()),
     }
@@ -21,34 +19,6 @@ pub trait TransitionEffect {
     fn tick(&mut self);
     fn draw(&self, freeze_frame: &Texture2D);
     fn finished(&self) -> bool;
-}
-
-pub struct Fade {
-    alpha: f32,
-}
-
-impl Fade {
-    pub fn new() -> Self {
-        Self { alpha: 1.0 }
-    }
-}
-
-impl TransitionEffect for Fade {
-    fn tick(&mut self) {
-        self.alpha -= 0.03;
-    }
-    fn draw(&self, freeze_frame: &Texture2D) {
-        let c = Color::new(1.0, 1.0, 1.0, self.alpha);
-        draw_texture(
-            *freeze_frame,
-            WALL_VISION_DEPTH.ceil(),
-            WALL_VISION_DEPTH.ceil(),
-            c,
-        );
-    }
-    fn finished(&self) -> bool {
-        self.alpha <= 0.0
-    }
 }
 
 pub struct Open {

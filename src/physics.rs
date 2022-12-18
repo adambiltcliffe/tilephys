@@ -37,18 +37,6 @@ impl IntRect {
     }
 }
 
-fn offset_rect(rect: &IntRect, dx: i32, dy: i32) -> IntRect {
-    IntRect::new(rect.x + dx, rect.y + dy, rect.w, rect.h)
-}
-
-fn offset_rect_up(rect: &IntRect) -> IntRect {
-    IntRect::new(rect.x, rect.y - 1, rect.w, 1)
-}
-
-fn offset_rect_down(rect: &IntRect) -> IntRect {
-    IntRect::new(rect.x, rect.y + rect.h, rect.w, 1)
-}
-
 fn pushing_rect(rect: &IntRect) -> IntRect {
     IntRect::new(rect.x, rect.y, rect.w, rect.h + 1)
 }
@@ -348,10 +336,8 @@ fn find_collision_pos(world: &World, ox: i32, oy: i32, rect: &IntRect) -> (i32, 
     // this function can be slow as it's only called to generate the vfx when a projectile hits a wall
     let mut r = rect.clone();
     let dx = (ox - r.x).signum();
-    let mut n = 0;
     while r.x != ox {
         r.x += dx;
-        n += 1;
         if !world
             .query::<&TileBody>()
             .iter()
@@ -474,10 +460,6 @@ impl PathMotion {
     }
 }
 
-use std::sync::atomic::AtomicUsize;
-static move_actor_count: AtomicUsize = AtomicUsize::new(0);
-static move_actor_micros: AtomicUsize = AtomicUsize::new(0);
-
 fn move_actor(
     actor: &mut Actor,
     rect: &mut IntRect,
@@ -486,7 +468,6 @@ fn move_actor(
     world: &World,
     body_index: &SpatialIndex,
 ) -> (bool, bool) {
-    let start = std::time::Instant::now();
     actor.prec_x += vx;
     let targ_x = actor.prec_x.round() as i32;
     let mut collided_x = false;
@@ -506,10 +487,6 @@ fn move_actor(
             );
         }
         rect.x -= d;
-        if rect.x != targ_x {
-            actor.prec_x = rect.x as f32;
-            collided_x = true;
-        }
     } else if targ_x > rect.x {
         // handle moving right
         let mut d = targ_x - rect.x;
@@ -522,10 +499,10 @@ fn move_actor(
             );
         }
         rect.x += d;
-        if rect.x != targ_x {
-            actor.prec_x = rect.x as f32;
-            collided_x = true;
-        }
+    }
+    if rect.x != targ_x {
+        actor.prec_x = rect.x as f32;
+        collided_x = true;
     }
     if targ_y < rect.y {
         // handle moving up
@@ -539,10 +516,6 @@ fn move_actor(
             );
         }
         rect.y -= d;
-        if rect.y != targ_y {
-            actor.prec_y = rect.y as f32;
-            collided_y = true;
-        }
     } else if targ_y > rect.y {
         // handle moving down
         let mut d = targ_y - rect.y;
@@ -555,28 +528,17 @@ fn move_actor(
             );
         }
         rect.y += d;
-        if rect.y != targ_y {
-            actor.prec_y = rect.y as f32;
-            collided_y = true;
-        }
     }
-
-    let elapsed_micros = start.elapsed().as_micros() as usize;
-    let total_micros =
-        move_actor_micros.fetch_add(elapsed_micros, std::sync::atomic::Ordering::Relaxed);
-    let total_calls = move_actor_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-    if total_calls % 1000 == 999 {
-        println!(
-            "average call to move_actor takes {} microseconds",
-            total_micros / total_calls
-        );
+    if rect.y != targ_y {
+        actor.prec_y = rect.y as f32;
+        collided_y = true;
     }
     (collided_x, collided_y)
 }
 
 fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx: i32, vy: i32) {
     let start = std::time::Instant::now();
-    let mut body = world.get::<&mut TileBody>(index).unwrap();
+    let body = world.get::<&mut TileBody>(index).unwrap();
     spatial_index.remove_at(index, &body.get_rect());
     drop(body);
     // this is a fiddly mess of borrows and drops but we should be able to skip
@@ -637,7 +599,7 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
             );
         }
     }
-    let mut body = world.get::<&mut TileBody>(index).unwrap();
+    let body = world.get::<&mut TileBody>(index).unwrap();
     spatial_index.insert_at(index, &body.get_rect());
     drop(body);
     if start.elapsed().as_micros() > 250 {
