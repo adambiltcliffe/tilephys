@@ -158,6 +158,58 @@ impl TileBody {
         }
         false
     }
+
+    fn collide_dist_left(&self, rect: &IntRect, max_dist: i32) -> i32 {
+        let mut possible_dist = (rect.x - self.x).rem_euclid(self.size);
+        let mut kx = (rect.x - self.x).div_euclid(self.size) - 1;
+        let min_ky = (rect.y - self.y).div_euclid(self.size);
+        let max_ky = (rect.y + rect.h - 1 - self.y).div_euclid(self.size);
+        while possible_dist < max_dist {
+            for ky in min_ky..=max_ky {
+                if ky >= 0 {
+                    // factor this out later
+                    if kx >= 0 && kx <= self.width {
+                        let index = ky * self.width + kx;
+                        if index >= 0
+                            && index < self.data.len() as i32
+                            && self.data[index as usize].is_blocker()
+                        {
+                            return possible_dist;
+                        }
+                    }
+                }
+            }
+            possible_dist += self.size;
+            kx -= 1;
+        }
+        max_dist
+    }
+
+    fn collide_dist_right(&self, rect: &IntRect, max_dist: i32) -> i32 {
+        let mut possible_dist = (self.x - (rect.x + rect.w)).rem_euclid(self.size);
+        let mut kx = (rect.x + rect.w - self.x + possible_dist).div_euclid(self.size);
+        let min_ky = (rect.y - self.y).div_euclid(self.size);
+        let max_ky = (rect.y + rect.h - 1 - self.y).div_euclid(self.size);
+        while possible_dist < max_dist {
+            for ky in min_ky..=max_ky {
+                if ky >= 0 {
+                    // factor this out later
+                    if kx >= 0 && kx <= self.width {
+                        let index = ky * self.width + kx;
+                        if index >= 0
+                            && index < self.data.len() as i32
+                            && self.data[index as usize].is_blocker()
+                        {
+                            return possible_dist;
+                        }
+                    }
+                }
+            }
+            possible_dist += self.size;
+            kx += 1;
+        }
+        max_dist
+    }
 }
 
 pub struct Actor {
@@ -407,19 +459,37 @@ fn move_actor(
     let targ_y = actor.prec_y.round() as i32;
     let mut collided_y = false;
     let blockers = body_index.entities(&motion_rect(rect, targ_x, targ_y));
-    while rect.x != targ_x {
-        let dx = (targ_x - rect.x).signum();
-        if blockers.iter().any(|id| {
-            world
-                .get::<&TileBody>(*id)
-                .unwrap()
-                .collide(&offset_rect(rect, dx, 0), CollisionType::Blocker)
-        }) {
+    if targ_x < rect.x {
+        // handle moving left
+        let mut d = rect.x - targ_x;
+        for id in blockers.iter() {
+            d = d.min(
+                world
+                    .get::<&TileBody>(*id)
+                    .unwrap()
+                    .collide_dist_left(rect, d),
+            );
+        }
+        rect.x -= d;
+        if rect.x != targ_x {
             actor.prec_x = rect.x as f32;
             collided_x = true;
-            break;
-        } else {
-            rect.x += dx;
+        }
+    } else {
+        // handle moving right
+        let mut d = targ_x - rect.x;
+        for id in blockers.iter() {
+            d = d.min(
+                world
+                    .get::<&TileBody>(*id)
+                    .unwrap()
+                    .collide_dist_right(rect, d),
+            );
+        }
+        rect.x += d;
+        if rect.x != targ_x {
+            actor.prec_x = rect.x as f32;
+            collided_x = true;
         }
     }
     while rect.y != targ_y {
