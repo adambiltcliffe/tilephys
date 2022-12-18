@@ -387,6 +387,10 @@ impl PathMotion {
     }
 }
 
+use std::sync::atomic::AtomicUsize;
+static move_actor_count: AtomicUsize = AtomicUsize::new(0);
+static move_actor_micros: AtomicUsize = AtomicUsize::new(0);
+
 fn move_actor(
     actor: &mut Actor,
     rect: &mut IntRect,
@@ -448,11 +452,14 @@ fn move_actor(
             }
         }
     }
-    if start.elapsed().as_micros() > 250 {
+    let elapsed_micros = start.elapsed().as_micros() as usize;
+    let total_micros =
+        move_actor_micros.fetch_add(elapsed_micros, std::sync::atomic::Ordering::Relaxed);
+    let total_calls = move_actor_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if total_calls % 1000 == 999 {
         println!(
-            "call to move_actor took {:?} with {} blockers",
-            start.elapsed(),
-            blockers.len()
+            "average call to move_actor takes {} microseconds",
+            total_micros / total_calls
         );
     }
     (collided_x, collided_y)
