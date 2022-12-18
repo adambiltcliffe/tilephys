@@ -156,7 +156,7 @@ async fn main() {
             }
         }
 
-        renderer.draw_scene(&scene, &resources, clock.get_fps());
+        renderer.draw_scene(&scene, &resources);
         next_frame().await;
     }
 }

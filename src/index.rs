@@ -27,7 +27,6 @@ impl SpatialIndex {
 
     pub fn insert_at(&mut self, entity: Entity, rect: &IntRect) {
         let (min_kx, max_kx, min_ky, max_ky) = get_bounds(rect);
-        let mut n = 0;
         for kx in min_kx..=max_kx {
             for ky in min_ky..=max_ky {
                 let v = self
@@ -35,7 +34,6 @@ impl SpatialIndex {
                     .entry((kx, ky))
                     .or_insert_with(|| SmallSet::new());
                 v.insert(entity);
-                n += 1;
             }
         }
     }

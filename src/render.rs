@@ -101,7 +101,7 @@ impl Renderer {
         }
     }
 
-    pub(crate) fn draw_scene(&self, scene: &Scene, resources: &Resources, fps: u32) {
+    pub(crate) fn draw_scene(&self, scene: &Scene, resources: &Resources) {
         // draw the current scene
         match scene {
             Scene::PreLevel => {

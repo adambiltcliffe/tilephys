@@ -1,15 +1,16 @@
 explosions?
 enemy death sprites
 player death sprite
-more efficient collision testing (speed up move_actor)
-rewrite scripting layer
 non-hard-coded map loader
 * test map(s)
 weapons/ammo
 * ammo pickups
 more tiles
+preloader that actually reports what it's loading
 avoid reloading sprites
-more general sprite handling
+more general sprite handling?
 nicer text rendering
 nice script debug output/tidy up console output
 better error handling in general
+rewrite scripting layer?
+investigate speeding up move_body

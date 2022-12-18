@@ -1,5 +1,4 @@
 use crate::physics::{IntRect, TileBody};
-use crate::player::Controller;
 use crate::resources::Resources;
 use crate::vfx::ZapFlash;
 use hecs::World;
@@ -10,6 +9,7 @@ pub(crate) struct ColorRect {
 }
 
 impl ColorRect {
+    #[allow(dead_code)] // will be used for a while each time we add a new actor
     pub fn new(color: Color) -> Self {
         Self { color }
     }

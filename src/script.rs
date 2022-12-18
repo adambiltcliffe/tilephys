@@ -25,7 +25,7 @@ impl ScriptEngine {
     ) -> Self {
         let mut engine = Engine::new();
         let mut scope = Scope::new();
-        let mut flags = Rc::new(RefCell::new(ScriptFlags { win: false }));
+        let flags = Rc::new(RefCell::new(ScriptFlags { win: false }));
 
         engine.register_type_with_name::<PathMotionType>("PathMotionType");
         scope.push("Static", PathMotionType::Static);
