@@ -159,6 +159,57 @@ impl TileBody {
         false
     }
 
+    fn collide_dist_up(&self, rect: &IntRect, max_dist: i32) -> i32 {
+        let mut possible_dist = (rect.y - self.y).rem_euclid(self.size);
+        let mut ky = (rect.y - self.y).div_euclid(self.size) - 1;
+        let min_kx = (rect.x - self.x).div_euclid(self.size);
+        let max_kx = (rect.x + rect.w - 1 - self.x).div_euclid(self.size);
+        if ky >= 0 {
+            while possible_dist < max_dist {
+                for kx in min_kx..=max_kx {
+                    if kx >= 0 && kx <= self.width {
+                        let index = ky * self.width + kx;
+                        if index >= 0
+                            && index < self.data.len() as i32
+                            && self.data[index as usize].is_blocker()
+                        {
+                            return possible_dist;
+                        }
+                    }
+                }
+                possible_dist += self.size;
+                ky -= 1;
+            }
+        }
+        max_dist
+    }
+
+    fn collide_dist_down(&self, rect: &IntRect, max_dist: i32) -> i32 {
+        let mut possible_dist = (self.y - (rect.y + rect.h)).rem_euclid(self.size);
+        let mut ky = (rect.y + rect.h - self.y + possible_dist).div_euclid(self.size);
+        let min_kx = (rect.x - self.x).div_euclid(self.size);
+        let max_kx = (rect.x + rect.w - 1 - self.x).div_euclid(self.size);
+        if ky >= 0 {
+            while possible_dist < max_dist {
+                for kx in min_kx..=max_kx {
+                    if kx >= 0 && kx <= self.width {
+                        let index = ky * self.width + kx;
+                        if index >= 0
+                            && index < self.data.len() as i32
+                            && (self.data[index as usize].is_blocker()
+                                || self.data[index as usize].is_platform())
+                        {
+                            return possible_dist;
+                        }
+                    }
+                }
+                possible_dist += self.size;
+                ky += 1;
+            }
+        }
+        max_dist
+    }
+
     fn collide_dist_left(&self, rect: &IntRect, max_dist: i32) -> i32 {
         let mut possible_dist = (rect.x - self.x).rem_euclid(self.size);
         let mut kx = (rect.x - self.x).div_euclid(self.size) - 1;
@@ -475,7 +526,7 @@ fn move_actor(
             actor.prec_x = rect.x as f32;
             collided_x = true;
         }
-    } else {
+    } else if targ_x > rect.x {
         // handle moving right
         let mut d = targ_x - rect.x;
         for id in blockers.iter() {
@@ -492,36 +543,40 @@ fn move_actor(
             collided_x = true;
         }
     }
-    while rect.y != targ_y {
-        let dy = (targ_y - rect.y).signum();
-        if dy == -1 {
-            if blockers.iter().any(|id| {
+    if targ_y < rect.y {
+        // handle moving up
+        let mut d = rect.y - targ_y;
+        for id in blockers.iter() {
+            d = d.min(
                 world
                     .get::<&TileBody>(*id)
                     .unwrap()
-                    .collide(&offset_rect_up(rect), CollisionType::Blocker)
-            }) {
-                actor.prec_y = rect.y as f32;
-                collided_y = true;
-                break;
-            } else {
-                rect.y += dy
-            }
-        } else {
-            if blockers.iter().any(|id| {
-                world.get::<&TileBody>(*id).unwrap().collide(
-                    &offset_rect_down(rect),
-                    CollisionType::TopOfBlockerOrPlatform,
-                )
-            }) {
-                actor.prec_y = rect.y as f32;
-                collided_y = true;
-                break;
-            } else {
-                rect.y += dy
-            }
+                    .collide_dist_up(rect, d),
+            );
+        }
+        rect.y -= d;
+        if rect.y != targ_y {
+            actor.prec_y = rect.y as f32;
+            collided_y = true;
+        }
+    } else if targ_y > rect.y {
+        // handle moving down
+        let mut d = targ_y - rect.y;
+        for id in blockers.iter() {
+            d = d.min(
+                world
+                    .get::<&TileBody>(*id)
+                    .unwrap()
+                    .collide_dist_down(rect, d),
+            );
+        }
+        rect.y += d;
+        if rect.y != targ_y {
+            actor.prec_y = rect.y as f32;
+            collided_y = true;
         }
     }
+
     let elapsed_micros = start.elapsed().as_micros() as usize;
     let total_micros =
         move_actor_micros.fetch_add(elapsed_micros, std::sync::atomic::Ordering::Relaxed);
