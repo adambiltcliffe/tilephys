@@ -1,6 +1,7 @@
+use crate::corpse::CorpseType;
 use crate::physics::{IntRect, TileBody};
 use crate::resources::Resources;
-use crate::vfx::ZapFlash;
+use crate::vfx::{Explosion, ZapFlash};
 use hecs::World;
 use macroquad::prelude::*;
 
@@ -52,11 +53,16 @@ impl DogSprite {
 pub(crate) struct CorpseSprite {
     pub frame: u8,
     pub flipped: bool,
+    pub typ: CorpseType,
 }
 
 impl CorpseSprite {
-    pub fn new(flipped: bool) -> Self {
-        Self { frame: 0, flipped }
+    pub fn new(typ: CorpseType, flipped: bool) -> Self {
+        Self {
+            frame: 0,
+            typ,
+            flipped,
+        }
     }
 }
 
@@ -152,13 +158,17 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
     }
 
     for (_, (rect, spr)) in world.query::<(&IntRect, &CorpseSprite)>().iter() {
+        let (tex, w, h) = match spr.typ {
+            CorpseType::Princess => (resources.player_corpse_sprite, 16.0, 24.0),
+            CorpseType::Dog => (resources.dog_corpse_sprite, 24.0, 16.0),
+        };
         draw_texture_ex(
-            resources.dog_corpse_sprite,
+            tex,
             rect.x as f32,
             rect.y as f32,
             WHITE,
             DrawTextureParams {
-                source: Some(Rect::new(0.0, 16.0 * spr.frame as f32, 24.0, 16.0)),
+                source: Some(Rect::new(0.0, h * spr.frame as f32, w, h)),
                 flip_x: spr.flipped,
                 ..Default::default()
             },
@@ -242,5 +252,21 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
                 ..Default::default()
             },
         );
+    }
+
+    for (_, ex) in world.query::<&Explosion>().iter() {
+        if ex.n >= 0 {
+            draw_texture_ex(
+                resources.explosion_sprite,
+                ex.x as f32,
+                ex.y as f32,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(24.0, 24.0)),
+                    source: Some(Rect::new(0.0, 24.0 * ex.n as f32, 24.0, 24.0)),
+                    ..Default::default()
+                },
+            );
+        }
     }
 }

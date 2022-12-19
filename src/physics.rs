@@ -1,8 +1,9 @@
-use crate::corpse::Corpse;
+use crate::corpse::{Corpse, CorpseType};
 use crate::draw::{CorpseSprite, DogSprite};
 use crate::index::SpatialIndex;
 use crate::loader::TileFlags;
 use crate::resources::Resources;
+use crate::vfx::create_explosions;
 use crate::{enemy::Enemy, vfx::ZapFlash};
 use hecs::{CommandBuffer, Entity, World};
 use macroquad::math::{vec2, Vec2};
@@ -36,6 +37,10 @@ impl IntRect {
 
     pub fn centre(&self) -> Vec2 {
         vec2((self.x + self.w / 2) as f32, (self.y + self.h / 2) as f32)
+    }
+
+    pub fn centre_int(&self) -> (i32, i32) {
+        (self.x + self.w / 2, self.y + self.h / 2)
     }
 }
 
@@ -325,7 +330,15 @@ impl Projectile {
                         if en.hp <= 0 {
                             resources.messages.add("Destroyed a hound.".to_owned());
                             buffer.remove::<(Enemy, DogSprite)>(e_id);
-                            buffer.insert(e_id, (Corpse::new(), CorpseSprite::new(e_spr.flipped)));
+                            buffer.insert(
+                                e_id,
+                                (
+                                    Corpse::new(),
+                                    CorpseSprite::new(CorpseType::Dog, e_spr.flipped),
+                                ),
+                            );
+                            let (ex, ey) = e_rect.centre_int();
+                            create_explosions(buffer, ex, ey, 3);
                             resources.stats.kills += 1
                         }
                         live = false;
