@@ -160,7 +160,7 @@ impl TileBody {
         let min_kx = (rect.x - self.x).div_euclid(self.size).max(0);
         let max_kx = (rect.x + rect.w - 1 - self.x)
             .div_euclid(self.size)
-            .min(self.width);
+            .min(self.width - 1);
         if ky >= 0 {
             while possible_dist < max_dist {
                 for kx in min_kx..=max_kx {
@@ -182,7 +182,7 @@ impl TileBody {
         let min_kx = (rect.x - self.x).div_euclid(self.size).max(0);
         let max_kx = (rect.x + rect.w - 1 - self.x)
             .div_euclid(self.size)
-            .min(self.width);
+            .min(self.width - 1);
         if ky >= 0 {
             while possible_dist < max_dist {
                 for kx in min_kx..=max_kx {
@@ -207,7 +207,7 @@ impl TileBody {
         let min_ky = (rect.y - self.y).div_euclid(self.size).max(0);
         let max_ky = (rect.y + rect.h - 1 - self.y).div_euclid(self.size);
         while possible_dist < max_dist {
-            if kx >= 0 && kx <= self.width {
+            if kx >= 0 && kx < self.width {
                 for ky in min_ky..=max_ky {
                     let index = ky * self.width + kx;
                     if index < self.data.len() as i32 && self.data[index as usize].is_blocker() {
@@ -227,7 +227,7 @@ impl TileBody {
         let min_ky = (rect.y - self.y).div_euclid(self.size).max(0);
         let max_ky = (rect.y + rect.h - 1 - self.y).div_euclid(self.size);
         while possible_dist < max_dist {
-            if kx >= 0 && kx <= self.width {
+            if kx >= 0 && kx < self.width {
                 for ky in min_ky..=max_ky {
                     let index = ky * self.width + kx;
                     if index < self.data.len() as i32 && self.data[index as usize].is_blocker() {

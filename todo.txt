@@ -1,10 +1,9 @@
-non-hard-coded map loader
-* test map(s)
 weapons/ammo
 * ammo pickups
 more tiles
 preloader that actually reports what it's loading
 avoid reloading sprites
+progress from one level to another
 more general sprite handling?
 procedural explosions
 explosion debris (esp. for player)
