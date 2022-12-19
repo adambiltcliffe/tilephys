@@ -1,5 +1,3 @@
-explosions?
-player death sprite
 non-hard-coded map loader
 * test map(s)
 weapons/ammo
@@ -8,6 +6,9 @@ more tiles
 preloader that actually reports what it's loading
 avoid reloading sprites
 more general sprite handling?
+procedural explosions
+explosion debris (esp. for player)
+redo and reintroduce player death sprite
 nicer text rendering
 nice script debug output/tidy up console output
 better error handling in general

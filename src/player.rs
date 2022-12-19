@@ -116,15 +116,15 @@ impl Controller {
                 // eventually maybe replace with a player corpse rather than vanishing
                 buffer.remove_one::<PlayerSprite>(id);
                 buffer.remove_one::<Controller>(id);
-                buffer.insert(
+                /*buffer.insert(
                     id,
                     (
                         Corpse::new(),
                         CorpseSprite::new(CorpseType::Princess, sprite.flipped),
                     ),
-                );
+                );*/
                 let (px, py) = p_rect.centre_int();
-                create_explosions(buffer, px, py, 12);
+                create_explosions(buffer, px, py, 5);
                 resources.messages.add("You have died.".to_owned());
             }
             if is_key_down(KeyCode::Q) && is_key_down(KeyCode::D) && !controller.god_mode {

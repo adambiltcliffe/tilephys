@@ -34,14 +34,15 @@ impl Explosion {
 
 pub fn create_explosions(buffer: &mut CommandBuffer, x: i32, y: i32, n: i32) {
     let mut a = quad_rand::gen_range(0.0, std::f32::consts::TAU);
+    let mut r = 0.0;
     for i in 0_..n {
-        let r = quad_rand::gen_range(0.0, 5.0 * i as f32);
         buffer.spawn((Explosion::new_from_centre(
             x + (r * a.cos()) as i32,
             y + (r * a.sin()) as i32,
-            -i * 3,
+            -i * 4,
         ),));
         a += std::f32::consts::TAU / std::f32::consts::E;
+        r = quad_rand::gen_range(4.0, 16.0);
     }
 }
 
