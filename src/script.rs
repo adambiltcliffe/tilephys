@@ -48,6 +48,7 @@ impl ScriptEngine {
         let cloned_body_ids = Rc::clone(&body_ids);
         let cloned_paths = Rc::clone(&paths);
         engine.register_fn("set_path", move |body_name: &str, path_name: &str| {
+            println!("{}", body_name);
             let id = cloned_body_ids[body_name];
             let mut world = cloned_world.borrow_mut();
             let (x, y) = {

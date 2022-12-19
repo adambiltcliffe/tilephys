@@ -53,10 +53,16 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf())]
 async fn main() {
     set_pc_assets_folder("assets");
+    let argv: Vec<String> = std::env::args().collect();
+    let name = if argv.len() > 1 {
+        argv[1].clone()
+    } else {
+        "intro".to_owned()
+    };
+
     let mut loader = LoadingManager::new();
     // need a way to initialise resources without loading a level
-    let (mut scene, mut resources): (Scene, Resources) =
-        loader.load_level("intro.tmx").await.unwrap();
+    let (mut scene, mut resources): (Scene, Resources) = loader.load_level(&name).await.unwrap();
     scene = Scene::PreLevel;
 
     let mut renderer = Renderer::new(RENDER_W, RENDER_H);
@@ -74,7 +80,7 @@ async fn main() {
             }
             Some((NewScene::PlayLevel, typ)) => {
                 renderer.start_transition(typ);
-                (scene, resources) = loader.load_level("intro.tmx").await.unwrap();
+                (scene, resources) = loader.load_level(&name).await.unwrap();
                 clock = Timer::new();
                 input = Input::new();
             }

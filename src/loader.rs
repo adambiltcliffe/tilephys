@@ -96,13 +96,14 @@ impl LoadingManager {
 
     // eventually this should probably not use String as its error type
     pub(crate) async fn load_level(&mut self, name: &str) -> Result<(Scene, Resources), String> {
-        self.loader.reader_mut().preload(name).await;
+        let map_name = format!("{}.tmx", name).to_owned();
+        self.loader.reader_mut().preload(&map_name).await;
 
         let map = loop {
-            match self.loader.load_tmx_map(name) {
+            match self.loader.load_tmx_map(&map_name) {
                 Ok(map) => break map,
                 Err(tiled::Error::ResourceLoadingError { path, err: _ }) => {
-                    if path.as_os_str().to_str().unwrap() == name {
+                    if path.as_os_str().to_str().unwrap() == map_name {
                         return Err("Resource loading error".to_owned());
                     }
                     println!("loading additional resource: {:?}", path);
@@ -300,7 +301,7 @@ impl LoadingManager {
         let world_ref = Rc::new(RefCell::new(world));
         let mut script_engine =
             ScriptEngine::new(Rc::clone(&world_ref), Rc::new(body_ids), Rc::new(paths));
-        script_engine.load_file("intro.rhai").await;
+        script_engine.load_file(&format!("{}.rhai", name)).await;
         script_engine.call_entry_point("init");
 
         let player_start = (psx, psy);
