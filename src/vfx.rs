@@ -1,4 +1,26 @@
 use hecs::{CommandBuffer, World};
+use macroquad::prelude::*;
+
+const EXPLOSION_OUTER_COLOR: Color = Color {
+    r: 0.1333,
+    g: 1.0,
+    b: 0.0,
+    a: 1.0,
+};
+
+const EXPLOSION_INNER_COLOR: Color = Color {
+    r: 1.0,
+    g: 1.0,
+    b: 0.3382,
+    a: 1.0,
+};
+
+const EXPLOSION_SMOKE_COLOR: Color = Color {
+    r: 0.2275,
+    g: 0.2275,
+    b: 0.2275,
+    a: 1.0,
+};
 
 pub struct ZapFlash {
     pub x: i32,
@@ -113,6 +135,32 @@ pub fn update_vfx(world: &World, buffer: &mut CommandBuffer) {
         f.r *= 0.875;
         if f.r < 1.0 {
             buffer.despawn(id);
+        }
+    }
+}
+
+pub fn draw_vfx(world: &World) {
+    for (_, fp) in world.query::<&SmokeParticle>().iter() {
+        draw_circle(fp.x, fp.y, fp.r, EXPLOSION_SMOKE_COLOR);
+    }
+    for (_, fp) in world.query::<&FireParticle>().iter() {
+        draw_circle(fp.x, fp.y, fp.r, EXPLOSION_OUTER_COLOR);
+    }
+    for (_, fp) in world.query::<&FireParticle>().iter() {
+        draw_circle(fp.x, fp.y, fp.r * 0.75, EXPLOSION_INNER_COLOR);
+    }
+
+    for (_, ex) in world.query::<&Explosion>().iter() {
+        if ex.n == 0 {
+            draw_circle(ex.x as f32 + 12.0, ex.y as f32 + 12.0, 24.0, WHITE);
+        } else if ex.n > 0 {
+            draw_circle_lines(
+                ex.x as f32 + 12.0,
+                ex.y as f32 + 12.0,
+                4.0 * ex.n as f32,
+                2.0,
+                WHITE,
+            );
         }
     }
 }

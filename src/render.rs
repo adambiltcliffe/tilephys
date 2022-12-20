@@ -4,6 +4,7 @@ use crate::player::Controller;
 use crate::resources::Resources;
 use crate::scene::Scene;
 use crate::transition::{new_transition, TransitionEffect, TransitionEffectType};
+use crate::vfx::draw_vfx;
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
 
@@ -287,6 +288,24 @@ impl Renderer {
 
         // draw the basic graphics
         draw(world, resources);
+
+        let tmp = render_target(self.width as u32, self.height as u32); // fix this
+
+        // draw explosions onto an offscreen texture
+        set_camera(&get_camera_for_target(
+            &tmp,
+            resources.camera_pos,
+            Origin::TopLeft,
+        ));
+        draw_vfx(world);
+        // now draw the explosion texture back to the draw target
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            vec2(self.width / 2., self.height / 2.),
+            Origin::BottomLeft,
+        ));
+        draw_texture(tmp.texture, 0., 0., WHITE);
 
         // initialise the offscreen texture for jump flood algorithm
         gl_use_material(self.jfa_init_material);
