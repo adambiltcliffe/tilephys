@@ -41,6 +41,7 @@ pub struct Renderer {
     transition: Option<(RenderTarget, Box<dyn TransitionEffect>)>,
     draw_target: RenderTarget,
     vis_targets: [RenderTarget; 2],
+    outline_material: Material,
     jfa_init_material: Material,
     jfa_step_material: Material,
     jfa_final_material: Material,
@@ -58,6 +59,18 @@ impl Renderer {
             BlendFactor::Value(BlendValue::SourceAlpha),
             BlendFactor::OneMinusValue(BlendValue::SourceAlpha),
         );
+        let outline_material = load_material(
+            VERTEX_SHADER,
+            OUTLINE_FRAGMENT_SHADER,
+            MaterialParams {
+                pipeline_params: PipelineParams {
+                    color_blend: Some(bs),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        )
+        .unwrap();
         let jfa_init_material = load_material(
             VERTEX_SHADER,
             JFA_INIT_FRAGMENT_SHADER,
@@ -96,6 +109,7 @@ impl Renderer {
             transition: None,
             draw_target,
             vis_targets: [render_target(width, height), render_target(width, height)],
+            outline_material,
             jfa_init_material,
             jfa_step_material,
             jfa_final_material,
@@ -297,9 +311,10 @@ impl Renderer {
             resources.camera_pos,
             Origin::TopLeft,
         ));
+
         draw_vfx(world);
         // now draw the explosion texture back to the draw target
-        gl_use_default_material();
+        gl_use_material(self.outline_material);
         set_camera(&get_camera_for_target(
             &self.draw_target,
             vec2(self.width / 2., self.height / 2.),
@@ -445,6 +460,29 @@ impl Renderer {
         }
     }
 }
+
+const OUTLINE_FRAGMENT_SHADER: &str = "#version 100
+precision lowp float;
+varying vec2 uv;
+uniform sampler2D Texture;
+void main() {
+    vec4 col = texture2D(Texture, uv);
+    if (col.a == 0.0) {
+        vec2 size = vec2(textureSize(Texture, 0));
+        vec4 l = texture2D(Texture, uv + vec2(-1.0 / size.x, 0));
+        vec4 r = texture2D(Texture, uv + vec2(1.0 / size.x, 0));
+        vec4 u = texture2D(Texture, uv + vec2(0, -1.0 / size.y));
+        vec4 d = texture2D(Texture, uv + vec2(0, 1.0 / size.y));
+        if (l.a == 1.0 || r.a == 1.0 || u.a == 1.0 || d.a == 1.0) {
+            gl_FragColor = vec4(vec3(0.0), 1.0);
+        }
+    }
+    else
+    {
+        gl_FragColor = col;
+    }
+}
+";
 
 const JFA_INIT_FRAGMENT_SHADER: &str = r#"#version 100
 precision lowp float;
