@@ -13,9 +13,10 @@ pub enum VirtualKey {
     Interact,
     DebugRestart,
     DebugWin,
+    DebugKill,
 }
 
-const ALL_KEYS: [(KeyCode, VirtualKey); 7] = [
+const ALL_KEYS: [(KeyCode, VirtualKey); 8] = [
     (KeyCode::Left, VirtualKey::Left),
     (KeyCode::Right, VirtualKey::Right),
     (KeyCode::Z, VirtualKey::Jump),
@@ -23,6 +24,7 @@ const ALL_KEYS: [(KeyCode, VirtualKey); 7] = [
     (KeyCode::C, VirtualKey::Interact),
     (KeyCode::R, VirtualKey::DebugRestart),
     (KeyCode::W, VirtualKey::DebugWin),
+    (KeyCode::K, VirtualKey::DebugKill),
 ];
 
 pub struct Input {

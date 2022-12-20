@@ -3,7 +3,7 @@ use crate::draw::{CorpseSprite, DogSprite};
 use crate::index::SpatialIndex;
 use crate::loader::TileFlags;
 use crate::resources::Resources;
-use crate::vfx::create_explosions;
+use crate::vfx::create_explosion;
 use crate::{enemy::Enemy, vfx::ZapFlash};
 use hecs::{CommandBuffer, Entity, World};
 use macroquad::math::{vec2, Vec2};
@@ -329,16 +329,9 @@ impl Projectile {
                         en.hp -= 1;
                         if en.hp <= 0 {
                             resources.messages.add("Destroyed a hound.".to_owned());
-                            buffer.remove::<(Enemy, DogSprite)>(e_id);
-                            buffer.insert(
-                                e_id,
-                                (
-                                    Corpse::new(),
-                                    CorpseSprite::new(CorpseType::Dog, e_spr.flipped),
-                                ),
-                            );
+                            buffer.despawn(e_id);
                             let (ex, ey) = e_rect.centre_int();
-                            create_explosions(buffer, ex, ey, 3);
+                            create_explosion(buffer, ex, ey);
                             resources.stats.kills += 1
                         }
                         live = false;

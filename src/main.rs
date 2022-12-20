@@ -120,6 +120,13 @@ async fn main() {
 
                     PlayerCamera::update(&world, &mut resources);
 
+                    if input.is_pressed(VirtualKey::DebugKill) {
+                        world
+                            .get::<&mut Controller>(resources.player_id)
+                            .unwrap()
+                            .hp = 0
+                    }
+
                     drop(world);
 
                     for t in &resources.triggers {
