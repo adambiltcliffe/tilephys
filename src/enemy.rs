@@ -14,7 +14,7 @@ pub enum EnemyKind {
 impl EnemyKind {
     fn jump_prob(&self) -> f32 {
         match self {
-            EnemyKind::Dog => 0.05,
+            EnemyKind::Dog => 0.45, // lots of small jumps
             EnemyKind::JumpyDog => 0.2,
         }
     }
