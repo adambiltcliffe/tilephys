@@ -466,7 +466,8 @@ uniform sampler2D Texture;
 void main() {
     vec4 col = texture2D(Texture, uv);
     if (col.a == 0.0) {
-        vec2 size = vec2(textureSize(Texture, 0));
+        //vec2 size = vec2(textureSize(Texture, 0));
+        vec2 size = vec2(354.0, 234.0);
         vec4 l = texture2D(Texture, uv + vec2(-1.0 / size.x, 0));
         vec4 r = texture2D(Texture, uv + vec2(1.0 / size.x, 0));
         vec4 u = texture2D(Texture, uv + vec2(0, -1.0 / size.y));
@@ -519,8 +520,8 @@ void main() {
     current_pos = unpack(texture2D(Texture, uv));
     current_dist = length(gl_FragCoord.xy - current_pos);
     int r = int(color.r * 256.0);
-    vec2 size = vec2(textureSize(Texture, 0));
-    //vec2 size = vec2(354.0, 234.0);
+    //vec2 size = vec2(textureSize(Texture, 0));
+    vec2 size = vec2(354.0, 234.0);
     for (int dx = -1; dx <= 1; dx += 1) {
         for (int dy = -1; dy <= 1; dy += 1) {
             vec2 newFragCoord = gl_FragCoord.xy + vec2(float(dx * r), float(dy * r));

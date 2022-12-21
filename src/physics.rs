@@ -544,7 +544,6 @@ fn move_actor(
 }
 
 fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx: i32, vy: i32) {
-    let start = std::time::Instant::now();
     let body = world.get::<&mut TileBody>(index).unwrap();
     spatial_index.remove_at(index, &body.get_rect());
     drop(body);
@@ -609,9 +608,6 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
     let body = world.get::<&mut TileBody>(index).unwrap();
     spatial_index.insert_at(index, &body.get_rect());
     drop(body);
-    if start.elapsed().as_micros() > 250 {
-        println!("call to move_body took {:?}", start.elapsed());
-    }
 }
 
 fn check_player_grounded(player_rect: &IntRect, world: &World) -> bool {
