@@ -1,10 +1,9 @@
-use crate::corpse::{Corpse, CorpseType};
-use crate::draw::{CorpseSprite, PlayerSprite, SwitchSprite, ZapSprite};
+use crate::draw::{PlayerSprite, SwitchSprite, ZapSprite};
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Projectile, Secrecy, TriggerZone};
 use crate::resources::Resources;
 use crate::switch::Switch;
-use crate::vfx::{create_explosion, Explosion};
+use crate::vfx::create_explosion;
 use hecs::{CommandBuffer, World};
 use macroquad::prelude::{is_key_down, KeyCode};
 use std::collections::HashSet;
