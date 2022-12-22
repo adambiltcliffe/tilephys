@@ -146,10 +146,10 @@
  </layer>
  <objectgroup id="5" name="paths">
   <object id="4" name="hatchleft" x="288" y="144">
-   <polyline points="0,0 0,-16 -32,-16"/>
+   <polyline points="0,0 0,16 -32,16"/>
   </object>
   <object id="5" name="hatchright" x="320" y="144">
-   <polyline points="0,0 0,-16 32,-16"/>
+   <polyline points="0,0 0,16 32,16"/>
   </object>
   <object id="6" type="enemy" x="304" y="128">
    <point/>
