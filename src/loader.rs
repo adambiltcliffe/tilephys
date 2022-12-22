@@ -281,6 +281,14 @@ impl LoadingManager {
                                 } else if obj_type == "walker_enemy" {
                                     add_enemy(&mut world, EnemyKind::Dog, *x as i32, *y as i32);
                                     max_kills += 1;
+                                } else if obj_type == "parrot_enemy" {
+                                    add_enemy(
+                                        &mut world,
+                                        EnemyKind::SpiderParrot,
+                                        *x as i32,
+                                        *y as i32,
+                                    );
+                                    max_kills += 1;
                                 } else if obj_type == "heart" {
                                     add_pickup(&mut world, *x as i32, *y as i32);
                                     max_items += 1;
@@ -330,6 +338,7 @@ impl LoadingManager {
             script_engine,
             player_sprite: load_texture("princess.png").await.unwrap(),
             dog_sprite: load_texture("robodog.png").await.unwrap(),
+            parrot_sprite: load_texture("spiderparrot.png").await.unwrap(),
             pickup_sprite: load_texture("pickup.png").await.unwrap(),
             switch_sprite: load_texture("switch.png").await.unwrap(),
             ui_sprite: load_texture("ui-heart.png").await.unwrap(),
