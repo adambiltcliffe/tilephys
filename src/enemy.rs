@@ -38,10 +38,17 @@ pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
     let rect = IntRect::new(x - 12, y - h, 24, h);
     let actor = Actor::new(&rect, 0.4);
     let enemy = Enemy::new(kind);
+    let hittable = EnemyHittable::new(3);
     if kind == EnemyKind::SpiderParrot {
-        world.spawn((rect, crate::draw::ParrotSprite::new(), actor, enemy));
+        world.spawn((
+            rect,
+            crate::draw::ParrotSprite::new(),
+            actor,
+            enemy,
+            hittable,
+        ));
     } else {
-        world.spawn((rect, crate::draw::DogSprite::new(), actor, enemy));
+        world.spawn((rect, crate::draw::DogSprite::new(), actor, enemy, hittable));
     }
 }
 
@@ -60,11 +67,20 @@ fn player_x(world: &World, player_id: Entity) -> Option<f32> {
         .ok()
 }
 
+pub struct EnemyHittable {
+    pub hp: u16,
+}
+
+impl EnemyHittable {
+    pub fn new(hp: u16) -> Self {
+        Self { hp }
+    }
+}
+
 pub(crate) struct Enemy {
     kind: EnemyKind,
     dir: f32,
     jump_y: Option<i32>,
-    pub hp: i32,
 }
 
 impl Enemy {
@@ -73,7 +89,6 @@ impl Enemy {
             kind,
             dir: 0.0,
             jump_y: None,
-            hp: 3,
         }
     }
 

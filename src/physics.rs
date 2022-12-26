@@ -1,8 +1,9 @@
+use crate::enemy::EnemyHittable;
 use crate::index::SpatialIndex;
 use crate::loader::TileFlags;
 use crate::resources::Resources;
 use crate::vfx::create_explosion;
-use crate::{enemy::Enemy, vfx::ZapFlash};
+use crate::vfx::ZapFlash;
 use hecs::{CommandBuffer, Entity, World};
 use macroquad::math::{vec2, Vec2};
 use std::collections::HashSet;
@@ -317,7 +318,7 @@ impl Projectile {
             }
             let mut live = true;
             world
-                .query::<(&mut Enemy, &IntRect)>()
+                .query::<(&mut EnemyHittable, &IntRect)>()
                 .iter()
                 .for_each(|(e_id, (en, e_rect))| {
                     if live && en.hp > 0 && rect.intersects(&e_rect) {
