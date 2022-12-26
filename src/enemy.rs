@@ -39,6 +39,7 @@ pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
     let actor = Actor::new(&rect, 0.4);
     let enemy = Enemy::new(kind);
     let hittable = EnemyHittable::new(3);
+    let dmg = EnemyContactDamage::new();
     if kind == EnemyKind::SpiderParrot {
         world.spawn((
             rect,
@@ -46,9 +47,17 @@ pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
             actor,
             enemy,
             hittable,
+            dmg,
         ));
     } else {
-        world.spawn((rect, crate::draw::DogSprite::new(), actor, enemy, hittable));
+        world.spawn((
+            rect,
+            crate::draw::DogSprite::new(),
+            actor,
+            enemy,
+            hittable,
+            dmg,
+        ));
     }
 }
 
@@ -74,6 +83,14 @@ pub struct EnemyHittable {
 impl EnemyHittable {
     pub fn new(hp: u16) -> Self {
         Self { hp }
+    }
+}
+
+pub struct EnemyContactDamage {}
+
+impl EnemyContactDamage {
+    pub fn new() -> Self {
+        Self {}
     }
 }
 
@@ -131,13 +148,6 @@ impl Enemy {
                 spr.flipped = true
             }
             spr.n += 1;
-            if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
-                if let Some((c, p_rect)) = q.get() {
-                    if rect.intersects(p_rect) {
-                        c.hurt();
-                    }
-                }
-            }
         }
 
         for (_, (actor, enemy, rect, spr)) in world
@@ -175,6 +185,9 @@ impl Enemy {
                 spr.flipped = true
             }
             spr.n += 1;
+        }
+
+        for (_, (_, rect)) in world.query::<(&EnemyContactDamage, &IntRect)>().iter() {
             if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
                 if let Some((c, p_rect)) = q.get() {
                     if rect.intersects(p_rect) {
