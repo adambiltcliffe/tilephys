@@ -1,5 +1,5 @@
 use camera::PlayerCamera;
-use enemy::Enemy;
+use enemy::update_enemies;
 use hecs::CommandBuffer;
 use input::{Input, VirtualKey};
 use loader::LoadingManager;
@@ -108,7 +108,7 @@ async fn main() {
                     ConstantMotion::apply(&world, &mut resources);
                     PathMotion::apply(&world, &mut resources);
                     Controller::update(&world, &mut resources, &mut buffer, &input);
-                    Enemy::update(&world, &resources);
+                    update_enemies(&world, &resources);
                     Actor::update(&world, &resources);
                     Projectile::update(&world, &mut resources, &mut buffer);
                     Pickup::update(&world, &mut resources, &mut buffer);

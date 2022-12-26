@@ -37,11 +37,12 @@ pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
     };
     let rect = IntRect::new(x - 12, y - h, 24, h);
     let actor = Actor::new(&rect, 0.4);
-    let enemy = Enemy::new(kind);
+    let enemy = Enemy::new();
     let hittable = EnemyHittable::new(3);
     let dmg = EnemyContactDamage::new();
     if kind == EnemyKind::SpiderParrot {
         world.spawn((
+            kind,
             rect,
             crate::draw::ParrotSprite::new(),
             actor,
@@ -51,6 +52,7 @@ pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
         ));
     } else {
         world.spawn((
+            kind,
             rect,
             crate::draw::DogSprite::new(),
             actor,
@@ -86,7 +88,7 @@ impl EnemyHittable {
     }
 }
 
-pub struct EnemyContactDamage {}
+struct EnemyContactDamage {}
 
 impl EnemyContactDamage {
     pub fn new() -> Self {
@@ -94,105 +96,90 @@ impl EnemyContactDamage {
     }
 }
 
-pub(crate) struct Enemy {
-    kind: EnemyKind,
+struct Enemy {
     dir: f32,
     jump_y: Option<i32>,
 }
 
 impl Enemy {
-    pub fn new(kind: EnemyKind) -> Self {
+    pub fn new() -> Self {
         Self {
-            kind,
             dir: 0.0,
             jump_y: None,
         }
     }
+}
 
-    pub fn update(world: &World, resources: &Resources) {
-        let player_x = player_x(world, resources.player_id);
-        // TODO this is super bad, look at all this duplication
+pub fn update_enemies(world: &World, resources: &Resources) {
+    let player_x = player_x(world, resources.player_id);
+    // TODO this is super bad, look at all this duplication
 
-        for (_, (actor, enemy, rect, spr)) in world
-            .query::<(&mut Actor, &mut Enemy, &IntRect, &mut DogSprite)>()
-            .iter()
-        {
-            if (actor.grounded || enemy.jump_y.is_some()) && with_prob(0.1) {
-                if player_x.is_some() && with_prob(0.7) {
-                    enemy.dir = (player_x.unwrap() - rect.centre().x).signum() * 5.0;
-                } else {
-                    enemy.dir = 5.0 * rand_sign();
-                }
-            }
-            if actor.grounded {
-                if with_prob(enemy.kind.jump_prob()) {
-                    actor.vy = enemy.kind.jump_vel();
-                    enemy.jump_y = Some(rect.y);
-                } else {
-                    enemy.jump_y = None;
-                }
+    for (_, (kind, actor, enemy, rect, spr)) in world
+        .query::<(&EnemyKind, &mut Actor, &mut Enemy, &IntRect, &mut DogSprite)>()
+        .iter()
+    {
+        if (actor.grounded || enemy.jump_y.is_some()) && with_prob(0.1) {
+            if player_x.is_some() && with_prob(0.7) {
+                enemy.dir = (player_x.unwrap() - rect.centre().x).signum() * 5.0;
             } else {
-                // stop moving horizontally if ground has fallen out from under us
-                if match enemy.jump_y {
-                    None => true,
-                    Some(y) => y < rect.y,
-                } {
-                    enemy.dir = 0.0;
-                }
+                enemy.dir = 5.0 * rand_sign();
             }
-            actor.vx += enemy.dir;
-            if actor.vx < 0.0 {
-                spr.flipped = false
-            }
-            if actor.vx > 0.0 {
-                spr.flipped = true
-            }
-            spr.n += 1;
         }
-
-        for (_, (actor, enemy, rect, spr)) in world
-            .query::<(&mut Actor, &mut Enemy, &IntRect, &mut ParrotSprite)>()
-            .iter()
-        {
-            if (actor.grounded || enemy.jump_y.is_some()) && with_prob(0.1) {
-                if player_x.is_some() && with_prob(0.7) {
-                    enemy.dir = (player_x.unwrap() - rect.centre().x).signum() * 5.0;
-                } else {
-                    enemy.dir = 5.0 * rand_sign();
-                }
-            }
-            if actor.grounded {
-                if with_prob(enemy.kind.jump_prob()) {
-                    actor.vy = enemy.kind.jump_vel();
-                    enemy.jump_y = Some(rect.y);
-                } else {
-                    enemy.jump_y = None;
-                }
+        if actor.grounded {
+            if with_prob(kind.jump_prob()) {
+                actor.vy = kind.jump_vel();
+                enemy.jump_y = Some(rect.y);
             } else {
-                // stop moving horizontally if ground has fallen out from under us
-                if match enemy.jump_y {
-                    None => true,
-                    Some(y) => y < rect.y,
-                } {
-                    enemy.dir = 0.0;
-                }
+                enemy.jump_y = None;
             }
-            actor.vx += enemy.dir;
-            if actor.vx < 0.0 {
-                spr.flipped = false
+        } else {
+            // stop moving horizontally if ground has fallen out from under us
+            if match enemy.jump_y {
+                None => true,
+                Some(y) => y < rect.y,
+            } {
+                enemy.dir = 0.0;
             }
-            if actor.vx > 0.0 {
-                spr.flipped = true
-            }
-            spr.n += 1;
         }
+        actor.vx += enemy.dir;
+        if actor.vx < 0.0 {
+            spr.flipped = false
+        }
+        if actor.vx > 0.0 {
+            spr.flipped = true
+        }
+        spr.n += 1;
+    }
 
-        for (_, (_, rect)) in world.query::<(&EnemyContactDamage, &IntRect)>().iter() {
-            if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
-                if let Some((c, p_rect)) = q.get() {
-                    if rect.intersects(p_rect) {
-                        c.hurt();
-                    }
+    for (_, (actor, enemy, rect, spr)) in world
+        .query::<(&mut Actor, &mut Enemy, &IntRect, &mut ParrotSprite)>()
+        .iter()
+    {
+        if actor.grounded && with_prob(0.1) {
+            if player_x.is_some() && with_prob(0.7) {
+                enemy.dir = (player_x.unwrap() - rect.centre().x).signum() * 5.0;
+            } else {
+                enemy.dir = 5.0 * rand_sign();
+            }
+        }
+        if !actor.grounded {
+            enemy.dir = 0.0;
+        }
+        actor.vx += enemy.dir;
+        if actor.vx < 0.0 {
+            spr.flipped = false
+        }
+        if actor.vx > 0.0 {
+            spr.flipped = true
+        }
+        spr.n += 1;
+    }
+
+    for (_, (_, rect)) in world.query::<(&EnemyContactDamage, &IntRect)>().iter() {
+        if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
+            if let Some((c, p_rect)) = q.get() {
+                if rect.intersects(p_rect) {
+                    c.hurt();
                 }
             }
         }

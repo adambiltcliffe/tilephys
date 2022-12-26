@@ -1,4 +1,5 @@
 use crate::enemy::EnemyHittable;
+use crate::enemy::EnemyKind;
 use crate::index::SpatialIndex;
 use crate::loader::TileFlags;
 use crate::resources::Resources;
@@ -318,16 +319,23 @@ impl Projectile {
             }
             let mut live = true;
             world
-                .query::<(&mut EnemyHittable, &IntRect)>()
+                .query::<(&EnemyKind, &mut EnemyHittable, &IntRect)>()
                 .iter()
-                .for_each(|(e_id, (en, e_rect))| {
+                .for_each(|(e_id, (kind, en, e_rect))| {
                     if live && en.hp > 0 && rect.intersects(&e_rect) {
                         buffer.despawn(e);
                         let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
                         buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
                         en.hp -= 1;
                         if en.hp <= 0 {
-                            resources.messages.add("Destroyed a hound.".to_owned());
+                            match kind {
+                                EnemyKind::Dog | EnemyKind::JumpyDog => {
+                                    resources.messages.add("Destroyed a hound.".to_owned())
+                                }
+                                EnemyKind::SpiderParrot => resources
+                                    .messages
+                                    .add("Destroyed an arachno-parrot.".to_owned()),
+                            }
                             buffer.despawn(e_id);
                             let (ex, ey) = e_rect.centre_int();
                             create_explosion(buffer, ex, ey);
