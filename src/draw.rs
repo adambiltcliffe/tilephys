@@ -50,14 +50,14 @@ impl DogSprite {
 }
 
 pub(crate) struct ParrotSprite {
-    pub n: i32,
+    pub frame: u8,
     pub flipped: bool,
 }
 
 impl ParrotSprite {
     pub fn new() -> Self {
         Self {
-            n: 0,
+            frame: 0,
             flipped: false,
         }
     }
@@ -212,12 +212,7 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
             WHITE,
             DrawTextureParams {
                 dest_size: Some(vec2(24.0, 24.0)),
-                source: Some(Rect::new(
-                    0.0,
-                    24.0 * (1 + (spr.n / 2 % 2)) as f32,
-                    24.0,
-                    24.0,
-                )),
+                source: Some(Rect::new(0.0, 24.0 * spr.frame as f32, 24.0, 24.0)),
                 flip_x: spr.flipped,
                 ..Default::default()
             },

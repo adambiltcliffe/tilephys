@@ -141,18 +141,38 @@ impl DogBehaviour {
         }
     }
 }
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ParrotState {
+    Wait,
+    Move,
+    Attack,
+    Fall,
+}
+
 struct ParrotBehaviour {
-    dir: f32,
+    state: ParrotState,
+    state_timer: u8,
+    facing: i8,
 }
 
 impl ParrotBehaviour {
     pub fn new() -> Self {
-        Self { dir: 0.0 }
+        Self {
+            state: ParrotState::Wait,
+            state_timer: 0,
+            facing: -1,
+        }
+    }
+
+    fn set_state(&mut self, state: ParrotState) {
+        self.state = state;
+        self.state_timer = 0;
     }
 
     pub fn update(world: &World, resources: &Resources) {
         let player_x = player_x(world, resources.player_id);
-        for (_, (actor, enemy, rect, spr)) in world
+        for (_, (actor, beh, rect, spr)) in world
             .query::<(
                 &mut Actor,
                 &mut ParrotBehaviour,
@@ -161,24 +181,47 @@ impl ParrotBehaviour {
             )>()
             .iter()
         {
-            if actor.grounded && with_prob(0.1) {
-                if player_x.is_some() && with_prob(0.7) {
-                    enemy.dir = (player_x.unwrap() - rect.centre().x).signum() * 5.0;
-                } else {
-                    enemy.dir = 5.0 * rand_sign();
-                }
-            }
             if !actor.grounded {
-                enemy.dir = 0.0;
+                beh.set_state(ParrotState::Fall);
             }
-            actor.vx += enemy.dir;
-            if actor.vx < 0.0 {
+
+            beh.state_timer += 1;
+            let change = quad_rand::gen_range(10, 20) < beh.state_timer;
+
+            match beh.state {
+                ParrotState::Fall => {
+                    spr.frame = 0;
+                    if actor.grounded {
+                        beh.set_state(ParrotState::Wait);
+                    }
+                }
+                ParrotState::Wait => {
+                    spr.frame = 0;
+                    if change {
+                        if with_prob(0.5) {
+                            beh.facing = -beh.facing;
+                            beh.state_timer = 0;
+                        } else {
+                            beh.set_state(ParrotState::Move);
+                        }
+                    }
+                }
+                ParrotState::Move => {
+                    spr.frame = (beh.state_timer / 2) % 2;
+                    if change {
+                        beh.set_state(ParrotState::Wait);
+                    } else {
+                        actor.vx += 5.0 * beh.facing as f32;
+                    }
+                }
+                ParrotState::Attack => (),
+            }
+
+            if beh.facing < 0 {
                 spr.flipped = false
-            }
-            if actor.vx > 0.0 {
+            } else {
                 spr.flipped = true
             }
-            spr.n += 1;
         }
     }
 }
