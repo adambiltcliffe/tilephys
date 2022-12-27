@@ -185,22 +185,25 @@ impl ParrotBehaviour {
                 beh.set_state(ParrotState::Fall);
             }
 
-            beh.state_timer += 1;
             let change = quad_rand::gen_range(10, 20) < beh.state_timer;
-
+            spr.frame = 0;
+            spr.muzzle_flash = None;
             match beh.state {
                 ParrotState::Fall => {
-                    spr.frame = 0;
                     if actor.grounded {
                         beh.set_state(ParrotState::Wait);
                     }
                 }
                 ParrotState::Wait => {
-                    spr.frame = 0;
                     if change {
+                        let is_facing_player = player_x.map_or(true, |x| {
+                            (x - rect.centre().x).signum() == beh.facing as f32
+                        });
                         if with_prob(0.5) {
                             beh.facing = -beh.facing;
                             beh.state_timer = 0;
+                        } else if is_facing_player && with_prob(0.7) {
+                            beh.set_state(ParrotState::Attack);
                         } else {
                             beh.set_state(ParrotState::Move);
                         }
@@ -214,9 +217,19 @@ impl ParrotBehaviour {
                         actor.vx += 5.0 * beh.facing as f32;
                     }
                 }
-                ParrotState::Attack => (),
+                ParrotState::Attack => {
+                    spr.frame = 3;
+                    spr.muzzle_flash = Some(beh.state_timer % 6);
+                    if beh.state_timer % 6 == 0 {
+                        actor.vx -= beh.facing as f32 * 10.0;
+                    }
+                    if beh.state_timer >= 24 {
+                        beh.set_state(ParrotState::Wait);
+                    }
+                }
             }
 
+            beh.state_timer += 1;
             if beh.facing < 0 {
                 spr.flipped = false
             } else {

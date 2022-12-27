@@ -20,7 +20,7 @@ pub(crate) struct PlayerSprite {
     pub firing: bool,
     pub flipped: bool,
     pub blink: bool,
-    pub muzzle_flash: u32,
+    pub muzzle_flash: u8,
 }
 
 impl PlayerSprite {
@@ -52,6 +52,7 @@ impl DogSprite {
 pub(crate) struct ParrotSprite {
     pub frame: u8,
     pub flipped: bool,
+    pub muzzle_flash: Option<u8>,
 }
 
 impl ParrotSprite {
@@ -59,6 +60,7 @@ impl ParrotSprite {
         Self {
             frame: 0,
             flipped: false,
+            muzzle_flash: None,
         }
     }
 }
@@ -217,6 +219,19 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
                 ..Default::default()
             },
         );
+        if let Some(mf) = spr.muzzle_flash {
+            draw_texture_ex(
+                resources.zap_sprite,
+                rect.x as f32 + if spr.flipped { 16.0 } else { -1.0 },
+                rect.y as f32 + 6.0,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(9.0, 9.0)),
+                    source: Some(Rect::new(0.0, 9.0 * mf as f32, 9.0, 9.0)),
+                    ..Default::default()
+                },
+            );
+        }
     }
 
     for (_, (rect, spr)) in world.query::<(&IntRect, &DogSprite)>().iter() {

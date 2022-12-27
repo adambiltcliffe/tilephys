@@ -6,6 +6,7 @@ avoid reloading sprites
 progress from one level to another
 more general sprite handling?
 explosion debris (esp. for player)
+enemy flash when damaged
 nicer text rendering
 nice script debug output/tidy up console output
 better error handling in general
