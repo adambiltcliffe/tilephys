@@ -17,3 +17,8 @@ tiled = { git="https://github.com/mapeditor/rs-tiled.git", branch="next", defaul
 
 [profile.dev.package.'*']
 opt-level = 3
+
+[profile.release]
+lto = true
+# for WASM we may want the following (but cargo doesn't have per-target profiles)
+#opt-level = "z"
