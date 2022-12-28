@@ -1,3 +1,4 @@
+use crate::draw::ZapSprite;
 use crate::enemy::EnemyHittable;
 use crate::enemy::EnemyKind;
 use crate::physics::collide_any;
@@ -7,6 +8,9 @@ use crate::vfx::create_explosion;
 use crate::vfx::ZapFlash;
 use hecs::{CommandBuffer, World};
 
+struct DamageEnemies {}
+struct DamagePlayer {}
+
 pub struct Projectile {
     prec_x: f32,
     prec_y: f32,
@@ -15,7 +19,7 @@ pub struct Projectile {
 }
 
 impl Projectile {
-    pub fn new(rect: &IntRect, vx: f32, vy: f32) -> Self {
+    fn new(rect: &IntRect, vx: f32, vy: f32) -> Self {
         Self {
             prec_x: rect.x as f32,
             prec_y: rect.y as f32,
@@ -38,6 +42,11 @@ impl Projectile {
                 let sx = if proj.vx > 0.0 { x + 7 } else { x };
                 buffer.spawn((ZapFlash::new_from_centre(sx, y + 2),));
             }
+        }
+        for (e, (proj, rect, _)) in world
+            .query::<(&mut Projectile, &mut IntRect, &DamageEnemies)>()
+            .iter()
+        {
             let mut live = true;
             world
                 .query::<(&EnemyKind, &mut EnemyHittable, &IntRect)>()
@@ -77,6 +86,7 @@ fn find_collision_pos(
     rect: &IntRect,
 ) -> (i32, i32) {
     // this function can be slow as it's only called to generate the vfx when a projectile hits a wall
+    // but it should be better than this because there is already code to do this more efficiently elsewhere!
     let mut r = rect.clone();
     let dx = (ox - r.x).signum();
     while r.x != ox {
@@ -93,4 +103,14 @@ fn find_collision_pos(
         }
     }
     (r.x, r.y)
+}
+
+pub fn make_player_projectile(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
+    let proj = Projectile::new(&rect, vx, 0.0);
+    buffer.spawn((rect, ZapSprite::new(), proj, DamageEnemies {}));
+}
+
+pub fn make_enemy_projectile(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
+    let proj = Projectile::new(&rect, vx, 0.0);
+    buffer.spawn((rect, ZapSprite::new(), proj, DamagePlayer {}));
 }

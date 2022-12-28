@@ -110,7 +110,7 @@ async fn main() {
                     ConstantMotion::apply(&world, &mut resources);
                     PathMotion::apply(&world, &mut resources);
                     Controller::update(&world, &mut resources, &mut buffer, &input);
-                    update_enemies(&world, &resources);
+                    update_enemies(&world, &resources, &mut buffer);
                     Actor::update(&world, &resources);
                     Projectile::update(&world, &mut resources, &mut buffer);
                     Pickup::update(&world, &mut resources, &mut buffer);

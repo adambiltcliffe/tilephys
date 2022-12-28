@@ -3,8 +3,9 @@ use std::cmp::Ordering;
 use crate::draw::{DogSprite, ParrotSprite};
 use crate::physics::{collide_any, Actor, IntRect};
 use crate::player::Controller;
+use crate::projectile::make_enemy_projectile;
 use crate::resources::Resources;
-use hecs::{Entity, World};
+use hecs::{CommandBuffer, Entity, World};
 use macroquad::prelude::*;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
@@ -172,7 +173,7 @@ impl ParrotBehaviour {
         self.state_timer = 0;
     }
 
-    pub fn update(world: &World, resources: &Resources) {
+    pub fn update(world: &World, resources: &Resources, buffer: &mut CommandBuffer) {
         let player_x = player_x(world, resources.player_id);
         for (_, (actor, beh, rect, spr)) in world
             .query::<(
@@ -228,8 +229,11 @@ impl ParrotBehaviour {
                 ParrotState::Attack => {
                     spr.frame = 3;
                     spr.muzzle_flash = Some(beh.state_timer % 6);
-                    if beh.state_timer % 6 == 0 {
+                    if beh.state_timer % 6 == 1 {
                         actor.vx -= beh.facing as f32 * 10.0;
+                        let new_x = rect.x + 7 + beh.facing as i32 * 6;
+                        let rect = IntRect::new(new_x, rect.y + 8, 8, 5);
+                        make_enemy_projectile(buffer, rect, beh.facing as f32 * 4.0);
                     }
                     if beh.state_timer % 6 == 5
                         && parrot_off_edge(world, resources, rect, beh.facing)
@@ -278,9 +282,9 @@ fn parrot_off_edge(world: &World, resources: &Resources, rect: &IntRect, facing:
     )
 }
 
-pub fn update_enemies(world: &World, resources: &Resources) {
+pub fn update_enemies(world: &World, resources: &Resources, buffer: &mut CommandBuffer) {
     DogBehaviour::update(world, resources);
-    ParrotBehaviour::update(world, resources);
+    ParrotBehaviour::update(world, resources, buffer);
 
     for (_, (_, rect)) in world.query::<(&EnemyContactDamage, &IntRect)>().iter() {
         if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {

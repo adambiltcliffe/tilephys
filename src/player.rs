@@ -1,7 +1,7 @@
 use crate::draw::{PlayerSprite, SwitchSprite, ZapSprite};
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Secrecy, TriggerZone};
-use crate::projectile::Projectile;
+use crate::projectile::{make_player_projectile, Projectile};
 use crate::resources::Resources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
@@ -80,8 +80,7 @@ impl Controller {
             if input.is_pressed(VirtualKey::Fire) {
                 let new_x = p_rect.x + 3 + controller.facing as i32 * 9;
                 let rect = IntRect::new(new_x, p_rect.y + 11, 8, 5);
-                let proj = Projectile::new(&rect, controller.facing as f32 * 10.0, 0.0);
-                buffer.spawn((rect, ZapSprite::new(), proj));
+                make_player_projectile(buffer, rect, controller.facing as f32 * 10.0);
                 player.vx -= controller.facing as f32 * 10.0;
                 controller.fire_timer = 0;
                 sprite.firing = true;
