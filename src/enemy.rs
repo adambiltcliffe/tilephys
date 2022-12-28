@@ -286,11 +286,12 @@ pub fn update_enemies(world: &World, resources: &Resources, buffer: &mut Command
     DogBehaviour::update(world, resources);
     ParrotBehaviour::update(world, resources, buffer);
 
-    for (_, (_, rect)) in world.query::<(&EnemyContactDamage, &IntRect)>().iter() {
-        if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
-            if let Some((c, p_rect)) = q.get() {
+    if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
+        if let Some((c, p_rect)) = q.get() {
+            for (_, (_, rect)) in world.query::<(&EnemyContactDamage, &IntRect)>().iter() {
                 if rect.intersects(p_rect) {
                     c.hurt();
+                    break; // player will get damage invulnerability so might as well stop
                 }
             }
         }
