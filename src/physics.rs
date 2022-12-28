@@ -476,6 +476,16 @@ impl PathMotion {
     }
 }
 
+pub fn collide_any(world: &World, body_index: &SpatialIndex, rect: &IntRect) -> bool {
+    let blockers = body_index.entities(rect);
+    blockers.iter().any(|id| {
+        world
+            .get::<&TileBody>(*id)
+            .unwrap()
+            .collide(rect, CollisionType::Blocker)
+    })
+}
+
 fn move_actor(
     actor: &mut Actor,
     rect: &mut IntRect,
