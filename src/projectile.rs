@@ -3,6 +3,7 @@ use crate::enemy::EnemyHittable;
 use crate::enemy::EnemyKind;
 use crate::physics::collide_any;
 use crate::physics::IntRect;
+use crate::player::Controller;
 use crate::resources::Resources;
 use crate::vfx::create_explosion;
 use crate::vfx::ZapFlash;
@@ -74,6 +75,22 @@ impl Projectile {
                         live = false;
                     }
                 });
+        }
+
+        if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
+            if let Some((c, p_rect)) = q.get() {
+                for (id, (proj, rect, _)) in world
+                    .query::<(&mut Projectile, &mut IntRect, &DamagePlayer)>()
+                    .iter()
+                {
+                    if rect.intersects(p_rect) {
+                        c.hurt();
+                        buffer.despawn(id);
+                        let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
+                        buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
+                    }
+                }
+            }
         }
     }
 }
