@@ -63,9 +63,9 @@ impl Projectile {
                                 EnemyKind::Dog | EnemyKind::JumpyDog => {
                                     resources.messages.add("Destroyed a hound.".to_owned())
                                 }
-                                EnemyKind::SpiderParrot => {
-                                    resources.messages.add("Destroyed a scuttler.".to_owned())
-                                }
+                                EnemyKind::SpiderParrot => resources
+                                    .messages
+                                    .add("Destroyed a red scuttler.".to_owned()),
                             }
                             buffer.despawn(e_id);
                             let (ex, ey) = e_rect.centre_int();
