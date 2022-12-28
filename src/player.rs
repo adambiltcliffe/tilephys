@@ -1,6 +1,7 @@
 use crate::draw::{PlayerSprite, SwitchSprite, ZapSprite};
 use crate::input::{Input, VirtualKey};
-use crate::physics::{Actor, IntRect, Projectile, Secrecy, TriggerZone};
+use crate::physics::{Actor, IntRect, Secrecy, TriggerZone};
+use crate::projectile::Projectile;
 use crate::resources::Resources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
