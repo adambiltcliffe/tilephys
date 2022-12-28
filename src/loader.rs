@@ -336,6 +336,7 @@ impl LoadingManager {
 
         let resources = Resources {
             script_engine,
+            sky: load_texture("sky.png").await.unwrap(),
             player_sprite: load_texture("princess.png").await.unwrap(),
             dog_sprite: load_texture("robodog.png").await.unwrap(),
             parrot_sprite: load_texture("spiderparrot.png").await.unwrap(),

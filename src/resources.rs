@@ -11,6 +11,7 @@ use std::collections::HashSet;
 pub struct Resources {
     pub script_engine: ScriptEngine,
 
+    pub sky: Texture2D,
     pub player_sprite: Texture2D,
     pub dog_sprite: Texture2D,
     pub parrot_sprite: Texture2D,

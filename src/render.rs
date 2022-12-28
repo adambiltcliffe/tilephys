@@ -284,13 +284,6 @@ impl Renderer {
     }
 
     pub(crate) fn draw_world(&self, world: &mut hecs::World, resources: &Resources) {
-        gl_use_default_material();
-        set_camera(&get_camera_for_target(
-            &self.draw_target,
-            resources.camera_pos,
-            Origin::TopLeft,
-        ));
-
         let (flash, hp) = match world.get::<&Controller>(resources.player_id) {
             Ok(c) => (c.was_hurt(), c.hp),
             Err(_) => (false, 0),
@@ -300,7 +293,32 @@ impl Renderer {
             return;
         }
 
+        // draw the sky
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            vec2(self.width / 2., self.height / 2.),
+            Origin::TopLeft,
+        ));
+        let wvdc = WALL_VISION_DEPTH.ceil();
+        for x in -1..5 {
+            for y in -1..4 {
+                draw_texture(
+                    resources.sky,
+                    wvdc - (resources.camera_pos.x / 2.0) % 64.0 + x as f32 * 64.0,
+                    wvdc - (resources.camera_pos.y / 2.0) % 64.0 + y as f32 * 64.0,
+                    WHITE,
+                );
+            }
+        }
+
         // draw the basic graphics
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            resources.camera_pos,
+            Origin::TopLeft,
+        ));
         draw(world, resources);
 
         // draw explosions onto an offscreen texture

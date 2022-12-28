@@ -1,15 +1,18 @@
+make enemies flash when hit
+parallax sky texture
+explosion debris (esp. for player)
 weapons/ammo
 * ammo pickups
 more tiles
-preloader that actually reports what it's loading
-avoid reloading sprites
-progress from one level to another
+loading/top-level flow stuff:
+* preloader that actually reports what it's loading
+* avoid reloading sprites
+* progress from one level to another
 more general sprite handling?
-explosion debris (esp. for player)
-enemy flash when damaged
 nicer text rendering
 nice script debug output/tidy up console output
 better error handling in general
 rewrite scripting layer?
-investigate speeding up move_body
-optimise projectile::find_collision_pos
+optimisations:
+* investigate speeding up move_body
+* trivial optimisation of projectile::find_collision_pos
