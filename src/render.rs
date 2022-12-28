@@ -301,7 +301,7 @@ impl Renderer {
             Origin::TopLeft,
         ));
         let wvdc = WALL_VISION_DEPTH.ceil();
-        for x in -1..5 {
+        for x in -1..6 {
             for y in -1..4 {
                 draw_texture(
                     resources.sky,
