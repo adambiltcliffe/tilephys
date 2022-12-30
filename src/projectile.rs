@@ -58,6 +58,7 @@ impl Projectile {
                         let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
                         buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
                         en.hp -= 1;
+                        en.was_hit = true;
                         if en.hp <= 0 {
                             match kind {
                                 EnemyKind::Dog | EnemyKind::JumpyDog => {

@@ -1,3 +1,4 @@
+use crate::enemy::EnemyHittable;
 use crate::physics::{IntRect, TileBody};
 use crate::resources::Resources;
 use crate::vfx::ZapFlash;
@@ -204,7 +205,13 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
         );
     }
 
-    for (_, (rect, spr)) in world.query::<(&IntRect, &ParrotSprite)>().iter() {
+    for (_, (rect, spr, hittable)) in world
+        .query::<(&IntRect, &ParrotSprite, &EnemyHittable)>()
+        .iter()
+    {
+        if hittable.was_hit {
+            gl_use_material(resources.flash_material);
+        }
         draw_texture_ex(
             resources.parrot_sprite,
             rect.x as f32,
@@ -230,9 +237,16 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
                 },
             );
         }
+        gl_use_default_material();
     }
 
-    for (_, (rect, spr)) in world.query::<(&IntRect, &DogSprite)>().iter() {
+    for (_, (rect, spr, hittable)) in world
+        .query::<(&IntRect, &DogSprite, &EnemyHittable)>()
+        .iter()
+    {
+        if hittable.was_hit {
+            gl_use_material(resources.flash_material);
+        }
         draw_texture_ex(
             resources.dog_sprite,
             rect.x as f32,
@@ -245,6 +259,7 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
                 ..Default::default()
             },
         );
+        gl_use_default_material();
     }
 
     for (_, zap) in world.query::<&ZapFlash>().iter() {

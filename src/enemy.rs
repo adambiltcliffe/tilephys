@@ -64,11 +64,12 @@ fn player_x(world: &World, player_id: Entity) -> Option<f32> {
 
 pub struct EnemyHittable {
     pub hp: u16,
+    pub was_hit: bool,
 }
 
 impl EnemyHittable {
     pub fn new(hp: u16) -> Self {
-        Self { hp }
+        Self { hp, was_hit: false }
     }
 }
 
@@ -285,6 +286,10 @@ fn parrot_off_edge(world: &World, resources: &Resources, rect: &IntRect, facing:
 pub fn update_enemies(world: &World, resources: &Resources, buffer: &mut CommandBuffer) {
     DogBehaviour::update(world, resources);
     ParrotBehaviour::update(world, resources, buffer);
+
+    for (_, hittable) in world.query::<&mut EnemyHittable>().iter() {
+        hittable.was_hit = false;
+    }
 
     if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
         if let Some((c, p_rect)) = q.get() {

@@ -21,6 +21,8 @@ pub struct Resources {
     pub zap_sprite: Texture2D,
     pub interstitial: Texture2D,
 
+    pub flash_material: Material,
+
     pub player_id: Entity,
     pub eye_pos: Vec2,
     pub camera_pos: Vec2,

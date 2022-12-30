@@ -6,6 +6,7 @@ use crate::messages::Messages;
 use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
 use crate::pickup::add_pickup;
 use crate::player::Controller;
+use crate::render::load_flash_material;
 use crate::resources::Resources;
 use crate::resources::TilesetInfo;
 use crate::scene::Scene;
@@ -345,6 +346,7 @@ impl LoadingManager {
             ui_sprite: load_texture("ui-heart.png").await.unwrap(),
             zap_sprite: load_texture("zap.png").await.unwrap(),
             interstitial: load_texture("interstitial.png").await.unwrap(),
+            flash_material: load_flash_material(),
             player_id,
             eye_pos,
             camera_pos,

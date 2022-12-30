@@ -7,6 +7,7 @@ use crate::transition::{new_transition, TransitionEffect, TransitionEffectType};
 use crate::vfx::draw_vfx;
 use crate::visibility::draw_visibility;
 use macroquad::prelude::*;
+use miniquad::graphics::{BlendFactor, BlendState, BlendValue, Equation};
 
 pub const WALL_VISION_DEPTH: f32 = 16.5;
 
@@ -53,7 +54,6 @@ impl Renderer {
         let width = final_width + margin;
         let height = final_height + margin;
         println!("{} {}", width, height);
-        use miniquad::graphics::{BlendFactor, BlendState, BlendValue, Equation};
         let bs = BlendState::new(
             Equation::Add,
             BlendFactor::Value(BlendValue::SourceAlpha),
@@ -477,6 +477,26 @@ impl Renderer {
     }
 }
 
+pub fn load_flash_material() -> Material {
+    let bs = BlendState::new(
+        Equation::Add,
+        BlendFactor::Value(BlendValue::SourceAlpha),
+        BlendFactor::OneMinusValue(BlendValue::SourceAlpha),
+    );
+    load_material(
+        VERTEX_SHADER,
+        FLASH_FRAGMENT_SHADER,
+        MaterialParams {
+            pipeline_params: PipelineParams {
+                color_blend: Some(bs),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+    )
+    .unwrap()
+}
+
 const OUTLINE_FRAGMENT_SHADER: &str = "#version 100
 precision lowp float;
 varying vec2 uv;
@@ -498,6 +518,15 @@ void main() {
     {
         gl_FragColor = col;
     }
+}
+";
+
+const FLASH_FRAGMENT_SHADER: &str = "#version 100
+precision lowp float;
+varying vec2 uv;
+uniform sampler2D Texture;
+void main() {
+    gl_FragColor = texture2D(Texture, uv).aaaa;
 }
 ";
 

@@ -1,5 +1,3 @@
-make enemies flash when hit
-parallax sky texture
 explosion debris (esp. for player)
 weapons/ammo
 * ammo pickups
