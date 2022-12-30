@@ -61,4 +61,49 @@
    <property name="background" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="21">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="22">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="23">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="27">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="28">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="29">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="33">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="34">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="35">
+  <properties>
+   <property name="background" type="bool" value="true"/>
+  </properties>
+ </tile>
 </tileset>
