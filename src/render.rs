@@ -301,8 +301,8 @@ impl Renderer {
             Origin::TopLeft,
         ));
         let wvdc = WALL_VISION_DEPTH.ceil();
-        for x in -1..3 {
-            for y in -1..2 {
+        for x in -1..4 {
+            for y in -1..3 {
                 draw_texture(
                     resources.sky,
                     wvdc - (resources.camera_pos.x / 2.0) % 128.0 + x as f32 * 128.0,
