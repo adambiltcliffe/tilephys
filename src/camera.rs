@@ -1,5 +1,5 @@
 use crate::physics::{Actor, IntRect};
-use crate::resources::Resources;
+use crate::resources::SceneResources;
 use hecs::World;
 use macroquad::prelude::*;
 
@@ -24,7 +24,8 @@ impl PlayerCamera {
         Self { floor }
     }
 
-    pub fn update(world: &World, resources: &mut Resources) {
+    pub fn update(resources: &mut SceneResources) {
+        let world = resources.world_ref.borrow();
         let q = world.query_one::<(&Actor, &IntRect)>(resources.player_id);
         if q.is_err() {
             return;

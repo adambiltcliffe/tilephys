@@ -2,7 +2,7 @@ use crate::draw::{PlayerSprite, SwitchSprite};
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Secrecy, TriggerZone};
 use crate::projectile::make_player_projectile;
-use crate::resources::Resources;
+use crate::resources::SceneResources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
 use hecs::{CommandBuffer, World};
@@ -32,12 +32,8 @@ impl Controller {
         }
     }
 
-    pub fn update(
-        world: &World,
-        resources: &mut Resources,
-        buffer: &mut CommandBuffer,
-        input: &Input,
-    ) {
+    pub fn update(resources: &mut SceneResources, buffer: &mut CommandBuffer, input: &Input) {
+        let world = resources.world_ref.borrow_mut();
         let mut q = world.query::<(&mut Actor, &IntRect, &mut PlayerSprite, &mut Controller)>();
         for (id, (player, p_rect, sprite, controller)) in q.iter() {
             let mut new_triggers: HashSet<String> = HashSet::new();

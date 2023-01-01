@@ -4,7 +4,7 @@ use crate::enemy::EnemyKind;
 use crate::physics::collide_any;
 use crate::physics::IntRect;
 use crate::player::Controller;
-use crate::resources::Resources;
+use crate::resources::SceneResources;
 use crate::vfx::create_explosion;
 use crate::vfx::ZapFlash;
 use hecs::{CommandBuffer, World};
@@ -29,7 +29,8 @@ impl Projectile {
         }
     }
 
-    pub fn update(world: &World, resources: &mut Resources, buffer: &mut CommandBuffer) {
+    pub fn update(resources: &mut SceneResources, buffer: &mut CommandBuffer) {
+        let world = resources.world_ref.borrow_mut();
         for (e, (proj, rect)) in world.query::<(&mut Projectile, &mut IntRect)>().iter() {
             let ox = rect.x;
             let oy = rect.y;
@@ -37,9 +38,9 @@ impl Projectile {
             proj.prec_y += proj.vy;
             rect.x = proj.prec_x.round() as i32;
             rect.y = proj.prec_y.round() as i32;
-            if collide_any(world, &resources.body_index, rect) {
+            if collide_any(&world, &resources.body_index, rect) {
                 buffer.despawn(e);
-                let (x, y) = find_collision_pos(world, resources, ox, oy, rect);
+                let (x, y) = find_collision_pos(&world, resources, ox, oy, rect);
                 let sx = if proj.vx > 0.0 { x + 7 } else { x };
                 buffer.spawn((ZapFlash::new_from_centre(sx, y + 2),));
             }
@@ -49,33 +50,33 @@ impl Projectile {
             .iter()
         {
             let mut live = true;
-            world
+            for (e_id, (kind, en, e_rect)) in world
                 .query::<(&EnemyKind, &mut EnemyHittable, &IntRect)>()
                 .iter()
-                .for_each(|(e_id, (kind, en, e_rect))| {
-                    if live && en.hp > 0 && rect.intersects(&e_rect) {
-                        buffer.despawn(e);
-                        let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
-                        buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
-                        en.hp -= 1;
-                        en.was_hit = true;
-                        if en.hp <= 0 {
-                            match kind {
-                                EnemyKind::Dog | EnemyKind::JumpyDog => {
-                                    resources.messages.add("Destroyed a hound.".to_owned())
-                                }
-                                EnemyKind::SpiderParrot => resources
-                                    .messages
-                                    .add("Destroyed a red scuttler.".to_owned()),
+            {
+                if live && en.hp > 0 && rect.intersects(&e_rect) {
+                    buffer.despawn(e);
+                    let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
+                    buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
+                    en.hp -= 1;
+                    en.was_hit = true;
+                    if en.hp <= 0 {
+                        match kind {
+                            EnemyKind::Dog | EnemyKind::JumpyDog => {
+                                resources.messages.add("Destroyed a hound.".to_owned())
                             }
-                            buffer.despawn(e_id);
-                            let (ex, ey) = e_rect.centre_int();
-                            create_explosion(buffer, ex, ey);
-                            resources.stats.kills += 1
+                            EnemyKind::SpiderParrot => resources
+                                .messages
+                                .add("Destroyed a red scuttler.".to_owned()),
                         }
-                        live = false;
+                        buffer.despawn(e_id);
+                        let (ex, ey) = e_rect.centre_int();
+                        create_explosion(buffer, ex, ey);
+                        resources.stats.kills += 1
                     }
-                });
+                    live = false;
+                }
+            }
         }
 
         if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
@@ -91,14 +92,14 @@ impl Projectile {
                         buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
                     }
                 }
-            }
-        }
+            };
+        };
     }
 }
 
 fn find_collision_pos(
     world: &World,
-    resources: &Resources,
+    resources: &SceneResources,
     ox: i32,
     oy: i32,
     rect: &IntRect,

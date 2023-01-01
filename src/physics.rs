@@ -1,6 +1,6 @@
 use crate::index::SpatialIndex;
 use crate::loader::TileFlags;
-use crate::resources::Resources;
+use crate::resources::SceneResources;
 use hecs::{Entity, World};
 use macroquad::math::{vec2, Vec2};
 use std::collections::HashSet;
@@ -259,7 +259,8 @@ impl Actor {
         }
     }
 
-    pub fn update(world: &World, resources: &Resources) {
+    pub fn update(resources: &SceneResources) {
+        let world = resources.world_ref.borrow_mut();
         for (_, (actor, rect)) in world.query::<(&mut Actor, &mut IntRect)>().iter() {
             actor.vy += 1.0;
             actor.vx *= actor.drag;
@@ -286,7 +287,8 @@ impl ConstantMotion {
     pub fn new(vx: i32, vy: i32) -> Self {
         Self { vx, vy }
     }
-    pub fn apply(world: &World, resources: &mut Resources) {
+    pub fn apply(resources: &mut SceneResources) {
+        let world = resources.world_ref.borrow_mut();
         for (e, cm) in world.query::<&ConstantMotion>().iter() {
             move_body(&world, &mut resources.body_index, e, cm.vx, cm.vy);
         }
@@ -331,7 +333,8 @@ impl PathMotion {
         }
     }
 
-    pub fn apply(world: &World, resources: &mut Resources) {
+    pub fn apply(resources: &mut SceneResources) {
+        let world = resources.world_ref.borrow_mut();
         for (e, pm) in world.query::<&mut PathMotion>().iter() {
             let dest = {
                 let body = world.get::<&TileBody>(e).unwrap();

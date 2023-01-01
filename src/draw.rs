@@ -1,6 +1,6 @@
 use crate::enemy::EnemyHittable;
 use crate::physics::{IntRect, TileBody};
-use crate::resources::Resources;
+use crate::resources::{GlobalAssets, SceneResources};
 use crate::vfx::ZapFlash;
 use hecs::World;
 use macroquad::prelude::*;
@@ -92,7 +92,7 @@ impl ZapSprite {
     }
 }
 
-pub(crate) fn draw(world: &mut World, resources: &Resources) {
+pub(crate) fn draw(world: &mut World, resources: &SceneResources, assets: &GlobalAssets) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
     let _delta = get_frame_time();
@@ -143,7 +143,7 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
     for (_, (rect, spr)) in world.query::<(&IntRect, &SwitchSprite)>().iter() {
         let frame = if spr.on { 1 } else { 0 };
         draw_texture_ex(
-            resources.switch_sprite,
+            assets.switch_sprite,
             rect.x as f32,
             rect.y as f32,
             WHITE,
@@ -156,12 +156,12 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
     }
 
     for (_, (rect, _spr)) in world.query::<(&IntRect, &PickupSprite)>().iter() {
-        draw_texture(resources.pickup_sprite, rect.x as f32, rect.y as f32, WHITE);
+        draw_texture(assets.pickup_sprite, rect.x as f32, rect.y as f32, WHITE);
     }
 
     for (_, (rect, _spr)) in world.query::<(&IntRect, &ZapSprite)>().iter() {
         draw_texture_ex(
-            resources.zap_sprite,
+            assets.zap_sprite,
             rect.x as f32,
             rect.y as f32,
             WHITE,
@@ -179,7 +179,7 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
         }
         if spr.muzzle_flash < 6 {
             draw_texture_ex(
-                resources.zap_sprite,
+                assets.zap_sprite,
                 rect.x as f32 + if spr.flipped { 11.0 } else { -6.0 },
                 rect.y as f32 + 9.0,
                 WHITE,
@@ -192,7 +192,7 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
         }
         let frame = if spr.firing { 2 } else { spr.n * 5 % 2 };
         draw_texture_ex(
-            resources.player_sprite,
+            assets.player_sprite,
             (rect.x - 1) as f32,
             rect.y as f32,
             WHITE,
@@ -210,10 +210,10 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
         .iter()
     {
         if hittable.was_hit {
-            gl_use_material(resources.flash_material);
+            gl_use_material(assets.flash_material);
         }
         draw_texture_ex(
-            resources.parrot_sprite,
+            assets.parrot_sprite,
             rect.x as f32,
             rect.y as f32,
             WHITE,
@@ -226,7 +226,7 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
         );
         if let Some(mf) = spr.muzzle_flash {
             draw_texture_ex(
-                resources.zap_sprite,
+                assets.zap_sprite,
                 rect.x as f32 + if spr.flipped { 16.0 } else { -1.0 },
                 rect.y as f32 + 6.0,
                 WHITE,
@@ -245,10 +245,10 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
         .iter()
     {
         if hittable.was_hit {
-            gl_use_material(resources.flash_material);
+            gl_use_material(assets.flash_material);
         }
         draw_texture_ex(
-            resources.dog_sprite,
+            assets.dog_sprite,
             rect.x as f32,
             rect.y as f32,
             WHITE,
@@ -264,7 +264,7 @@ pub(crate) fn draw(world: &mut World, resources: &Resources) {
 
     for (_, zap) in world.query::<&ZapFlash>().iter() {
         draw_texture_ex(
-            resources.zap_sprite,
+            assets.zap_sprite,
             zap.x as f32,
             zap.y as f32,
             WHITE,

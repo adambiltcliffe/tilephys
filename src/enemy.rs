@@ -4,7 +4,7 @@ use crate::draw::{DogSprite, ParrotSprite};
 use crate::physics::{collide_any, Actor, IntRect};
 use crate::player::Controller;
 use crate::projectile::make_enemy_projectile;
-use crate::resources::Resources;
+use crate::resources::SceneResources;
 use hecs::{CommandBuffer, Entity, World};
 use macroquad::prelude::*;
 
@@ -94,7 +94,7 @@ impl DogBehaviour {
         }
     }
 
-    pub fn update(world: &World, resources: &Resources) {
+    pub fn update(world: &World, resources: &SceneResources) {
         let player_x = player_x(world, resources.player_id);
         for (_, (kind, actor, enemy, rect, spr)) in world
             .query::<(
@@ -174,7 +174,7 @@ impl ParrotBehaviour {
         self.state_timer = 0;
     }
 
-    pub fn update(world: &World, resources: &Resources, buffer: &mut CommandBuffer) {
+    pub fn update(world: &World, resources: &SceneResources, buffer: &mut CommandBuffer) {
         let player_x = player_x(world, resources.player_id);
         for (_, (actor, beh, rect, spr)) in world
             .query::<(
@@ -256,7 +256,7 @@ impl ParrotBehaviour {
     }
 }
 
-fn parrot_should_stop(world: &World, resources: &Resources, rect: &IntRect, vx: f32) -> bool {
+fn parrot_should_stop(world: &World, resources: &SceneResources, rect: &IntRect, vx: f32) -> bool {
     let d = vx.abs().ceil() as i32;
     let (wall_rect_x, floor_rect_x) = match vx.total_cmp(&0.0) {
         Ordering::Equal => return false,
@@ -270,7 +270,7 @@ fn parrot_should_stop(world: &World, resources: &Resources, rect: &IntRect, vx: 
 }
 
 // detect whether the enemy's rear foot is sliding off a cliff as a result of firing recoil
-fn parrot_off_edge(world: &World, resources: &Resources, rect: &IntRect, facing: i8) -> bool {
+fn parrot_off_edge(world: &World, resources: &SceneResources, rect: &IntRect, facing: i8) -> bool {
     let x = if facing > 0 {
         rect.x
     } else {
@@ -283,9 +283,10 @@ fn parrot_off_edge(world: &World, resources: &Resources, rect: &IntRect, facing:
     )
 }
 
-pub fn update_enemies(world: &World, resources: &Resources, buffer: &mut CommandBuffer) {
-    DogBehaviour::update(world, resources);
-    ParrotBehaviour::update(world, resources, buffer);
+pub fn update_enemies(resources: &SceneResources, buffer: &mut CommandBuffer) {
+    let world = resources.world_ref.borrow();
+    DogBehaviour::update(&world, resources);
+    ParrotBehaviour::update(&world, resources, buffer);
 
     for (_, hittable) in world.query::<&mut EnemyHittable>().iter() {
         hittable.was_hit = false;
@@ -300,5 +301,5 @@ pub fn update_enemies(world: &World, resources: &Resources, buffer: &mut Command
                 }
             }
         }
-    }
+    };
 }

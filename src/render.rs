@@ -1,8 +1,9 @@
 use crate::draw::draw;
 use crate::messages::Messages;
 use crate::player::Controller;
-use crate::resources::Resources;
+use crate::resources::{GlobalAssets, SceneResources};
 use crate::scene::Scene;
+use crate::stats::LevelStats;
 use crate::transition::{new_transition, TransitionEffect, TransitionEffectType};
 use crate::vfx::draw_vfx;
 use crate::visibility::draw_visibility;
@@ -116,17 +117,17 @@ impl Renderer {
         }
     }
 
-    pub(crate) fn draw_scene(&self, scene: &Scene, resources: &Resources) {
+    pub(crate) fn draw_scene(&self, scene: &Scene, assets: &GlobalAssets) {
         // draw the current scene
         match scene {
             Scene::PreLevel => {
-                self.draw_prelevel(resources);
+                self.draw_prelevel(assets);
             }
-            Scene::PlayLevel(world_ref) => {
-                self.draw_world(&mut world_ref.borrow_mut(), resources);
+            Scene::PlayLevel(resources) => {
+                self.draw_world(resources, assets);
             }
-            Scene::PostLevel => {
-                self.draw_postlevel(resources);
+            Scene::PostLevel(stats) => {
+                self.draw_postlevel(stats, assets);
             }
         }
 
@@ -174,7 +175,7 @@ impl Renderer {
         );
     }
 
-    pub(crate) fn draw_prelevel(&self, resources: &Resources) {
+    pub(crate) fn draw_prelevel(&self, assets: &GlobalAssets) {
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -185,7 +186,7 @@ impl Renderer {
         for x in 0..8 {
             for y in 0..5 {
                 draw_texture(
-                    resources.interstitial,
+                    assets.interstitial,
                     wvdc + x as f32 * 40.0,
                     wvdc + y as f32 * 40.0,
                     WHITE,
@@ -217,7 +218,7 @@ impl Renderer {
         println!("{}", 100.0 - td1.height - 6.0);
     }
 
-    pub(crate) fn draw_postlevel(&self, resources: &Resources) {
+    pub(crate) fn draw_postlevel(&self, stats: &LevelStats, assets: &GlobalAssets) {
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -240,32 +241,19 @@ impl Renderer {
         }
         self.draw_centred_text("Completed", 16, 72.0);
         self.draw_centred_text("Entryway", 32, 100.0);
+        self.draw_centred_text(&format!("Time: {}", stats.pretty_time()), 16, 128.0);
         self.draw_centred_text(
-            &format!("Time: {}", resources.stats.pretty_time()),
-            16,
-            128.0,
-        );
-        self.draw_centred_text(
-            &format!(
-                "Enemies defeated: {}/{}",
-                resources.stats.kills, resources.stats.max_kills
-            ),
+            &format!("Enemies defeated: {}/{}", stats.kills, stats.max_kills),
             16,
             144.0,
         );
         self.draw_centred_text(
-            &format!(
-                "Items found: {}/{}",
-                resources.stats.items, resources.stats.max_items
-            ),
+            &format!("Items found: {}/{}", stats.items, stats.max_items),
             16,
             160.0,
         );
         self.draw_centred_text(
-            &format!(
-                "Secrets entered: {}/{}",
-                resources.stats.secrets, resources.stats.max_secrets
-            ),
+            &format!("Secrets entered: {}/{}", stats.secrets, stats.max_secrets),
             16,
             176.0,
         );
@@ -283,7 +271,8 @@ impl Renderer {
         );
     }
 
-    pub(crate) fn draw_world(&self, world: &mut hecs::World, resources: &Resources) {
+    pub(crate) fn draw_world(&self, resources: &SceneResources, assets: &GlobalAssets) {
+        let mut world = resources.world_ref.borrow_mut();
         let (flash, hp) = match world.get::<&Controller>(resources.player_id) {
             Ok(c) => (c.was_hurt(), c.hp),
             Err(_) => (false, 0),
@@ -304,7 +293,7 @@ impl Renderer {
         for x in -1..4 {
             for y in -1..3 {
                 draw_texture(
-                    resources.sky,
+                    assets.sky,
                     wvdc - (resources.camera_pos.x / 2.0) % 128.0 + x as f32 * 128.0,
                     wvdc - (resources.camera_pos.y / 2.0) % 128.0 + y as f32 * 128.0,
                     WHITE,
@@ -319,7 +308,7 @@ impl Renderer {
             resources.camera_pos,
             Origin::TopLeft,
         ));
-        draw(world, resources);
+        draw(&mut world, resources, assets);
 
         // draw explosions onto an offscreen texture
         set_camera(&get_camera_for_target(
@@ -328,7 +317,7 @@ impl Renderer {
             Origin::TopLeft,
         ));
 
-        draw_vfx(world);
+        draw_vfx(&world);
         // now draw the explosion texture back to the draw target
         gl_use_material(self.outline_material);
         set_camera(&get_camera_for_target(
@@ -424,7 +413,7 @@ impl Renderer {
         for ii in 0..3 {
             let sy = if ii < hp { 0.0 } else { 16.0 };
             draw_texture_ex(
-                resources.ui_sprite,
+                assets.ui_sprite,
                 wvdc + 16.0 * ii as f32,
                 self.height - wvdc - 16.0,
                 WHITE,

@@ -9,7 +9,7 @@ use pickup::Pickup;
 use player::Controller;
 use projectile::Projectile;
 use render::Renderer;
-use resources::Resources;
+use resources::{load_assets, SceneResources};
 use scene::{NewScene, Scene};
 use timer::Timer;
 use transition::TransitionEffectType;
@@ -61,8 +61,8 @@ async fn main() {
     };
 
     let mut loader = LoadingManager::new();
-    // need a way to initialise resources without loading a level
-    let (mut scene, mut resources): (Scene, Resources) = loader.load_level(&name).await.unwrap();
+    let mut assets = load_assets().await;
+    let mut scene = loader.load_level(&name).await.unwrap();
     scene = Scene::PreLevel;
 
     let mut renderer = Renderer::new(RENDER_W, RENDER_H);
@@ -70,24 +70,25 @@ async fn main() {
     let mut input = Input::new();
 
     loop {
-        match resources.new_scene {
+        match assets.new_scene {
             None => (),
             Some((NewScene::PreLevel, typ)) => {
                 renderer.start_transition(typ);
                 scene = Scene::PreLevel;
-                resources.new_scene = None;
+                assets.new_scene = None;
                 println!("transitioning to prelevel");
             }
             Some((NewScene::PlayLevel, typ)) => {
                 renderer.start_transition(typ);
-                (scene, resources) = loader.load_level(&name).await.unwrap();
+                scene = loader.load_level(&name).await.unwrap();
+                assets.new_scene = None;
                 clock = Timer::new();
                 input = Input::new();
             }
-            Some((NewScene::PostLevel, typ)) => {
+            Some((NewScene::PostLevel(stats), typ)) => {
                 renderer.start_transition(typ);
-                scene = Scene::PostLevel;
-                resources.new_scene = None;
+                scene = Scene::PostLevel(stats);
+                assets.new_scene = None;
                 println!("transitioning to postlevel");
             }
         }
@@ -100,33 +101,32 @@ async fn main() {
                     renderer.tick();
                 }
                 if renderer.transition_finished() {
-                    resources.new_scene = Some((NewScene::PlayLevel, TransitionEffectType::Open))
+                    assets.new_scene = Some((NewScene::PlayLevel, TransitionEffectType::Open))
                 }
             }
-            Scene::PlayLevel(ref world_ref) => {
+            Scene::PlayLevel(ref mut resources) => {
                 for _ in 0..clock.get_num_updates() {
-                    let mut world = world_ref.borrow_mut();
                     let mut buffer = CommandBuffer::new();
-                    ConstantMotion::apply(&world, &mut resources);
-                    PathMotion::apply(&world, &mut resources);
-                    Controller::update(&world, &mut resources, &mut buffer, &input);
-                    update_enemies(&world, &resources, &mut buffer);
-                    Actor::update(&world, &resources);
-                    Projectile::update(&world, &mut resources, &mut buffer);
-                    Pickup::update(&world, &mut resources, &mut buffer);
-                    update_vfx(&world, &mut buffer);
-                    buffer.run_on(&mut world);
+                    ConstantMotion::apply(resources);
+                    PathMotion::apply(resources);
+                    Controller::update(resources, &mut buffer, &input);
+                    update_enemies(resources, &mut buffer);
+                    Actor::update(resources);
+                    Projectile::update(resources, &mut buffer);
+                    Pickup::update(resources, &mut buffer);
+                    update_vfx(resources, &mut buffer);
+                    buffer.run_on(&mut resources.world_ref.borrow_mut());
 
-                    PlayerCamera::update(&world, &mut resources);
+                    PlayerCamera::update(resources);
 
                     if input.is_pressed(VirtualKey::DebugKill) {
-                        world
+                        resources
+                            .world_ref
+                            .borrow_mut()
                             .get::<&mut Controller>(resources.player_id)
                             .unwrap()
                             .hp = 0
                     }
-
-                    drop(world);
 
                     for t in &resources.triggers {
                         println!("calling entry point {}", t);
@@ -135,15 +135,15 @@ async fn main() {
                     resources.triggers.clear();
 
                     if input.is_pressed(VirtualKey::DebugRestart) {
-                        resources.new_scene = Some((
+                        assets.new_scene = Some((
                             crate::scene::NewScene::PlayLevel,
                             TransitionEffectType::Shatter,
                         ));
                     }
                     if input.is_pressed(VirtualKey::DebugWin) || resources.script_engine.win_flag()
                     {
-                        resources.new_scene = Some((
-                            crate::scene::NewScene::PostLevel,
+                        assets.new_scene = Some((
+                            crate::scene::NewScene::PostLevel(resources.stats.clone()),
                             TransitionEffectType::Shatter,
                         ));
                     }
@@ -158,12 +158,12 @@ async fn main() {
                     }
                 }
             }
-            Scene::PostLevel => {
+            Scene::PostLevel(ref stats) => {
                 for _ in 0..clock.get_num_updates() {
                     renderer.tick();
                 }
                 if input.is_any_pressed() {
-                    resources.new_scene = Some((
+                    assets.new_scene = Some((
                         crate::scene::NewScene::PreLevel,
                         TransitionEffectType::Shatter,
                     ));
@@ -171,7 +171,7 @@ async fn main() {
             }
         }
 
-        renderer.draw_scene(&scene, &resources);
+        renderer.draw_scene(&scene, &assets);
         next_frame().await;
     }
 }

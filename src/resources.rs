@@ -1,16 +1,17 @@
 use crate::index::SpatialIndex;
 use crate::messages::Messages;
+use crate::render::load_flash_material;
 use crate::scene::NewScene;
 use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
 use crate::transition::TransitionEffectType;
-use hecs::Entity;
+use hecs::{Entity, World};
 use macroquad::prelude::*;
+use std::cell::RefCell;
 use std::collections::HashSet;
+use std::rc::Rc;
 
-pub struct Resources {
-    pub script_engine: ScriptEngine,
-
+pub struct GlobalAssets {
     pub sky: Texture2D,
     pub player_sprite: Texture2D,
     pub dog_sprite: Texture2D,
@@ -20,9 +21,30 @@ pub struct Resources {
     pub ui_sprite: Texture2D,
     pub zap_sprite: Texture2D,
     pub interstitial: Texture2D,
-
     pub flash_material: Material,
+    // should this be here?
+    pub new_scene: Option<(NewScene, TransitionEffectType)>,
+}
 
+pub async fn load_assets() -> GlobalAssets {
+    GlobalAssets {
+        sky: load_texture("sky.png").await.unwrap(),
+        player_sprite: load_texture("princess.png").await.unwrap(),
+        dog_sprite: load_texture("robodog.png").await.unwrap(),
+        parrot_sprite: load_texture("spiderparrot.png").await.unwrap(),
+        pickup_sprite: load_texture("pickup.png").await.unwrap(),
+        switch_sprite: load_texture("switch.png").await.unwrap(),
+        ui_sprite: load_texture("ui-heart.png").await.unwrap(),
+        zap_sprite: load_texture("zap.png").await.unwrap(),
+        interstitial: load_texture("interstitial.png").await.unwrap(),
+        flash_material: load_flash_material(),
+        new_scene: None,
+    }
+}
+
+pub struct SceneResources {
+    pub world_ref: Rc<RefCell<World>>,
+    pub script_engine: ScriptEngine,
     pub player_id: Entity,
     pub eye_pos: Vec2,
     pub camera_pos: Vec2,
@@ -32,7 +54,6 @@ pub struct Resources {
     pub messages: Messages,
     pub stats: LevelStats,
     pub triggers: HashSet<String>,
-    pub new_scene: Option<(NewScene, TransitionEffectType)>,
 }
 
 #[derive(Clone)]

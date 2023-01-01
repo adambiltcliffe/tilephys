@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct LevelStats {
     pub frames: u32,
     pub kills: u32,

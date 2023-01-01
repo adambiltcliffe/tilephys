@@ -1,6 +1,6 @@
 use crate::physics::{Actor, IntRect};
 use crate::player::Controller;
-use crate::resources::Resources;
+use crate::resources::SceneResources;
 use hecs::{CommandBuffer, World};
 
 pub fn add_pickup(world: &mut World, x: i32, y: i32) {
@@ -15,11 +15,8 @@ pub struct Pickup {
 }
 
 impl Pickup {
-    pub fn update(
-        world: &World,
-        resources: &mut Resources,
-        buffer: &mut CommandBuffer,
-    ) -> Option<()> {
+    pub fn update(resources: &mut SceneResources, buffer: &mut CommandBuffer) -> Option<()> {
+        let world = resources.world_ref.borrow_mut();
         let mut q = world
             .query_one::<(&IntRect, &mut Controller)>(resources.player_id)
             .ok()?;

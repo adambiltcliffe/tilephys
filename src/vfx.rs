@@ -1,6 +1,8 @@
 use hecs::{CommandBuffer, World};
 use macroquad::prelude::*;
 
+use crate::resources::SceneResources;
+
 const EXPLOSION_OUTER_COLOR: Color = Color {
     r: 0.1333,
     g: 1.0,
@@ -106,7 +108,8 @@ pub fn create_explosion(buffer: &mut CommandBuffer, x: i32, y: i32) {
     }
 }
 
-pub fn update_vfx(world: &World, buffer: &mut CommandBuffer) {
+pub fn update_vfx(resources: &SceneResources, buffer: &mut CommandBuffer) {
+    let world = resources.world_ref.borrow();
     for (id, z) in world.query::<&mut ZapFlash>().iter() {
         z.n += 1;
         if z.n > 5 {

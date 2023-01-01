@@ -6,8 +6,7 @@ use crate::messages::Messages;
 use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
 use crate::pickup::add_pickup;
 use crate::player::Controller;
-use crate::render::load_flash_material;
-use crate::resources::Resources;
+use crate::resources::SceneResources;
 use crate::resources::TilesetInfo;
 use crate::scene::Scene;
 use crate::script::ScriptEngine;
@@ -96,7 +95,7 @@ impl LoadingManager {
     }
 
     // eventually this should probably not use String as its error type
-    pub(crate) async fn load_level(&mut self, name: &str) -> Result<(Scene, Resources), String> {
+    pub(crate) async fn load_level(&mut self, name: &str) -> Result<Scene, String> {
         let map_name = format!("{}.tmx", name).to_owned();
         self.loader.reader_mut().preload(&map_name).await;
 
@@ -335,18 +334,9 @@ impl LoadingManager {
 
         body_index.debug();
 
-        let resources = Resources {
+        let resources = SceneResources {
+            world_ref,
             script_engine,
-            sky: load_texture("sky.png").await.unwrap(),
-            player_sprite: load_texture("princess.png").await.unwrap(),
-            dog_sprite: load_texture("robodog.png").await.unwrap(),
-            parrot_sprite: load_texture("spiderparrot.png").await.unwrap(),
-            pickup_sprite: load_texture("pickup.png").await.unwrap(),
-            switch_sprite: load_texture("switch.png").await.unwrap(),
-            ui_sprite: load_texture("ui-heart.png").await.unwrap(),
-            zap_sprite: load_texture("zap.png").await.unwrap(),
-            interstitial: load_texture("interstitial.png").await.unwrap(),
-            flash_material: load_flash_material(),
             player_id,
             eye_pos,
             camera_pos,
@@ -356,9 +346,8 @@ impl LoadingManager {
             messages: Messages::new(),
             stats,
             triggers: HashSet::new(),
-            new_scene: None,
         };
 
-        Ok((Scene::PlayLevel(world_ref), resources))
+        Ok(Scene::PlayLevel(resources))
     }
 }
