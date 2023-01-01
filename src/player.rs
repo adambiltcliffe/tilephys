@@ -5,7 +5,7 @@ use crate::projectile::make_player_projectile;
 use crate::resources::SceneResources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
-use hecs::{CommandBuffer, World};
+use hecs::CommandBuffer;
 use macroquad::prelude::{is_key_down, KeyCode};
 use std::collections::HashSet;
 

@@ -9,7 +9,7 @@ use pickup::Pickup;
 use player::Controller;
 use projectile::Projectile;
 use render::Renderer;
-use resources::{load_assets, SceneResources};
+use resources::load_assets;
 use scene::{NewScene, Scene};
 use timer::Timer;
 use transition::TransitionEffectType;
@@ -62,8 +62,7 @@ async fn main() {
 
     let mut loader = LoadingManager::new();
     let mut assets = load_assets().await;
-    let mut scene = loader.load_level(&name).await.unwrap();
-    scene = Scene::PreLevel;
+    let mut scene = Scene::PreLevel;
 
     let mut renderer = Renderer::new(RENDER_W, RENDER_H);
     let mut clock = Timer::new();
@@ -158,7 +157,7 @@ async fn main() {
                     }
                 }
             }
-            Scene::PostLevel(ref stats) => {
+            Scene::PostLevel(_) => {
                 for _ in 0..clock.get_num_updates() {
                     renderer.tick();
                 }
