@@ -83,6 +83,7 @@ async fn main() {
                 assets.new_scene = None;
                 clock = Timer::new();
                 input = Input::new();
+                println!("transitioning to level");
             }
             Some((NewScene::PostLevel(stats), typ)) => {
                 renderer.start_transition(typ);
@@ -128,7 +129,6 @@ async fn main() {
                     }
 
                     for t in &resources.triggers {
-                        println!("calling entry point {}", t);
                         resources.script_engine.call_entry_point(&t);
                     }
                     resources.triggers.clear();
@@ -152,9 +152,9 @@ async fn main() {
                     resources.stats.frames += 1;
                     renderer.tick();
 
-                    if resources.stats.frames % 100 == 0 {
+                    /* if resources.stats.frames % 100 == 0 {
                         resources.body_index.debug();
-                    }
+                    } */
                 }
             }
             Scene::PostLevel(_) => {

@@ -97,6 +97,7 @@ impl LoadingManager {
     // eventually this should probably not use String as its error type
     pub(crate) async fn load_level(&mut self, name: &str) -> Result<Scene, String> {
         let map_name = format!("{}.tmx", name).to_owned();
+        println!("attempting to load level: {:?}", map_name);
         self.loader.reader_mut().preload(&map_name).await;
 
         let map = loop {
@@ -115,6 +116,7 @@ impl LoadingManager {
                 Err(other_err) => return Err(other_err.to_string()),
             }
         };
+        println!("map data loaded");
 
         let mut world: World = World::new();
         let mut body_ids: HashMap<String, Entity> = HashMap::new();
@@ -158,7 +160,6 @@ impl LoadingManager {
         for layer in map.layers() {
             match layer.layer_type() {
                 tiled::LayerType::Tiles(tiled::TileLayer::Infinite(layer_data)) => {
-                    println!("Found an infinite tiled layer named {}", layer.name);
                     let (xmin, xmax, ymin, ymax) = layer_data.chunks().fold(
                         (i32::MAX, i32::MIN, i32::MAX, i32::MIN),
                         |(x0, x1, y0, y1), ((x, y), _)| {
@@ -178,7 +179,6 @@ impl LoadingManager {
                             }
                         }
                     }
-                    println!("Real chunk bounds are x:{}-{}, y:{}-{}", x0, x1, y0, y1);
                     let mut data = Vec::new();
                     let mut tiles = Vec::new();
                     for y in y0..=y1 {
@@ -233,7 +233,6 @@ impl LoadingManager {
                                 shape: tiled::ObjectShape::Polygon { points },
                                 ..
                             } => {
-                                println!("found a path named {}", name);
                                 paths.insert(name.clone(), points.clone());
                             }
                             tiled::ObjectData {
@@ -248,11 +247,6 @@ impl LoadingManager {
                                 if secret {
                                     max_secrets += 1
                                 }
-                                println!(
-                                    "found a{} trigger zone named {}",
-                                    if secret { " secret" } else { "" },
-                                    name
-                                );
                                 let tz = TriggerZone::new(name.clone(), secret);
                                 let rect = IntRect::new(
                                     *x as i32,
@@ -302,7 +296,7 @@ impl LoadingManager {
                         }
                     }
                 }
-                _ => println!("(Something other than an infinite tiled layer)"),
+                _ => println!("found a layer type other than an infinite tiled layer"),
             }
         }
 
@@ -331,8 +325,6 @@ impl LoadingManager {
         compute_obscurers(&mut world_ref.borrow_mut());
 
         let stats = LevelStats::new(max_kills, max_items, max_secrets);
-
-        body_index.debug();
 
         let resources = SceneResources {
             world_ref,

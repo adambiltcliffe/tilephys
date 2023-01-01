@@ -66,6 +66,7 @@ impl SpatialIndex {
         result
     }
 
+    #[allow(dead_code)]
     pub fn debug(&self) {
         println!("spatial index has {} buckets", self.buckets.len());
         let mut counts = HashMap::<usize, usize>::new();

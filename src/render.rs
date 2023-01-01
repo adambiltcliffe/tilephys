@@ -54,7 +54,6 @@ impl Renderer {
         let margin = WALL_VISION_DEPTH.ceil() as u32 * 2;
         let width = final_width + margin;
         let height = final_height + margin;
-        println!("{} {}", width, height);
         let bs = BlendState::new(
             Equation::Add,
             BlendFactor::Value(BlendValue::SourceAlpha),
@@ -215,7 +214,6 @@ impl Renderer {
             16.0,
             WHITE,
         );
-        println!("{}", 100.0 - td1.height - 6.0);
     }
 
     pub(crate) fn draw_postlevel(&self, stats: &LevelStats) {
