@@ -61,12 +61,24 @@ async fn main() {
     };
 
     let mut loader = LoadingManager::new();
-    let mut assets = load_assets().await;
     let mut scene = Scene::PreLevel;
 
     let mut renderer = Renderer::new(RENDER_W, RENDER_H);
     let mut clock = Timer::new();
     let mut input = Input::new();
+
+    let coro = macroquad::experimental::coroutines::start_coroutine(async { load_assets() }.await);
+    let mut result = None;
+    let mut loading_frames = 0;
+    while result.is_none() {
+        loading_frames += 1;
+        if loading_frames > 2 {
+            renderer.render_loading();
+        }
+        next_frame().await;
+        result = coro.retrieve();
+    }
+    let mut assets = result.unwrap();
 
     loop {
         match assets.new_scene {
@@ -170,7 +182,7 @@ async fn main() {
             }
         }
 
-        renderer.draw_scene(&scene, &assets);
+        renderer.render_scene(&scene, &assets);
         next_frame().await;
     }
 }

@@ -116,7 +116,7 @@ impl Renderer {
         }
     }
 
-    pub(crate) fn draw_scene(&self, scene: &Scene, assets: &GlobalAssets) {
+    pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets) {
         // draw the current scene
         match scene {
             Scene::PreLevel => {
@@ -142,6 +142,10 @@ impl Renderer {
         }
 
         // finally draw to the screen
+        self.render_to_screen();
+    }
+
+    fn render_to_screen(&self) {
         gl_use_default_material();
         let sw = screen_width();
         let sh = screen_height();
@@ -172,6 +176,26 @@ impl Renderer {
                 ..Default::default()
             },
         );
+    }
+
+    pub(crate) fn render_loading(&self) {
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            vec2(self.width / 2., self.height / 2.),
+            Origin::TopLeft,
+        ));
+        let wvdc = WALL_VISION_DEPTH.ceil();
+        let msg = "STAND BY";
+        let td1 = measure_text(msg, None, 32, 1.0);
+        draw_text(
+            msg,
+            wvdc + 160.0 - td1.width / 2.,
+            wvdc + 100.0,
+            32.0,
+            WHITE,
+        );
+        self.render_to_screen();
     }
 
     pub(crate) fn draw_prelevel(&self, assets: &GlobalAssets) {
