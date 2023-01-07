@@ -33,7 +33,7 @@ impl Controller {
     }
 
     pub fn update(resources: &mut SceneResources, buffer: &mut CommandBuffer, input: &Input) {
-        let world = resources.world_ref.borrow_mut();
+        let world = resources.world_ref.lock().unwrap();
         let mut q = world.query::<(&mut Actor, &IntRect, &mut PlayerSprite, &mut Controller)>();
         for (id, (player, p_rect, sprite, controller)) in q.iter() {
             let mut new_triggers: HashSet<String> = HashSet::new();

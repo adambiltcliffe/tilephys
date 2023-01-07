@@ -119,7 +119,7 @@ impl Renderer {
     pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets) {
         // draw the current scene
         match scene {
-            Scene::PreLevel => {
+            Scene::PreLevel(_) => {
                 self.draw_prelevel(assets);
             }
             Scene::PlayLevel(resources) => {
@@ -294,7 +294,7 @@ impl Renderer {
     }
 
     pub(crate) fn draw_world(&self, resources: &SceneResources, assets: &GlobalAssets) {
-        let mut world = resources.world_ref.borrow_mut();
+        let mut world = resources.world_ref.lock().unwrap();
         let (flash, hp) = match world.get::<&Controller>(resources.player_id) {
             Ok(c) => (c.was_hurt(), c.hp),
             Err(_) => (false, 0),

@@ -284,7 +284,7 @@ fn parrot_off_edge(world: &World, resources: &SceneResources, rect: &IntRect, fa
 }
 
 pub fn update_enemies(resources: &SceneResources, buffer: &mut CommandBuffer) {
-    let world = resources.world_ref.borrow();
+    let world = resources.world_ref.lock().unwrap();
     DogBehaviour::update(&world, resources);
     ParrotBehaviour::update(&world, resources, buffer);
 

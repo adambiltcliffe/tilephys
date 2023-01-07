@@ -1,7 +1,7 @@
 use crate::index::SpatialIndex;
 use crate::messages::Messages;
 use crate::render::load_flash_material;
-use crate::scene::NewScene;
+use crate::scene::Scene;
 use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
 use crate::transition::TransitionEffectType;
@@ -9,7 +9,7 @@ use hecs::{Entity, World};
 use macroquad::prelude::*;
 use std::cell::RefCell;
 use std::collections::HashSet;
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 pub struct GlobalAssets {
     pub sky: Texture2D,
@@ -23,10 +23,11 @@ pub struct GlobalAssets {
     pub interstitial: Texture2D,
     pub flash_material: Material,
     // should this be here?
-    pub new_scene: Option<(NewScene, TransitionEffectType)>,
+    pub next_scene: Option<(Scene, TransitionEffectType)>,
 }
 
 pub async fn load_assets() -> GlobalAssets {
+    macroquad::experimental::coroutines::wait_seconds(1.5).await;
     GlobalAssets {
         sky: load_texture("sky.png").await.unwrap(),
         player_sprite: load_texture("princess.png").await.unwrap(),
@@ -38,12 +39,12 @@ pub async fn load_assets() -> GlobalAssets {
         zap_sprite: load_texture("zap.png").await.unwrap(),
         interstitial: load_texture("interstitial.png").await.unwrap(),
         flash_material: load_flash_material(),
-        new_scene: None,
+        next_scene: None,
     }
 }
 
 pub struct SceneResources {
-    pub world_ref: Rc<RefCell<World>>,
+    pub world_ref: Arc<Mutex<World>>,
     pub script_engine: ScriptEngine,
     pub player_id: Entity,
     pub eye_pos: Vec2,

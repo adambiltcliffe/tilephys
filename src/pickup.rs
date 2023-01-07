@@ -16,7 +16,7 @@ pub struct Pickup {
 
 impl Pickup {
     pub fn update(resources: &mut SceneResources, buffer: &mut CommandBuffer) -> Option<()> {
-        let world = resources.world_ref.borrow_mut();
+        let world = resources.world_ref.lock().unwrap();
         let mut q = world
             .query_one::<(&IntRect, &mut Controller)>(resources.player_id)
             .ok()?;

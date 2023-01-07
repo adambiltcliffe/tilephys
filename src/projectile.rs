@@ -30,7 +30,7 @@ impl Projectile {
     }
 
     pub fn update(resources: &mut SceneResources, buffer: &mut CommandBuffer) {
-        let world = resources.world_ref.borrow_mut();
+        let world = resources.world_ref.lock().unwrap();
         for (e, (proj, rect)) in world.query::<(&mut Projectile, &mut IntRect)>().iter() {
             let ox = rect.x;
             let oy = rect.y;

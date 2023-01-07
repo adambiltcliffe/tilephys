@@ -109,7 +109,7 @@ pub fn create_explosion(buffer: &mut CommandBuffer, x: i32, y: i32) {
 }
 
 pub fn update_vfx(resources: &SceneResources, buffer: &mut CommandBuffer) {
-    let world = resources.world_ref.borrow();
+    let world = resources.world_ref.lock().unwrap();
     for (id, z) in world.query::<&mut ZapFlash>().iter() {
         z.n += 1;
         if z.n > 5 {

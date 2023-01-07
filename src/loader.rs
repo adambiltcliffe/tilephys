@@ -21,7 +21,7 @@ use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::io::Cursor;
 use std::path::Path;
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 bitflags! {
     pub struct TileFlags: u8 {
@@ -54,8 +54,8 @@ impl TileFlags {
     }
 }
 
-pub struct AsyncPreloadReader {
-    cache: HashMap<tiled::ResourcePathBuf, Rc<[u8]>>,
+struct AsyncPreloadReader {
+    cache: HashMap<tiled::ResourcePathBuf, Arc<[u8]>>,
 }
 
 impl AsyncPreloadReader {
@@ -67,22 +67,22 @@ impl AsyncPreloadReader {
 
     pub(crate) async fn preload(&mut self, path: &str) {
         let data = load_file(path).await.unwrap();
-        self.cache.insert(path.into(), Rc::from(data));
+        self.cache.insert(path.into(), Arc::from(data));
     }
 }
 
 impl tiled::ResourceReader for AsyncPreloadReader {
-    type Resource = std::io::Cursor<Rc<[u8]>>;
+    type Resource = std::io::Cursor<Arc<[u8]>>;
     type Error = std::io::Error;
     fn read_from(&mut self, path: &Path) -> std::result::Result<Self::Resource, Self::Error> {
         self.cache
             .get(path)
-            .map(|data| Cursor::new(Rc::clone(data)))
+            .map(|data| Cursor::new(Arc::clone(data)))
             .ok_or(std::io::Error::from(std::io::ErrorKind::NotFound))
     }
 }
 
-pub struct LoadingManager {
+struct LoadingManager {
     loader: tiled::Loader<tiled::DefaultResourceCache, AsyncPreloadReader>,
 }
 
@@ -300,16 +300,16 @@ impl LoadingManager {
             }
         }
 
-        let world_ref = Rc::new(RefCell::new(world));
+        let world_ref = Arc::new(Mutex::new(world));
         let mut script_engine =
-            ScriptEngine::new(Rc::clone(&world_ref), Rc::new(body_ids), Rc::new(paths));
+            ScriptEngine::new(Arc::clone(&world_ref), Arc::new(body_ids), Arc::new(paths));
         script_engine.load_file(&format!("{}.rhai", name)).await;
         script_engine.call_entry_point("init");
 
         let player_start = (psx, psy);
 
         let (player_id, eye_pos, camera_pos) = {
-            let mut world = world_ref.borrow_mut();
+            let mut world = world_ref.lock().unwrap();
 
             let player_rect = IntRect::new(player_start.0 - 8, player_start.1 - 24, 14, 24);
             let player_eye = player_rect.centre();
@@ -322,7 +322,7 @@ impl LoadingManager {
             (player_id, player_eye, camera_pos)
         };
 
-        compute_obscurers(&mut world_ref.borrow_mut());
+        compute_obscurers(&mut world_ref.lock().unwrap());
 
         let stats = LevelStats::new(max_kills, max_items, max_secrets);
 
@@ -339,7 +339,12 @@ impl LoadingManager {
             stats,
             triggers: HashSet::new(),
         };
-
+        println!("about to return from load_level");
         Ok(Scene::PlayLevel(resources))
     }
+}
+
+pub async fn load_level(name: String) -> Result<Scene, String> {
+    macroquad::experimental::coroutines::wait_seconds(1.0).await;
+    LoadingManager::new().load_level(&name).await
 }

@@ -25,7 +25,7 @@ impl PlayerCamera {
     }
 
     pub fn update(resources: &mut SceneResources) {
-        let world = resources.world_ref.borrow();
+        let world = resources.world_ref.lock().unwrap();
         let q = world.query_one::<(&Actor, &IntRect)>(resources.player_id);
         if q.is_err() {
             return;

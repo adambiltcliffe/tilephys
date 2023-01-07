@@ -260,7 +260,7 @@ impl Actor {
     }
 
     pub fn update(resources: &SceneResources) {
-        let world = resources.world_ref.borrow_mut();
+        let world = resources.world_ref.lock().unwrap();
         for (_, (actor, rect)) in world.query::<(&mut Actor, &mut IntRect)>().iter() {
             actor.vy += 1.0;
             actor.vx *= actor.drag;
@@ -288,7 +288,7 @@ impl ConstantMotion {
         Self { vx, vy }
     }
     pub fn apply(resources: &mut SceneResources) {
-        let world = resources.world_ref.borrow_mut();
+        let world = resources.world_ref.lock().unwrap();
         for (e, cm) in world.query::<&ConstantMotion>().iter() {
             move_body(&world, &mut resources.body_index, e, cm.vx, cm.vy);
         }
@@ -334,7 +334,7 @@ impl PathMotion {
     }
 
     pub fn apply(resources: &mut SceneResources) {
-        let world = resources.world_ref.borrow_mut();
+        let world = resources.world_ref.lock().unwrap();
         for (e, pm) in world.query::<&mut PathMotion>().iter() {
             let dest = {
                 let body = world.get::<&TileBody>(e).unwrap();
