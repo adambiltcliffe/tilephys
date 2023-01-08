@@ -344,6 +344,5 @@ impl LoadingManager {
 }
 
 pub async fn load_level(name: String) -> Result<Scene, String> {
-    macroquad::experimental::coroutines::wait_seconds(1.0).await;
     LoadingManager::new().load_level(&name).await
 }

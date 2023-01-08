@@ -98,10 +98,11 @@ async fn main() {
                 for _ in 0..clock.get_num_updates() {
                     renderer.tick();
                 }
-                println!("{}", coro.is_done());
-                let result = coro.retrieve();
-                if result.is_some() {
-                    assets.next_scene = Some((result.unwrap().unwrap(), TransitionEffectType::Open))
+                if renderer.transition_finished() && coro.is_done() {
+                    assets.next_scene = Some((
+                        coro.retrieve().unwrap().unwrap(),
+                        TransitionEffectType::Open,
+                    ))
                 }
             }
             Scene::PlayLevel(ref mut resources) => {
@@ -135,10 +136,10 @@ async fn main() {
                     resources.triggers.clear();
 
                     if input.is_pressed(VirtualKey::DebugRestart) {
-                        /* assets.next_scene = Some((
-                            crate::scene::NewScene::PlayLevel,
+                        assets.next_scene = Some((
+                            new_prelevel(name.clone()).await,
                             TransitionEffectType::Shatter,
-                        )); */
+                        ));
                     }
                     if input.is_pressed(VirtualKey::DebugWin) || resources.script_engine.win_flag()
                     {

@@ -26,7 +26,6 @@ pub struct GlobalAssets {
 }
 
 pub async fn load_assets() -> GlobalAssets {
-    macroquad::experimental::coroutines::wait_seconds(1.5).await;
     GlobalAssets {
         sky: load_texture("sky.png").await.unwrap(),
         player_sprite: load_texture("princess.png").await.unwrap(),
