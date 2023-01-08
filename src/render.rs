@@ -294,6 +294,13 @@ impl Renderer {
     }
 
     pub(crate) fn draw_world(&self, resources: &SceneResources, assets: &GlobalAssets) {
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            vec2(self.width / 2., self.height / 2.),
+            Origin::TopLeft,
+        ));
+
         let mut world = resources.world_ref.lock().unwrap();
         let (flash, hp) = match world.get::<&Controller>(resources.player_id) {
             Ok(c) => (c.was_hurt(), c.hp),
@@ -305,12 +312,6 @@ impl Renderer {
         }
 
         // draw the sky
-        gl_use_default_material();
-        set_camera(&get_camera_for_target(
-            &self.draw_target,
-            vec2(self.width / 2., self.height / 2.),
-            Origin::TopLeft,
-        ));
         let wvdc = WALL_VISION_DEPTH.ceil();
         for x in -1..4 {
             for y in -1..3 {
