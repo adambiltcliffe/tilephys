@@ -59,7 +59,7 @@ async fn main() {
         "intro".to_owned()
     };
 
-    let mut scene: Scene = new_prelevel(name.clone()).await;
+    let mut scene: Scene = new_prelevel(name.clone(), false).await;
 
     let mut renderer = Renderer::new(RENDER_W, RENDER_H);
     let mut clock = Timer::new();
@@ -94,11 +94,11 @@ async fn main() {
         input.update();
 
         match &mut scene {
-            Scene::PreLevel(coro) => {
+            Scene::PreLevel(coro, fast) => {
                 for _ in 0..clock.get_num_updates() {
                     renderer.tick();
                 }
-                if renderer.transition_finished() && coro.is_done() {
+                if (*fast || renderer.transition_finished()) && coro.is_done() {
                     assets.next_scene = Some((
                         coro.retrieve().unwrap().unwrap(),
                         TransitionEffectType::Open,
@@ -137,7 +137,8 @@ async fn main() {
 
                     if input.is_pressed(VirtualKey::DebugRestart) {
                         assets.next_scene = Some((
-                            new_prelevel(name.clone()).await,
+                            // skip the transition for faster debugging
+                            new_prelevel(name.clone(), true).await,
                             TransitionEffectType::Shatter,
                         ));
                     }
@@ -165,7 +166,7 @@ async fn main() {
                 }
                 if input.is_any_pressed() {
                     assets.next_scene = Some((
-                        new_prelevel(name.clone()).await,
+                        new_prelevel(name.clone(), false).await,
                         TransitionEffectType::Shatter,
                     ));
                 }

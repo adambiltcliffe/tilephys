@@ -119,7 +119,7 @@ impl Renderer {
     pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets) {
         // draw the current scene
         match scene {
-            Scene::PreLevel(_) => {
+            Scene::PreLevel(_, _) => {
                 self.draw_prelevel(assets);
             }
             Scene::PlayLevel(resources) => {
