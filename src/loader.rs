@@ -17,7 +17,6 @@ use bitflags::bitflags;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
 use macroquad::{file::load_file, texture::load_texture};
-use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::io::Cursor;
 use std::path::Path;

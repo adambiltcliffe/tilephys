@@ -7,7 +7,6 @@ use crate::stats::LevelStats;
 use crate::transition::TransitionEffectType;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
-use std::cell::RefCell;
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex};
 
