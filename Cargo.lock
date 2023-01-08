@@ -384,6 +384,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "princess-robot"
+version = "0.1.0"
+dependencies = [
+ "bitflags",
+ "euclid",
+ "hecs",
+ "macroquad",
+ "quad-rand",
+ "rhai",
+ "smallset",
+ "tiled",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -533,20 +547,6 @@ dependencies = [
  "base64",
  "libflate",
  "xml-rs",
-]
-
-[[package]]
-name = "tilephys"
-version = "0.1.0"
-dependencies = [
- "bitflags",
- "euclid",
- "hecs",
- "macroquad",
- "quad-rand",
- "rhai",
- "smallset",
- "tiled",
 ]
 
 [[package]]

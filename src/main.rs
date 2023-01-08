@@ -41,7 +41,7 @@ const RENDER_H: u32 = 200;
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "Platform tile physics test".to_owned(),
+        window_title: "Princess Robot".to_owned(),
         fullscreen: false,
         window_width: RENDER_W as i32 * 2,
         window_height: RENDER_H as i32 * 2,
