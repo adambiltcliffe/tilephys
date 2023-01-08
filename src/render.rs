@@ -516,6 +516,7 @@ varying vec2 uv;
 uniform sampler2D Texture;
 void main() {
     vec4 col = texture2D(Texture, uv);
+    gl_FragColor = col;
     if (col.a == 0.0) {
         //vec2 size = vec2(textureSize(Texture, 0));
         vec2 size = vec2(354.0, 234.0);
@@ -526,10 +527,6 @@ void main() {
         if (l.a == 1.0 || r.a == 1.0 || u.a == 1.0 || d.a == 1.0) {
             gl_FragColor = vec4(vec3(0.0), 1.0);
         }
-    }
-    else
-    {
-        gl_FragColor = col;
     }
 }
 ";
