@@ -3,7 +3,6 @@ weapons/ammo
 * ammo pickups
 more tiles
 loading/top-level flow stuff:
-* preloader that actually reports what it's loading
 * progress from one level to another
 more general sprite handling?
 nicer text rendering
