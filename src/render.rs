@@ -11,6 +11,7 @@ use macroquad::prelude::*;
 use miniquad::graphics::{BlendFactor, BlendState, BlendValue, Equation};
 
 pub const WALL_VISION_DEPTH: f32 = 16.5;
+const PARALLAX_FACTOR: f32 = 1.4;
 
 enum Origin {
     TopLeft,
@@ -317,8 +318,8 @@ impl Renderer {
             for y in -1..3 {
                 draw_texture(
                     assets.sky,
-                    wvdc - (resources.camera_pos.x / 2.0) % 128.0 + x as f32 * 128.0,
-                    wvdc - (resources.camera_pos.y / 2.0) % 128.0 + y as f32 * 128.0,
+                    wvdc - (resources.camera_pos.x / PARALLAX_FACTOR) % 128.0 + x as f32 * 128.0,
+                    wvdc - (resources.camera_pos.y / PARALLAX_FACTOR) % 128.0 + y as f32 * 128.0,
                     WHITE,
                 );
             }
