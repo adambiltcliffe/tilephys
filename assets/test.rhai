@@ -30,4 +30,10 @@ fn right_control_interact() {
 fn crusher_switch_interact() {
     set_motion_goto("dogpen", 1, 1.0);
     set_motion("crusher", ForwardCycle, 2.0);
+    set_switch_enabled("crusher_stop", true);
+}
+
+fn crusher_stop_interact() {
+    set_motion_goto("crusher", 0, 0.5);
+    set_switch_enabled("crusher_switch", true);
 }
