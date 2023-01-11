@@ -1,4 +1,4 @@
-use crate::draw::{PlayerSprite, SwitchSprite};
+use crate::draw::PlayerSprite;
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Secrecy, TriggerZone};
 use crate::projectile::make_player_projectile;

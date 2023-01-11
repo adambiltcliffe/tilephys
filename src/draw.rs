@@ -139,7 +139,7 @@ pub(crate) fn draw(world: &mut World, resources: &SceneResources, assets: &Globa
         );
     }
 
-    for (_, (rect, sw, spr)) in world.query::<(&IntRect, &Switch, &SwitchSprite)>().iter() {
+    for (_, (rect, sw, _spr)) in world.query::<(&IntRect, &Switch, &SwitchSprite)>().iter() {
         let frame = if sw.enabled { 0 } else { 1 };
         draw_texture_ex(
             assets.switch_sprite,
