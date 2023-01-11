@@ -244,6 +244,7 @@ pub struct Actor {
     pub vx: f32,
     pub vy: f32,
     pub grounded: bool,
+    pub crushed: bool,
     pub drag: f32,
 }
 
@@ -255,6 +256,7 @@ impl Actor {
             vx: 0.0,
             vy: 0.0,
             grounded: false,
+            crushed: false,
             drag,
         }
     }
@@ -516,9 +518,9 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
             }
         }
         drop(body);
-        for e in should_move {
-            let mut actor = world.get::<&mut Actor>(e).unwrap();
-            let mut rect = world.get::<&mut IntRect>(e).unwrap();
+        for e in &should_move {
+            let mut actor = world.get::<&mut Actor>(*e).unwrap();
+            let mut rect = world.get::<&mut IntRect>(*e).unwrap();
             move_actor(
                 &mut *actor,
                 &mut *rect,
@@ -527,6 +529,16 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
                 &world,
                 spatial_index,
             );
+        }
+        // this is ridiculous, now we have moved the actor we have to borrow the body
+        // again to check if it crushed the actor
+        let body = world.get::<&mut TileBody>(index).unwrap();
+        for e in should_move {
+            let mut actor = world.get::<&mut Actor>(e).unwrap();
+            let rect = world.get::<&mut IntRect>(e).unwrap();
+            if body.collide(&*rect, CollisionType::Blocker) {
+                actor.crushed = true;
+            }
         }
     }
     for _ii in 0..(vy.abs()) {
@@ -544,9 +556,9 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
             }
         }
         drop(body);
-        for e in should_move {
-            let mut actor = world.get::<&mut Actor>(e).unwrap();
-            let mut rect = world.get::<&mut IntRect>(e).unwrap();
+        for e in &should_move {
+            let mut actor = world.get::<&mut Actor>(*e).unwrap();
+            let mut rect = world.get::<&mut IntRect>(*e).unwrap();
             move_actor(
                 &mut *actor,
                 &mut *rect,
@@ -555,6 +567,15 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
                 &world,
                 spatial_index,
             );
+        }
+        // and again
+        let body = world.get::<&mut TileBody>(index).unwrap();
+        for e in should_move {
+            let mut actor = world.get::<&mut Actor>(e).unwrap();
+            let rect = world.get::<&mut IntRect>(e).unwrap();
+            if body.collide(&*rect, CollisionType::Blocker) {
+                actor.crushed = true;
+            }
         }
     }
     let body = world.get::<&mut TileBody>(index).unwrap();

@@ -50,30 +50,12 @@ impl Projectile {
             .iter()
         {
             let mut live = true;
-            for (e_id, (kind, en, e_rect)) in world
-                .query::<(&EnemyKind, &mut EnemyHittable, &IntRect)>()
-                .iter()
-            {
+            for (_, (en, e_rect)) in world.query::<(&mut EnemyHittable, &IntRect)>().iter() {
                 if live && en.hp > 0 && rect.intersects(&e_rect) {
                     buffer.despawn(e);
                     let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
                     buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
-                    en.hp -= 1;
-                    en.was_hit = true;
-                    if en.hp <= 0 {
-                        match kind {
-                            EnemyKind::Dog | EnemyKind::JumpyDog => {
-                                resources.messages.add("Destroyed a hound.".to_owned())
-                            }
-                            EnemyKind::SpiderParrot => resources
-                                .messages
-                                .add("Destroyed a red scuttler.".to_owned()),
-                        }
-                        buffer.despawn(e_id);
-                        let (ex, ey) = e_rect.centre_int();
-                        create_explosion(buffer, ex, ey);
-                        resources.stats.kills += 1
-                    }
+                    en.hurt(1);
                     live = false;
                 }
             }
