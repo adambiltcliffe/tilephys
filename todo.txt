@@ -1,4 +1,5 @@
 explosion debris (esp. for player)
+fix visuals when player crushed
 weapons/ammo
 * ammo pickups
 more tiles
