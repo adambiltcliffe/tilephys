@@ -1,6 +1,7 @@
 use crate::enemy::EnemyHittable;
 use crate::physics::{IntRect, TileBody};
 use crate::resources::{GlobalAssets, SceneResources};
+use crate::switch::Switch;
 use crate::vfx::ZapFlash;
 use hecs::World;
 use macroquad::prelude::*;
@@ -74,13 +75,11 @@ impl PickupSprite {
     }
 }
 
-pub(crate) struct SwitchSprite {
-    pub on: bool,
-}
+pub(crate) struct SwitchSprite {}
 
 impl SwitchSprite {
     pub fn new() -> Self {
-        Self { on: false }
+        Self {}
     }
 }
 
@@ -140,8 +139,8 @@ pub(crate) fn draw(world: &mut World, resources: &SceneResources, assets: &Globa
         );
     }
 
-    for (_, (rect, spr)) in world.query::<(&IntRect, &SwitchSprite)>().iter() {
-        let frame = if spr.on { 1 } else { 0 };
+    for (_, (rect, sw, spr)) in world.query::<(&IntRect, &Switch, &SwitchSprite)>().iter() {
+        let frame = if sw.enabled { 0 } else { 1 };
         draw_texture_ex(
             assets.switch_sprite,
             rect.x as f32,

@@ -63,13 +63,13 @@ impl Controller {
                 sprite.flipped = true;
             }
             if input.is_pressed(VirtualKey::Interact) {
-                let mut q = world.query::<(&Actor, &IntRect, &Switch, &mut SwitchSprite)>();
-                for (_, (_, s_rect, s, spr)) in q.iter() {
-                    if p_rect.intersects(s_rect) {
+                let mut q = world.query::<(&Actor, &IntRect, &mut Switch)>();
+                for (_, (_, s_rect, s)) in q.iter() {
+                    if p_rect.intersects(s_rect) && s.enabled {
                         resources
                             .triggers
                             .insert(format!("{}_interact", s.name).to_owned());
-                        spr.on = true;
+                        s.enabled = false;
                     }
                 }
             }

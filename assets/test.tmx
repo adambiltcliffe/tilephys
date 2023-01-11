@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="21" nextobjectid="55">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="22" nextobjectid="58">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -13,7 +13,7 @@
    eJxjYBgFo2AUDFXAhYTJAQALCAAf
   </chunk>
    <chunk x="-32" y="0" width="16" height="16">
-   eJxjYBgFxAIuLHgg9ZMK8OnH5jZiMLX00xtQav9A66cWAADT9QIJ
+   eJxjYBgFxAIuLHgg9ZMK8OnH5jZiMLX0k+IHQv4ixk5s7KGkn1oAAFRzA/M=
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
    eJxjYGBg4KIAMwyQfmwAl7nIbAEc9hKrnxj3kKufHH/j8yMXATFax6MAkfai+4VeaY/UMKKFPQMNANlwB7U=
@@ -45,6 +45,15 @@
   </object>
   <object id="48" name="down5" x="48" y="32">
    <polyline points="0,0 0,80"/>
+  </object>
+  <object id="55" name="moverpath" x="-352" y="208">
+   <polyline points="0,0 -144,0"/>
+  </object>
+  <object id="56" name="left_control" type="switch" x="-344" y="208">
+   <point/>
+  </object>
+  <object id="57" name="right_control" type="switch" x="-312" y="208">
+   <point/>
   </object>
  </objectgroup>
  <objectgroup id="2" name="entities">
@@ -94,7 +103,7 @@
    eJxjYCAfMFKgd1T/KBgFAw8AFFQABg==
   </chunk>
    <chunk x="-32" y="0" width="16" height="16">
-   eJxjYBgZgBENM6CxidFPijg99KP7iRDGpZ8SQA39lGBy7aQEDAb91Ig7EAAAXJwAMQ==
+   eJxjYBgZgBENM6CxidFPijg99KP7iRDGpZ8SQA39pPqBkL+IsRMbeyjppxTDAABg4ABC
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
    eJxjYBgcgJ1E9YxYMDMQswAxKxIfxsamn1g+Nv343APj47OfkHuIsYdUN1LDfmrrx+YXdHF8aoY6wOVPYjGlAADF1ABW
@@ -124,6 +133,13 @@
   </chunk>
    <chunk x="-32" y="0" width="16" height="16">
    eJxjYIAAJgbKwEjXP5QBG4X6hajiilEwEAAAUdAAIw==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="21" name="moveable" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-32" y="0" width="16" height="16">
+   eJxjYBgFo2AU0BowIuGB0I8LAAAGuAAH
   </chunk>
   </data>
  </layer>

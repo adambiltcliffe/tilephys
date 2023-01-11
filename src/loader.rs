@@ -118,7 +118,7 @@ impl LoadingManager {
         println!("map data loaded");
 
         let mut world: World = World::new();
-        let mut body_ids: HashMap<String, Entity> = HashMap::new();
+        let mut ids: HashMap<String, Entity> = HashMap::new();
         let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
         let mut body_index = SpatialIndex::new();
         let (mut psx, mut psy) = (0, 0);
@@ -215,7 +215,7 @@ impl LoadingManager {
                     );
                     let rect = body.get_rect();
                     let id = world.spawn((body,));
-                    body_ids.insert(layer.name.clone(), id);
+                    ids.insert(layer.name.clone(), id);
                     draw_order.push(id);
                     body_index.insert_at(id, &rect);
                 }
@@ -286,7 +286,9 @@ impl LoadingManager {
                                     add_pickup(&mut world, *x as i32, *y as i32);
                                     max_items += 1;
                                 } else if obj_type == "switch" {
-                                    add_switch(&mut world, name.clone(), *x as i32, *y as i32);
+                                    let id =
+                                        add_switch(&mut world, name.clone(), *x as i32, *y as i32);
+                                    ids.insert(name.clone(), id);
                                 } else {
                                     println!("found an unknown point object type: {}", obj_type)
                                 }
@@ -301,7 +303,7 @@ impl LoadingManager {
 
         let world_ref = Arc::new(Mutex::new(world));
         let mut script_engine =
-            ScriptEngine::new(Arc::clone(&world_ref), Arc::new(body_ids), Arc::new(paths));
+            ScriptEngine::new(Arc::clone(&world_ref), Arc::new(ids), Arc::new(paths));
         script_engine.load_file(&format!("{}.rhai", name)).await;
         script_engine.call_entry_point("init");
 
