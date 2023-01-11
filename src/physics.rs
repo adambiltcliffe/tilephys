@@ -298,7 +298,8 @@ impl ConstantMotion {
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum PathMotionType {
     Static,
-    GoToNode(usize),
+    GoToNodeForward(usize),
+    GoToNodeBackward(usize),
     ForwardOnce,
     ForwardCycle,
 }
@@ -333,6 +334,31 @@ impl PathMotion {
         }
     }
 
+    pub fn set_dest_node(&mut self, index: usize) {
+        let prev_node = match self.motion_type {
+            PathMotionType::GoToNodeBackward(_) => self.next_node + 1,
+            _ => {
+                // all other types are forwards
+                if self.next_node == 0 {
+                    0 // avoid negative index
+                } else {
+                    self.next_node - 1
+                }
+            }
+        };
+        if index > self.next_node {
+            self.motion_type = PathMotionType::GoToNodeForward(index);
+            if index >= prev_node {
+                self.next_node = prev_node
+            }
+        } else if index < self.next_node {
+            self.motion_type = PathMotionType::GoToNodeBackward(index);
+            if index <= prev_node {
+                self.next_node = prev_node
+            }
+        }
+    }
+
     pub fn apply(resources: &mut SceneResources) {
         let world = resources.world_ref.lock().unwrap();
         for (e, pm) in world.query::<&mut PathMotion>().iter() {
@@ -346,11 +372,14 @@ impl PathMotion {
                 // reached the current destination node
                 match &pm.motion_type {
                     PathMotionType::Static => (),
-                    PathMotionType::GoToNode(index) => {
+                    PathMotionType::GoToNodeForward(index) => {
+                        if index > &pm.next_node {
+                            pm.next_node += 1;
+                        }
+                    }
+                    PathMotionType::GoToNodeBackward(index) => {
                         if index < &pm.next_node {
                             pm.next_node -= 1;
-                        } else if index > &pm.next_node {
-                            pm.next_node += 1;
                         }
                     }
                     PathMotionType::ForwardOnce => {

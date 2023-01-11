@@ -91,7 +91,7 @@ impl ScriptEngine {
                 let id = cloned_ids[body_name];
                 let world = cloned_world.lock().unwrap();
                 let mut pm = world.get::<&mut PathMotion>(id).unwrap();
-                pm.motion_type = PathMotionType::GoToNode(index as usize);
+                pm.set_dest_node(index as usize);
                 pm.speed = speed;
             },
         );
