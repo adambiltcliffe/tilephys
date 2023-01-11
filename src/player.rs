@@ -107,7 +107,7 @@ impl Controller {
             } else {
                 sprite.blink = false;
             }
-            if controller.hp == 0 {
+            if controller.hp == 0 || (player.crushed && !controller.god_mode) {
                 buffer.remove_one::<PlayerSprite>(id);
                 buffer.remove_one::<Controller>(id);
                 let (px, py) = p_rect.centre_int();

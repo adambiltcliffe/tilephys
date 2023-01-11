@@ -358,6 +358,12 @@ impl PathMotion {
             if index <= prev_node {
                 self.next_node = prev_node
             }
+        } else {
+            // already going to the right node, but could be wrong motion type
+            self.motion_type = match self.motion_type {
+                PathMotionType::GoToNodeBackward(_) => PathMotionType::GoToNodeBackward(index),
+                _ => PathMotionType::GoToNodeForward(index),
+            };
         }
     }
 
