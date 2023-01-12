@@ -117,11 +117,11 @@ impl Renderer {
         }
     }
 
-    pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets) {
+    pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets, level_name: &str) {
         // draw the current scene
         match scene {
             Scene::PreLevel(_, _) => {
-                self.draw_prelevel(assets);
+                self.draw_prelevel(assets, level_name);
             }
             Scene::PlayLevel(resources) => {
                 self.draw_world(resources, assets);
@@ -199,7 +199,7 @@ impl Renderer {
         self.render_to_screen();
     }
 
-    pub(crate) fn draw_prelevel(&self, assets: &GlobalAssets) {
+    pub(crate) fn draw_prelevel(&self, assets: &GlobalAssets, level_name: &str) {
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -217,7 +217,6 @@ impl Renderer {
                 );
             }
         }
-        let level_name = "Entryway";
         let td1 = measure_text(level_name, None, 32, 1.0);
         draw_text(
             level_name,

@@ -1,7 +1,9 @@
 use camera::PlayerCamera;
 use enemy::update_enemies;
+use enum_iterator::first;
 use hecs::CommandBuffer;
 use input::{Input, VirtualKey};
+use levels::Level;
 use macroquad::prelude::*;
 use physics::{Actor, ConstantMotion, PathMotion};
 use pickup::Pickup;
@@ -19,6 +21,7 @@ mod draw;
 mod enemy;
 mod index;
 mod input;
+mod levels;
 mod loader;
 mod messages;
 mod physics;
@@ -52,14 +55,15 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf())]
 async fn main() {
     set_pc_assets_folder("assets");
-    let argv: Vec<String> = std::env::args().collect();
+    /*let argv: Vec<String> = std::env::args().collect();
     let name = if argv.len() > 1 {
         argv[1].clone()
     } else {
         "intro".to_owned()
-    };
+    };*/
 
-    let mut scene: Scene = new_prelevel(name.clone(), false).await;
+    let mut level: Level = first::<Level>().unwrap();
+    let mut scene: Scene = level.init_scene(false).await;
 
     let mut renderer = Renderer::new(RENDER_W, RENDER_H);
     let mut clock = Timer::new();
@@ -138,7 +142,7 @@ async fn main() {
                     if input.is_pressed(VirtualKey::DebugRestart) {
                         assets.next_scene = Some((
                             // skip the transition for faster debugging
-                            new_prelevel(name.clone(), true).await,
+                            level.init_scene(true).await,
                             TransitionEffectType::Shatter,
                         ));
                     }
@@ -165,15 +169,16 @@ async fn main() {
                     renderer.tick();
                 }
                 if input.is_any_pressed() {
+                    level = level.next();
                     assets.next_scene = Some((
-                        new_prelevel(name.clone(), false).await,
+                        level.init_scene(false).await,
                         TransitionEffectType::Shatter,
                     ));
                 }
             }
         }
 
-        renderer.render_scene(&scene, &assets);
+        renderer.render_scene(&scene, &assets, level.as_level_name());
         next_frame().await;
     }
 }
