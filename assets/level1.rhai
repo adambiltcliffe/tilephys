@@ -1,12 +1,12 @@
 fn init() {
-    set_path("door", "door");
+    set_path("door", "door_rest");
     set_path("finaldoor", "door");
     set_path("hatchleft", "hatchleft");
     set_path("hatchright", "hatchright");
+    set_path("door2", "door");
     set_path("towerhatch", "right3");
     set_path("releaser", "releaser");
     set_path("releaser2", "right3");
-    set_path("secretdoors", "door");
     set_path("secretplat", "right3");
     set_path("falsewall", "drop3");
 
@@ -16,13 +16,14 @@ fn init() {
     set_motion("piston", ForwardCycle, 0.5);
 }
 
-fn door_switch_interact() {
-    set_motion_goto("door", 1, 2.0);
+fn door_interact() {
+    set_motion_goto("door", 1, 1.0)
 }
 
 fn hatch_trigger_enter() {
     set_motion_goto("hatchleft", 2, 4.0);
     set_motion_goto("hatchright", 2, 4.0);
+    set_motion_goto("door2", 1, 4.0);
 }
 
 fn unlock_switch_interact() {

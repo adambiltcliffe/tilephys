@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="19" nextobjectid="47">
+<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="23" nextobjectid="51">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYBgFo2DwAy40PJD6BWhkPz55arhfAIs5AL24AS8=
+   eJxjYBgFo2AUjBTAhYYBBZAAKQ==
   </chunk>
    <chunk x="0" y="-16" width="16" height="16">
-   eJxjYBgFo2AUDCTgAmIBKE1vAAAU4AAl
+   eJxjYBgFo2DkAgEg5kLCpAKYPpg55OofKPsBb+AAsw==
   </chunk>
    <chunk x="16" y="-16" width="16" height="16">
    eJxjYBgFo2AU4AJceDAp+gXI0I/PbkL68emBuQcEAIzgATk=
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJxjYGBg4KIAMwyQfmwAl7nIbAE0MVL1E+MOdPOI1Y/PflzmU9P9AhTqJ8V+XP7Bpx/dfdj0o8cvPvuJdT+x6ZDa+gkBYtXhAwAOIgYx
+   eJxjYGBg4KIAM5CpT4BC/cj2M2AxhwEHG91edP2kuouQ/QIU6ifXfkLhjk0/IbdSw35K9GNzH7p+Uv1AT/dTUz8DFv3kAAC2eAfF
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJzjYmBg4MKBBfDIUYKRzUUGMDl0QIyZuNRRQz82t2DjE6OfkHmExLGpE0BiU2I/ofihJSAUN6Sop2XaxWYHre3C539KAQCbOwZT
+   eJzjYmBg4MKBBfDIkaKGFD3kmAfCDCSKk2o2A5pZ6Hxi/IIOKHUXpWFGL/NoZeZA2ydAJ7uwAXxypAAAWxUJAw==
   </chunk>
    <chunk x="16" y="0" width="16" height="16">
-   eJzjYmBg4MKCBbCIwQA29YQwAwH92OzDppcBTZwUe7HpJwcQCg9a64eFFbp+dHFa2U9N/ZTGHzlpkVT9uNImNv340jE59uPyvwAOOWIAstkAC3wF6Q==
+   eJzjYmBg4MKCBbCIwQA29YQwAwH92OzDppcBTZwUe7HpJwcQsp/W+mFhha4fWZyW9tNaPynxR05aJFU/rrSJTT++dEyO/bj8L4BDjhiAbDYAe/wGGw==
   </chunk>
    <chunk x="32" y="0" width="16" height="16">
    eJzjYmBg4ELDpACYHgEy9aObQ2/96H4nhNH9iU+eECZkP6XuJ1Y/KW4mNYyooY6WmJjwGQz6QWElBsTiSFiCRPtl0OTkgBgAj8kGjA==
@@ -35,19 +35,6 @@
   </chunk>
    <chunk x="48" y="16" width="16" height="16">
    eJzjYmBg4IJicoAAhfq5GEb1D7R+WBwOlP2U6B8FlAEArO0BVw==
-  </chunk>
-  </data>
- </layer>
- <layer id="15" name="secretdoors" width="40" height="30">
-  <data encoding="base64" compression="zlib">
-   <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYBgFo2AUjDTACKUBBAgAAg==
-  </chunk>
-   <chunk x="-16" y="0" width="16" height="16">
-   eJxjYCAPMJKpj1r6R8EoGAWUAwALUAAD
-  </chunk>
-   <chunk x="16" y="0" width="16" height="16">
-   eJxjYCAfMFKglxr6R8EoGAWUAQALSAAD
   </chunk>
   </data>
  </layer>
@@ -81,15 +68,15 @@
  </layer>
  <layer id="3" name="hatchleft" width="40" height="30">
   <data encoding="base64" compression="zlib">
-   <chunk x="16" y="0" width="16" height="16">
-   eJxjYBgFo4AywAjFo2DoAQAHdAAD
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo2AUDFXACMXkAgAEfAAD
   </chunk>
   </data>
  </layer>
  <layer id="4" name="hatchright" width="40" height="30">
   <data encoding="base64" compression="zlib">
-   <chunk x="16" y="0" width="16" height="16">
-   eJxjYBgFo4A6gBGKR8HQAQAHZAAD
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo2AUDHXACMWkAgAEbAAD
   </chunk>
   </data>
  </layer>
@@ -114,10 +101,17 @@
   </chunk>
   </data>
  </layer>
- <layer id="6" name="door" width="40" height="30">
+ <layer id="19" name="door" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-16" y="0" width="16" height="16">
-   eJxjYMAETFjESAEDrX8UjIJRQBwAABoIAAc=
+   eJxjYCAMmIhQQ0v9o2AUjALaAAAS8AAF
+  </chunk>
+  </data>
+ </layer>
+ <layer id="22" name="door2" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYCAM2IhQgw/wUKhfiEL9o2AUjALsAACC8AAl
   </chunk>
   </data>
  </layer>
@@ -131,23 +125,23 @@
   </chunk>
   </data>
  </layer>
- <objectgroup id="5" name="paths">
-  <object id="4" name="hatchleft" x="288" y="144">
+ <objectgroup id="5" name="paths" opacity="0.6">
+  <object id="4" name="hatchleft" x="32" y="-16">
    <polyline points="0,0 0,16 -32,16"/>
   </object>
-  <object id="5" name="hatchright" x="320" y="144">
+  <object id="5" name="hatchright" x="32" y="-16">
    <polyline points="0,0 0,16 32,16"/>
   </object>
   <object id="6" type="enemy" x="304" y="128">
    <point/>
   </object>
-  <object id="14" type="enemy" x="304" y="128">
+  <object id="14" type="enemy" x="48" y="-16">
    <point/>
   </object>
   <object id="16" type="enemy" x="480" y="32">
    <point/>
   </object>
-  <object id="17" type="enemy" x="480" y="32">
+  <object id="17" type="enemy" x="32" y="-16">
    <point/>
   </object>
   <object id="21" type="enemy" x="784" y="432">
@@ -168,13 +162,10 @@
   <object id="23" type="enemy" x="704" y="432">
    <point/>
   </object>
-  <object id="8" type="enemy" x="312" y="240">
+  <object id="8" type="enemy" x="0" y="48">
    <point/>
   </object>
-  <object id="9" name="door" x="192" y="176">
-   <polyline points="0,0 0,-48"/>
-  </object>
-  <object id="12" name="hatch_trigger" x="360" y="160" width="24" height="80"/>
+  <object id="12" name="hatch_trigger" x="120" y="0" width="24" height="48"/>
   <object id="15" name="right3" x="496" y="32">
    <polyline points="0,0 48,0"/>
   </object>
@@ -192,17 +183,23 @@
    <polyline points="0,0 0,48"/>
   </object>
   <object id="33" name="compartment" x="832" y="160" width="32" height="48"/>
-  <object id="34" name="secret1" type="secret" x="-16" y="-32" width="64" height="64"/>
+  <object id="34" name="secret1" type="secret" x="160" y="0" width="64" height="64"/>
   <object id="36" name="secret2" type="secret" x="864" y="160" width="48" height="48"/>
   <object id="44" name="unlock_switch" type="switch" x="392" y="368">
    <point/>
   </object>
+  <object id="48" name="door_rest" x="-96" y="32">
+   <polyline points="0,0 0,-32"/>
+  </object>
+  <object id="50" name="door" x="160" y="-48">
+   <polyline points="0,0 0,48"/>
+  </object>
  </objectgroup>
  <objectgroup id="2" name="entities">
-  <object id="1" name="start" type="player" x="-216" y="48">
+  <object id="1" name="start" type="player" x="-176" y="96">
    <point/>
   </object>
-  <object id="3" type="walker_enemy" x="40" y="240">
+  <object id="3" type="walker_enemy" x="-80" y="48">
    <point/>
   </object>
   <object id="37" type="heart" x="72" y="240">
@@ -217,10 +214,10 @@
   <object id="42" name="final_switch" type="switch" x="712" y="96">
    <point/>
   </object>
-  <object id="43" name="door_switch" type="switch" x="-200" y="48">
+  <object id="43" name="door" type="switch" x="-208" y="48">
    <point/>
   </object>
-  <object id="45" type="parrot_enemy" x="680" y="96">
+  <object id="45" type="parrot_enemy" x="-48" y="48">
    <point/>
   </object>
   <object id="46" type="parrot_enemy" x="248" y="64">
@@ -230,10 +227,10 @@
  <layer id="1" name="main" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYBgFowA/YMQhhk0cl34mNEysXnz2j3T9pGBcAAAjYAAj
+   eJxjYBgFo2BkAsZhoJ9SDAAIsAAV
   </chunk>
    <chunk x="0" y="-16" width="16" height="16">
-   eJxjYBgFIxkwEuCTKj4S9TMh4cFgPy7MhEUtACQIADM=
+   eJxjYBgFo4AwYByk+hmxYErsHw76cWEmNAwSAwAVQAAg
   </chunk>
    <chunk x="16" y="-16" width="16" height="16">
    eJxjYBgFowAVMA4T/YxEYEL6ibEHmzg+84nVTwjA1DGhYXx6GdHYABw8ACQ=
@@ -242,13 +239,13 @@
    eJxjYBgFo4AywDiqn6r6GbFgfHpBmAkJk+IeAA58ABU=
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJxjZKAMMA6QfkYiMDMQs+KwA10MH58YN5JqPynuAbGZ0DAh9zNRaD8THjli9BMT/vjCmFD4E6OfWvFPDCBFPweR+glhSgDMDADrTAB6
+   eJxjZKAMMNJBPxMB/TDMDMSsaGKEMC53kOovaujH5bZRMLwABxXMoEa+A2EAd2QAMA==
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJxjYBhYwIiEsYmhy+EzB5/5lOrH5UZi9BMyi5A9xAAmIuynhX5scUUo/kiJX2LNHG6AF4mNz++Uhj8Aj1wAWQ==
+   eJxjYBjagJFITC070MUocesoGAW4AC8SG196Jif9I4sDAEToADM=
   </chunk>
    <chunk x="16" y="0" width="16" height="16">
-   eJxjYCAeMEIxOYCRgXz9yPoY0cRJ0YtNPwgzoWFGBtzuxaYfm5343DMS9BMbfvgAujn44pIcMBT0E/I/MRiXnSA2AJqsAE8=
+   eJxjYCAeMEIxOYCRgXz9yPoY0cRJ0YtNPwgzoWFGBtzuJcZ+fO4aKfopCT9c5uCLS3LAUNBPyP/EYFx2gtgAj2wASg==
   </chunk>
    <chunk x="32" y="0" width="16" height="16">
    eJxjYMAEjFjESAGk6GfEop4a+onFlABK9HMSoZ9S99Pa/8MBDNb0QY5+ctwPAIuwAD8=

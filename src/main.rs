@@ -11,7 +11,7 @@ use player::Controller;
 use projectile::Projectile;
 use render::Renderer;
 use resources::load_assets;
-use scene::{new_prelevel, Scene};
+use scene::Scene;
 use timer::Timer;
 use transition::TransitionEffectType;
 use vfx::update_vfx;
