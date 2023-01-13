@@ -38,6 +38,13 @@ mod script_interface {
         pm.speed = speed;
     }
 
+    pub fn go_to(this: &mut EntityProxy, index: i32, speed: f32) {
+        let world = this.world_ref.lock().unwrap();
+        let mut pm = world.get::<&mut PathMotion>(this.id).unwrap();
+        pm.set_dest_node(index as usize);
+        pm.speed = speed;
+    }
+
     // Switch methods
 
     pub fn set_enabled(this: &mut EntityProxy, on: bool) {
@@ -116,19 +123,6 @@ impl ScriptEngine {
                 )
                 .unwrap();
         });
-
-        let cloned_world = Arc::clone(&world_ref);
-        let cloned_ids = Arc::clone(&ids);
-        engine.register_fn(
-            "set_motion_goto",
-            move |body_name: &str, index: i32, speed: f32| {
-                let id = cloned_ids[body_name];
-                let world = cloned_world.lock().unwrap();
-                let mut pm = world.get::<&mut PathMotion>(id).unwrap();
-                pm.set_dest_node(index as usize);
-                pm.speed = speed;
-            },
-        );
 
         Self {
             engine,

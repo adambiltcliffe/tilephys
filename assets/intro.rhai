@@ -19,28 +19,28 @@ fn init() {
 }
 
 fn door_switch_interact() {
-    set_motion_goto("door", 1, 2.0);
+    door.go_to(1, 2.0);
 }
 
 fn hatch_trigger_enter() {
-    set_motion_goto("hatchleft", 2, 4.0);
-    set_motion_goto("hatchright", 2, 4.0);
+    hatchleft.go_to(2, 4.0);
+    hatchright.go_to(2, 4.0);
 }
 
 fn unlock_switch_interact() {
-    set_motion_goto("finaldoor", 1, 1.0);
-    set_motion_goto("towerhatch", 1, 4.0);
+    finaldoor.go_to(1, 1.0);
+    towerhatch.go_to(1, 4.0);
 }
 
 fn releaser_trigger_enter() {
-    set_motion_goto("releaser", 1, 4.0);
-    set_motion_goto("releaser2", 1, 4.0);
-    set_motion_goto("secretdoors", 1, 4.0);
-    set_motion_goto("secretplat", 1, 0.5);
+    releaser.go_to(1, 4.0);
+    releaser2.go_to(1, 4.0);
+    secretdoors.go_to(1, 4.0);
+    secretplat.go_to(1, 0.5);
 }
 
 fn compartment_enter() {
-    set_motion_goto("falsewall", 1, 4.0);
+    falsewall.go_to(1, 4.0);
 }
 
 fn final_switch_interact() {
