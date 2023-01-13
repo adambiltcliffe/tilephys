@@ -10,6 +10,22 @@ pub struct ScriptFlags {
     win: bool,
 }
 
+#[derive(Clone)]
+pub struct EntityProxy {
+    world_ref: Arc<Mutex<World>>,
+    id: Entity,
+}
+
+impl EntityProxy {
+    fn new(world_ref: Arc<Mutex<World>>, id: Entity) -> Self {
+        Self { world_ref, id }
+    }
+}
+
+fn method_report(this: &mut EntityProxy) {
+    println!("I am an EntityProxy with id {:?}", this.id);
+}
+
 pub struct ScriptEngine {
     engine: Engine,
     scope: Scope<'static>,
@@ -26,6 +42,12 @@ impl ScriptEngine {
         let mut engine = Engine::new();
         let mut scope = Scope::new();
         let flags = Arc::new(Mutex::new(ScriptFlags { win: false }));
+
+        engine.register_type_with_name::<EntityProxy>("EntityProxy");
+        for (name, id) in ids.iter() {
+            scope.push(name, EntityProxy::new(Arc::clone(&world_ref), *id));
+        }
+        engine.register_fn("report", method_report);
 
         engine.register_type_with_name::<PathMotionType>("PathMotionType");
         scope.push("Static", PathMotionType::Static);

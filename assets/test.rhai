@@ -11,6 +11,8 @@ fn init() {
 
     set_path("crusher", "crush");
     set_path("dogpen", "down5");
+
+    dogpen.report();
 }
 
 fn stair_switch_interact() {
