@@ -11,7 +11,7 @@ euclid = "0.22.7"
 hecs = "0.9.0"
 macroquad = { git="https://github.com/not-fl3/macroquad.git", rev="6184e3b" }
 quad-rand = "0.2.1"
-rhai = {version="1.8.0", features=["only_i32","f32_float","sync"]}
+rhai = {version="1.12.0", features=["only_i32","f32_float","sync"]}
 smallset = "0.1.1"
 tiled = { git="https://github.com/mapeditor/rs-tiled.git", branch="next", default-features=false}
 

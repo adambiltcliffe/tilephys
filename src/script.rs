@@ -2,6 +2,7 @@ use crate::physics::{ConstantMotion, PathMotion, PathMotionType, TileBody};
 use crate::switch::Switch;
 use hecs::{Entity, World};
 use macroquad::file::load_string;
+use rhai::packages::{Package, StandardPackage};
 use rhai::plugin::*;
 use rhai::{def_package, Engine, Scope, AST};
 use std::collections::HashMap;
@@ -22,14 +23,19 @@ impl ScriptEntityProxy {
 #[export_module]
 mod script_interface {
     pub type EntityProxy = ScriptEntityProxy;
+    pub type Flags = Arc<Mutex<ScriptFlags>>;
 
     pub fn report(this: &mut EntityProxy) {
         println!("I am an EntityProxy with id {:?}", this.id);
     }
+
+    pub fn win(this: &mut Flags) {
+        this.lock().unwrap().win = true;
+    }
 }
 
 def_package! {
-    pub ScriptPackage(module) {
+    pub ScriptPackage(module): StandardPackage {
         combine_with_exported_module!(module, "script-mod", script_interface);
     }
 }
@@ -55,10 +61,9 @@ impl ScriptEngine {
         let mut scope = Scope::new();
         let flags = Arc::new(Mutex::new(ScriptFlags { win: false }));
 
-        let module = exported_module!(script_interface);
-        engine.register_global_module(module.into());
-        //let pkg = ScriptPackage::new();
-        //pkg.register_into_engine(engine);
+        let pkg = ScriptPackage::new();
+        pkg.register_into_engine(&mut engine);
+        scope.push("flags", Arc::clone(&flags));
         for (name, id) in ids.iter() {
             scope.push(name, ScriptEntityProxy::new(Arc::clone(&world_ref), *id));
         }
@@ -139,11 +144,6 @@ impl ScriptEngine {
             let world = cloned_world.lock().unwrap();
             let mut s = world.get::<&mut Switch>(id).unwrap();
             s.enabled = on;
-        });
-
-        let cloned_flags = Arc::clone(&flags);
-        engine.register_fn("win", move || {
-            cloned_flags.lock().unwrap().win = true;
         });
 
         Self {
