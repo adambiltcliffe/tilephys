@@ -135,13 +135,13 @@
   <object id="6" type="enemy" x="304" y="128">
    <point/>
   </object>
-  <object id="14" type="enemy" x="48" y="-16">
+  <object id="14" type="walker_enemy" x="48" y="-16">
    <point/>
   </object>
   <object id="16" type="enemy" x="480" y="32">
    <point/>
   </object>
-  <object id="17" type="enemy" x="32" y="-16">
+  <object id="17" type="walker_enemy" x="32" y="-16">
    <point/>
   </object>
   <object id="21" type="enemy" x="784" y="432">
@@ -239,7 +239,7 @@
    eJxjYBgFo4AywDiqn6r6GbFgfHpBmAkJk+IeAA58ABU=
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJxjZKAMMNJBPxMB/TDMDMSsaGKEMC53kOovaujH5bZRMLwABxXMoEa+A2EAd2QAMA==
+   eJxjZKAMMFJBPy8BNUwE9MMwMxCzookRwsjmoJtLCqCGflxuGwXDC3BQwQxq5DsQBgCksAA9
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
    eJxjYBjagJFITC070MUocesoGAW4AC8SG196Jif9I4sDAEToADM=
