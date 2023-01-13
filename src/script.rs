@@ -29,6 +29,12 @@ mod script_interface {
         println!("I am an EntityProxy with id {:?}", this.id);
     }
 
+    pub fn set_enabled(this: &mut EntityProxy, on: bool) {
+        let world = this.world_ref.lock().unwrap();
+        let mut s = world.get::<&mut Switch>(this.id).unwrap();
+        s.enabled = on;
+    }
+
     pub fn win(this: &mut Flags) {
         this.lock().unwrap().win = true;
     }
@@ -37,6 +43,8 @@ mod script_interface {
 def_package! {
     pub ScriptPackage(module): StandardPackage {
         combine_with_exported_module!(module, "script-mod", script_interface);
+    } |> |engine| {
+        engine.register_type_with_name::<PathMotionType>("PathMotionType");
     }
 }
 
@@ -64,14 +72,12 @@ impl ScriptEngine {
         let pkg = ScriptPackage::new();
         pkg.register_into_engine(&mut engine);
         scope.push("flags", Arc::clone(&flags));
-        for (name, id) in ids.iter() {
-            scope.push(name, ScriptEntityProxy::new(Arc::clone(&world_ref), *id));
-        }
-
-        engine.register_type_with_name::<PathMotionType>("PathMotionType");
         scope.push("Static", PathMotionType::Static);
         scope.push("ForwardOnce", PathMotionType::ForwardOnce);
         scope.push("ForwardCycle", PathMotionType::ForwardCycle);
+        for (name, id) in ids.iter() {
+            scope.push(name, ScriptEntityProxy::new(Arc::clone(&world_ref), *id));
+        }
 
         let cloned_world = Arc::clone(&world_ref);
         let cloned_ids = Arc::clone(&ids);
@@ -136,15 +142,6 @@ impl ScriptEngine {
                 pm.speed = speed;
             },
         );
-
-        let cloned_world = Arc::clone(&world_ref);
-        let cloned_ids = Arc::clone(&ids);
-        engine.register_fn("set_switch_enabled", move |switch_name: &str, on: bool| {
-            let id = cloned_ids[switch_name];
-            let world = cloned_world.lock().unwrap();
-            let mut s = world.get::<&mut Switch>(id).unwrap();
-            s.enabled = on;
-        });
 
         Self {
             engine,
