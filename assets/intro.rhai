@@ -11,11 +11,11 @@ fn init() {
     set_path("falsewall", "drop3");
 
     set_path("doodler", "doodler");
-    set_motion("doodler", ForwardCycle, 0.5);
+    doodler.set_motion(forward_cycle, 0.5);
     set_path("platform", "platform");
-    set_motion("platform", ForwardCycle, 1.0);
+    platform.set_motion(forward_cycle, 1.0);
     set_path("piston", "piston");
-    set_motion("piston", ForwardCycle, 0.5);
+    piston.set_motion(forward_cycle, 0.5);
 }
 
 fn door_switch_interact() {

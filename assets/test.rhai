@@ -3,16 +3,14 @@ fn init() {
     set_path("updown", "up10");
     set_path("dropstairs", "down5");
 
-    set_motion("leftright", ForwardCycle, 1.0);
-    set_motion("updown", ForwardCycle, 1.0);
+    leftright.set_motion(forward_cycle, 1.0);
+    updown.set_motion(forward_cycle, 1.0);
 
     set_path("moveable", "moverpath");
     right_control.set_enabled(false);
 
     set_path("crusher", "crush");
     set_path("dogpen", "down5");
-
-    dogpen.report();
 }
 
 fn stair_switch_interact() {
@@ -31,7 +29,7 @@ fn right_control_interact() {
 
 fn crusher_switch_interact() {
     set_motion_goto("dogpen", 1, 1.0);
-    set_motion("crusher", ForwardCycle, 2.0);
+    crusher.set_motion(forward_cycle, 2.0);
     crusher_stop.set_enabled(true);
 }
 

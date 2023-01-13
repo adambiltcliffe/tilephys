@@ -1,4 +1,4 @@
-use crate::physics::{ConstantMotion, PathMotion, PathMotionType, TileBody};
+use crate::physics::{PathMotion, PathMotionType, TileBody};
 use crate::switch::Switch;
 use hecs::{Entity, World};
 use macroquad::file::load_string;
@@ -29,11 +29,24 @@ mod script_interface {
         println!("I am an EntityProxy with id {:?}", this.id);
     }
 
+    // TileBody methods
+
+    pub fn set_motion(this: &mut EntityProxy, motion_type: PathMotionType, speed: f32) {
+        let world = this.world_ref.lock().unwrap();
+        let mut pm = world.get::<&mut PathMotion>(this.id).unwrap(); // fails if no path set
+        pm.motion_type = motion_type;
+        pm.speed = speed;
+    }
+
+    // Switch methods
+
     pub fn set_enabled(this: &mut EntityProxy, on: bool) {
         let world = this.world_ref.lock().unwrap();
-        let mut s = world.get::<&mut Switch>(this.id).unwrap();
+        let mut s = world.get::<&mut Switch>(this.id).unwrap(); // fails if not switch
         s.enabled = on;
     }
+
+    // Flags methods
 
     pub fn win(this: &mut Flags) {
         this.lock().unwrap().win = true;
@@ -72,25 +85,12 @@ impl ScriptEngine {
         let pkg = ScriptPackage::new();
         pkg.register_into_engine(&mut engine);
         scope.push("flags", Arc::clone(&flags));
-        scope.push("Static", PathMotionType::Static);
-        scope.push("ForwardOnce", PathMotionType::ForwardOnce);
-        scope.push("ForwardCycle", PathMotionType::ForwardCycle);
+        scope.push("static", PathMotionType::Static);
+        scope.push("forward_once", PathMotionType::ForwardOnce);
+        scope.push("forward_cycle", PathMotionType::ForwardCycle);
         for (name, id) in ids.iter() {
             scope.push(name, ScriptEntityProxy::new(Arc::clone(&world_ref), *id));
         }
-
-        let cloned_world = Arc::clone(&world_ref);
-        let cloned_ids = Arc::clone(&ids);
-        engine.register_fn(
-            "set_constant_motion",
-            move |name: &str, vx: i32, vy: i32| {
-                cloned_world
-                    .lock()
-                    .unwrap()
-                    .insert_one(cloned_ids[name], ConstantMotion::new(vx, vy))
-                    .unwrap();
-            },
-        );
 
         let cloned_world = Arc::clone(&world_ref);
         let cloned_ids = Arc::clone(&ids);
@@ -116,19 +116,6 @@ impl ScriptEngine {
                 )
                 .unwrap();
         });
-
-        let cloned_world = Arc::clone(&world_ref);
-        let cloned_ids = Arc::clone(&ids);
-        engine.register_fn(
-            "set_motion",
-            move |body_name: &str, motion_type: PathMotionType, speed: f32| {
-                let id = cloned_ids[body_name];
-                let world = cloned_world.lock().unwrap();
-                let mut pm = world.get::<&mut PathMotion>(id).unwrap();
-                pm.motion_type = motion_type;
-                pm.speed = speed;
-            },
-        );
 
         let cloned_world = Arc::clone(&world_ref);
         let cloned_ids = Arc::clone(&ids);
