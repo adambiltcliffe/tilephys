@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="23" nextobjectid="54">
+<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="24" nextobjectid="54">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -115,6 +115,13 @@
   </chunk>
   </data>
  </layer>
+ <layer id="23" name="door3" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBgFgx2wUaifh0L9QhTqHwWDFwAATPAAJQ==
+  </chunk>
+  </data>
+ </layer>
  <layer id="16" name="secretplat" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="16" y="0" width="16" height="16">
@@ -227,7 +234,7 @@
    eJxjZKAMMFJBPy8BNUwE9FOCR8EooDfgoIIZ1Mh3IAwAehgALg==
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJxjYBjagJFITC070MUocSOxgI0EtdjM5iFDP7IZQmTopUe80AIMFvfzEnATqe5lwKEHALxQAHc=
+   eJxjYBjagJFITC070MUocSMtAKVmU+I+YuOC1mFACRgs7ucl4CZS3cuAQw8Ac2AAUw==
   </chunk>
    <chunk x="16" y="0" width="16" height="16">
    eJxjYCAeMEIxOYCRgXz9yPoY0cRJ0YtNPzYzGBlwu5cY+/G5a7jppzT8uLBgdP24zCPH/fjcSWoaJTcvkKKfkP+JwbjsBLEBzLAAfg==

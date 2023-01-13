@@ -14,7 +14,7 @@ fn door_interact() {
 }
 
 fn door2_interact() {
-    set_motion_goto("door", 1, 1.0)
+    set_motion_goto("door2", 1, 1.0)
 }
 
 fn hatch_trigger_enter() {
