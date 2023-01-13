@@ -37,7 +37,7 @@ mod script_interface {
         world
             .insert_one(
                 this.id,
-                PathMotion::new(x, y, (*path).clone(), 0.0, PathMotionType::Static),
+                PathMotion::new(x, y, &path, 0.0, PathMotionType::Static),
             )
             .unwrap();
         println!("set_path ok");

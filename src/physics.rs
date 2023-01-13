@@ -303,7 +303,7 @@ impl PathMotion {
     pub fn new(
         x: f32,
         y: f32,
-        point_list: Vec<(f32, f32)>,
+        point_list: &Vec<(f32, f32)>,
         speed: f32,
         motion_type: PathMotionType,
     ) -> Self {
