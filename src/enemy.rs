@@ -5,6 +5,7 @@ use crate::physics::{collide_any, Actor, IntRect};
 use crate::player::Controller;
 use crate::projectile::make_enemy_projectile;
 use crate::resources::SceneResources;
+use crate::vfx::create_explosion;
 use hecs::{CommandBuffer, Entity, World};
 use macroquad::prelude::*;
 
@@ -70,6 +71,11 @@ pub struct EnemyHittable {
 impl EnemyHittable {
     pub fn new(hp: u16) -> Self {
         Self { hp, was_hit: false }
+    }
+
+    pub fn hurt(&mut self, amount: u16) {
+        self.hp -= amount.min(self.hp);
+        self.was_hit = true;
     }
 }
 
@@ -283,13 +289,30 @@ fn parrot_off_edge(world: &World, resources: &SceneResources, rect: &IntRect, fa
     )
 }
 
-pub fn update_enemies(resources: &SceneResources, buffer: &mut CommandBuffer) {
+pub fn update_enemies(resources: &mut SceneResources, buffer: &mut CommandBuffer) {
     let world = resources.world_ref.lock().unwrap();
     DogBehaviour::update(&world, resources);
     ParrotBehaviour::update(&world, resources, buffer);
 
-    for (_, hittable) in world.query::<&mut EnemyHittable>().iter() {
+    for (id, (actor, rect, kind, hittable)) in world
+        .query::<(&Actor, &IntRect, &EnemyKind, &mut EnemyHittable)>()
+        .iter()
+    {
         hittable.was_hit = false;
+        if hittable.hp <= 0 || actor.crushed {
+            match kind {
+                EnemyKind::Dog | EnemyKind::JumpyDog => {
+                    resources.messages.add("Destroyed a hound.".to_owned())
+                }
+                EnemyKind::SpiderParrot => resources
+                    .messages
+                    .add("Destroyed a red scuttler.".to_owned()),
+            }
+            buffer.despawn(id);
+            let (ex, ey) = rect.centre_int();
+            create_explosion(buffer, ex, ey);
+            resources.stats.kills += 1
+        }
     }
 
     if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
