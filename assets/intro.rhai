@@ -1,20 +1,20 @@
 fn init() {
-    set_path("door", "door");
-    set_path("finaldoor", "door");
-    set_path("hatchleft", "hatchleft");
-    set_path("hatchright", "hatchright");
-    set_path("towerhatch", "right3");
-    set_path("releaser", "releaser");
-    set_path("releaser2", "right3");
-    set_path("secretdoors", "door");
-    set_path("secretplat", "right3");
-    set_path("falsewall", "drop3");
+    door.set_path(door_path);
+    finaldoor.set_path(door_path);
+    hatchleft.set_path(hatchleft_path);
+    hatchright.set_path(hatchright_path);
+    towerhatch.set_path(right3);
+    releaser.set_path(releaser_path);
+    releaser2.set_path(right3);
+    secretdoors.set_path(door_path);
+    secretplat.set_path(right3);
+    falsewall.set_path(drop3);
 
-    set_path("doodler", "doodler");
+    doodler.set_path(doodle);
     doodler.set_motion(forward_cycle, 0.5);
-    set_path("platform", "platform");
+    platform.set_path(platform_circuit);
     platform.set_motion(forward_cycle, 1.0);
-    set_path("piston", "piston");
+    piston.set_path(piston_path);
     piston.set_motion(forward_cycle, 0.5);
 }
 

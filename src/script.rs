@@ -23,19 +23,32 @@ impl ScriptEntityProxy {
 #[export_module]
 mod script_interface {
     pub type EntityProxy = ScriptEntityProxy;
+    pub type Path = Arc<Vec<(f32, f32)>>;
     pub type Flags = Arc<Mutex<ScriptFlags>>;
 
-    pub fn report(this: &mut EntityProxy) {
-        println!("I am an EntityProxy with id {:?}", this.id);
-    }
-
     // TileBody methods
+
+    pub fn set_path(this: &mut EntityProxy, path: Path) {
+        let mut world = this.world_ref.lock().unwrap();
+        let (x, y) = {
+            let body = world.get::<&TileBody>(this.id).unwrap();
+            (body.x as f32, body.y as f32)
+        };
+        world
+            .insert_one(
+                this.id,
+                PathMotion::new(x, y, (*path).clone(), 0.0, PathMotionType::Static),
+            )
+            .unwrap();
+        println!("set_path ok");
+    }
 
     pub fn set_motion(this: &mut EntityProxy, motion_type: PathMotionType, speed: f32) {
         let world = this.world_ref.lock().unwrap();
         let mut pm = world.get::<&mut PathMotion>(this.id).unwrap(); // fails if no path set
         pm.motion_type = motion_type;
         pm.speed = speed;
+        println!("set_motion ok");
     }
 
     pub fn go_to(this: &mut EntityProxy, index: i32, speed: f32) {
@@ -85,7 +98,7 @@ impl ScriptEngine {
         ids: Arc<HashMap<String, Entity>>,
         paths: Arc<HashMap<String, Vec<(f32, f32)>>>,
     ) -> Self {
-        let mut engine = Engine::new();
+        let mut engine = Engine::new_raw();
         let mut scope = Scope::new();
         let flags = Arc::new(Mutex::new(ScriptFlags { win: false }));
 
@@ -98,31 +111,9 @@ impl ScriptEngine {
         for (name, id) in ids.iter() {
             scope.push(name, ScriptEntityProxy::new(Arc::clone(&world_ref), *id));
         }
-
-        let cloned_world = Arc::clone(&world_ref);
-        let cloned_ids = Arc::clone(&ids);
-        let cloned_paths = Arc::clone(&paths);
-        engine.register_fn("set_path", move |body_name: &str, path_name: &str| {
-            let id = cloned_ids[body_name];
-            let mut world = cloned_world.lock().unwrap();
-            let (x, y) = {
-                let body = world.get::<&TileBody>(id).unwrap();
-                (body.x as f32, body.y as f32)
-            };
-            world
-                .insert_one(
-                    id,
-                    PathMotion::new(
-                        path_name,
-                        x,
-                        y,
-                        cloned_paths[path_name].clone(),
-                        0.0,
-                        PathMotionType::Static,
-                    ),
-                )
-                .unwrap();
-        });
+        for (name, path) in paths.iter() {
+            scope.push(name, Arc::new(path.clone()));
+        }
 
         Self {
             engine,
@@ -146,7 +137,7 @@ impl ScriptEngine {
             Some(ast) => self
                 .engine
                 .call_fn::<()>(&mut self.scope, &ast, name, ())
-                .unwrap_or_else(|_| println!("calling entry point {} failed", name)),
+                .unwrap_or_else(|err| println!("calling entry point {} failed: {:?}", name, err)),
         }
     }
 

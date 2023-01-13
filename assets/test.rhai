@@ -1,16 +1,16 @@
 fn init() {
-    set_path("leftright", "right6");
-    set_path("updown", "up10");
-    set_path("dropstairs", "down5");
+    leftright.set_path(right6);
+    updown.set_path(up10);
+    dropstairs.set_path(down5);
 
     leftright.set_motion(forward_cycle, 1.0);
     updown.set_motion(forward_cycle, 1.0);
 
-    set_path("moveable", "moverpath");
+    moveable.set_path(moverpath);
     right_control.set_enabled(false);
 
-    set_path("crusher", "crush");
-    set_path("dogpen", "down5");
+    crusher.set_path(crush);
+    dogpen.set_path(down5);
 }
 
 fn stair_switch_interact() {
