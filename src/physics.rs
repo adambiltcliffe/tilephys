@@ -244,6 +244,7 @@ pub struct Actor {
     pub vx: f32,
     pub vy: f32,
     pub grounded: bool,
+    pub crushed: bool,
     pub drag: f32,
 }
 
@@ -255,6 +256,7 @@ impl Actor {
             vx: 0.0,
             vy: 0.0,
             grounded: false,
+            crushed: false,
             drag,
         }
     }
@@ -298,7 +300,8 @@ impl ConstantMotion {
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum PathMotionType {
     Static,
-    GoToNode(usize),
+    GoToNodeForward(usize),
+    GoToNodeBackward(usize),
     ForwardOnce,
     ForwardCycle,
 }
@@ -333,6 +336,37 @@ impl PathMotion {
         }
     }
 
+    pub fn set_dest_node(&mut self, index: usize) {
+        let prev_node = match self.motion_type {
+            PathMotionType::GoToNodeBackward(_) => self.next_node + 1,
+            _ => {
+                // all other types are forwards
+                if self.next_node == 0 {
+                    0 // avoid negative index
+                } else {
+                    self.next_node - 1
+                }
+            }
+        };
+        if index > self.next_node {
+            self.motion_type = PathMotionType::GoToNodeForward(index);
+            if index >= prev_node {
+                self.next_node = prev_node
+            }
+        } else if index < self.next_node {
+            self.motion_type = PathMotionType::GoToNodeBackward(index);
+            if index <= prev_node {
+                self.next_node = prev_node
+            }
+        } else {
+            // already going to the right node, but could be wrong motion type
+            self.motion_type = match self.motion_type {
+                PathMotionType::GoToNodeBackward(_) => PathMotionType::GoToNodeBackward(index),
+                _ => PathMotionType::GoToNodeForward(index),
+            };
+        }
+    }
+
     pub fn apply(resources: &mut SceneResources) {
         let world = resources.world_ref.lock().unwrap();
         for (e, pm) in world.query::<&mut PathMotion>().iter() {
@@ -346,11 +380,14 @@ impl PathMotion {
                 // reached the current destination node
                 match &pm.motion_type {
                     PathMotionType::Static => (),
-                    PathMotionType::GoToNode(index) => {
+                    PathMotionType::GoToNodeForward(index) => {
+                        if index > &pm.next_node {
+                            pm.next_node += 1;
+                        }
+                    }
+                    PathMotionType::GoToNodeBackward(index) => {
                         if index < &pm.next_node {
                             pm.next_node -= 1;
-                        } else if index > &pm.next_node {
-                            pm.next_node += 1;
                         }
                     }
                     PathMotionType::ForwardOnce => {
@@ -487,9 +524,9 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
             }
         }
         drop(body);
-        for e in should_move {
-            let mut actor = world.get::<&mut Actor>(e).unwrap();
-            let mut rect = world.get::<&mut IntRect>(e).unwrap();
+        for e in &should_move {
+            let mut actor = world.get::<&mut Actor>(*e).unwrap();
+            let mut rect = world.get::<&mut IntRect>(*e).unwrap();
             move_actor(
                 &mut *actor,
                 &mut *rect,
@@ -498,6 +535,16 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
                 &world,
                 spatial_index,
             );
+        }
+        // this is ridiculous, now we have moved the actor we have to borrow the body
+        // again to check if it crushed the actor
+        let body = world.get::<&mut TileBody>(index).unwrap();
+        for e in should_move {
+            let mut actor = world.get::<&mut Actor>(e).unwrap();
+            let rect = world.get::<&mut IntRect>(e).unwrap();
+            if body.collide(&*rect, CollisionType::Blocker) {
+                actor.crushed = true;
+            }
         }
     }
     for _ii in 0..(vy.abs()) {
@@ -515,9 +562,9 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
             }
         }
         drop(body);
-        for e in should_move {
-            let mut actor = world.get::<&mut Actor>(e).unwrap();
-            let mut rect = world.get::<&mut IntRect>(e).unwrap();
+        for e in &should_move {
+            let mut actor = world.get::<&mut Actor>(*e).unwrap();
+            let mut rect = world.get::<&mut IntRect>(*e).unwrap();
             move_actor(
                 &mut *actor,
                 &mut *rect,
@@ -526,6 +573,15 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
                 &world,
                 spatial_index,
             );
+        }
+        // and again
+        let body = world.get::<&mut TileBody>(index).unwrap();
+        for e in should_move {
+            let mut actor = world.get::<&mut Actor>(e).unwrap();
+            let rect = world.get::<&mut IntRect>(e).unwrap();
+            if body.collide(&*rect, CollisionType::Blocker) {
+                actor.crushed = true;
+            }
         }
     }
     let body = world.get::<&mut TileBody>(index).unwrap();

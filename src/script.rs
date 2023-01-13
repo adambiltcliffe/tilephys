@@ -1,4 +1,5 @@
 use crate::physics::{ConstantMotion, PathMotion, PathMotionType, TileBody};
+use crate::switch::Switch;
 use hecs::{Entity, World};
 use macroquad::file::load_string;
 use rhai::{Engine, Scope, AST};
@@ -19,7 +20,7 @@ pub struct ScriptEngine {
 impl ScriptEngine {
     pub(crate) fn new(
         world_ref: Arc<Mutex<World>>,
-        body_ids: Arc<HashMap<String, Entity>>,
+        ids: Arc<HashMap<String, Entity>>,
         paths: Arc<HashMap<String, Vec<(f32, f32)>>>,
     ) -> Self {
         let mut engine = Engine::new();
@@ -32,23 +33,23 @@ impl ScriptEngine {
         scope.push("ForwardCycle", PathMotionType::ForwardCycle);
 
         let cloned_world = Arc::clone(&world_ref);
-        let cloned_body_ids = Arc::clone(&body_ids);
+        let cloned_ids = Arc::clone(&ids);
         engine.register_fn(
             "set_constant_motion",
             move |name: &str, vx: i32, vy: i32| {
                 cloned_world
                     .lock()
                     .unwrap()
-                    .insert_one(cloned_body_ids[name], ConstantMotion::new(vx, vy))
+                    .insert_one(cloned_ids[name], ConstantMotion::new(vx, vy))
                     .unwrap();
             },
         );
 
         let cloned_world = Arc::clone(&world_ref);
-        let cloned_body_ids = Arc::clone(&body_ids);
+        let cloned_ids = Arc::clone(&ids);
         let cloned_paths = Arc::clone(&paths);
         engine.register_fn("set_path", move |body_name: &str, path_name: &str| {
-            let id = cloned_body_ids[body_name];
+            let id = cloned_ids[body_name];
             let mut world = cloned_world.lock().unwrap();
             let (x, y) = {
                 let body = world.get::<&TileBody>(id).unwrap();
@@ -70,11 +71,11 @@ impl ScriptEngine {
         });
 
         let cloned_world = Arc::clone(&world_ref);
-        let cloned_body_ids = Arc::clone(&body_ids);
+        let cloned_ids = Arc::clone(&ids);
         engine.register_fn(
             "set_motion",
             move |body_name: &str, motion_type: PathMotionType, speed: f32| {
-                let id = cloned_body_ids[body_name];
+                let id = cloned_ids[body_name];
                 let world = cloned_world.lock().unwrap();
                 let mut pm = world.get::<&mut PathMotion>(id).unwrap();
                 pm.motion_type = motion_type;
@@ -83,17 +84,26 @@ impl ScriptEngine {
         );
 
         let cloned_world = Arc::clone(&world_ref);
-        let cloned_body_ids = Arc::clone(&body_ids);
+        let cloned_ids = Arc::clone(&ids);
         engine.register_fn(
             "set_motion_goto",
             move |body_name: &str, index: i32, speed: f32| {
-                let id = cloned_body_ids[body_name];
+                let id = cloned_ids[body_name];
                 let world = cloned_world.lock().unwrap();
                 let mut pm = world.get::<&mut PathMotion>(id).unwrap();
-                pm.motion_type = PathMotionType::GoToNode(index as usize);
+                pm.set_dest_node(index as usize);
                 pm.speed = speed;
             },
         );
+
+        let cloned_world = Arc::clone(&world_ref);
+        let cloned_ids = Arc::clone(&ids);
+        engine.register_fn("set_switch_enabled", move |switch_name: &str, on: bool| {
+            let id = cloned_ids[switch_name];
+            let world = cloned_world.lock().unwrap();
+            let mut s = world.get::<&mut Switch>(id).unwrap();
+            s.enabled = on;
+        });
 
         let cloned_flags = Arc::clone(&flags);
         engine.register_fn("win", move || {
