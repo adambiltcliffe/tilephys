@@ -2,28 +2,40 @@ use crate::physics::{ConstantMotion, PathMotion, PathMotionType, TileBody};
 use crate::switch::Switch;
 use hecs::{Entity, World};
 use macroquad::file::load_string;
-use rhai::{Engine, Scope, AST};
+use rhai::plugin::*;
+use rhai::{def_package, Engine, Scope, AST};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-pub struct ScriptFlags {
-    win: bool,
-}
-
 #[derive(Clone)]
-pub struct EntityProxy {
+pub struct ScriptEntityProxy {
     world_ref: Arc<Mutex<World>>,
     id: Entity,
 }
 
-impl EntityProxy {
-    fn new(world_ref: Arc<Mutex<World>>, id: Entity) -> Self {
+impl ScriptEntityProxy {
+    pub fn new(world_ref: Arc<Mutex<World>>, id: Entity) -> Self {
         Self { world_ref, id }
     }
 }
 
-fn method_report(this: &mut EntityProxy) {
-    println!("I am an EntityProxy with id {:?}", this.id);
+#[export_module]
+mod script_interface {
+    pub type EntityProxy = ScriptEntityProxy;
+
+    pub fn report(this: &mut EntityProxy) {
+        println!("I am an EntityProxy with id {:?}", this.id);
+    }
+}
+
+def_package! {
+    pub ScriptPackage(module) {
+        combine_with_exported_module!(module, "script-mod", script_interface);
+    }
+}
+
+pub struct ScriptFlags {
+    win: bool,
 }
 
 pub struct ScriptEngine {
@@ -43,11 +55,13 @@ impl ScriptEngine {
         let mut scope = Scope::new();
         let flags = Arc::new(Mutex::new(ScriptFlags { win: false }));
 
-        engine.register_type_with_name::<EntityProxy>("EntityProxy");
+        let module = exported_module!(script_interface);
+        engine.register_global_module(module.into());
+        //let pkg = ScriptPackage::new();
+        //pkg.register_into_engine(engine);
         for (name, id) in ids.iter() {
-            scope.push(name, EntityProxy::new(Arc::clone(&world_ref), *id));
+            scope.push(name, ScriptEntityProxy::new(Arc::clone(&world_ref), *id));
         }
-        engine.register_fn("report", method_report);
 
         engine.register_type_with_name::<PathMotionType>("PathMotionType");
         scope.push("Static", PathMotionType::Static);
