@@ -90,6 +90,7 @@ pub struct TileBody {
     pub x: i32,
     pub y: i32,
     pub base_pos: Vec2,
+    pub door: bool,
 }
 
 impl TileBody {
@@ -100,6 +101,7 @@ impl TileBody {
         width: i32,
         data: Vec<TileFlags>,
         tiles: Vec<u16>,
+        door: bool,
     ) -> Self {
         Self {
             x,
@@ -109,6 +111,7 @@ impl TileBody {
             data,
             tiles,
             base_pos: vec2(x as f32, y as f32),
+            door,
         }
     }
 
@@ -393,7 +396,15 @@ impl PathMotion {
                     pm.prec_y.round() as i32 - body.y,
                 )
             };
-            move_body(&world, &mut resources.body_index, e, dx, dy);
+            if dx != 0 || dy != 0 {
+                // try to move it
+                if !move_body(&world, &mut resources.body_index, e, dx, dy) {
+                    // body was a door that was stopped by a collision
+                    let body = world.get::<&TileBody>(e).unwrap();
+                    pm.prec_x = body.x as f32;
+                    pm.prec_y = body.y as f32;
+                }
+            }
         }
     }
 }
@@ -484,7 +495,14 @@ fn move_actor(
     (collided_x, collided_y)
 }
 
-fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx: i32, vy: i32) {
+fn move_body(
+    world: &World,
+    spatial_index: &mut SpatialIndex,
+    index: Entity,
+    vx: i32,
+    vy: i32,
+) -> bool {
+    let mut stopped = false;
     let body = world.get::<&mut TileBody>(index).unwrap();
     spatial_index.remove_at(index, &body.get_rect());
     drop(body);
@@ -503,6 +521,11 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
             if body.collide(&pushing_rect(rect), CollisionType::Blocker) {
                 should_move.insert(e);
             }
+        }
+        if body.door && !should_move.is_empty() {
+            body.x -= vx.signum();
+            stopped = true;
+            break;
         }
         drop(body);
         for e in &should_move {
@@ -542,6 +565,11 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
                 should_move.insert(e);
             }
         }
+        if body.door && !should_move.is_empty() {
+            body.y -= vy.signum();
+            stopped = true;
+            break;
+        }
         drop(body);
         for e in &should_move {
             let mut actor = world.get::<&mut Actor>(*e).unwrap();
@@ -568,6 +596,7 @@ fn move_body(world: &World, spatial_index: &mut SpatialIndex, index: Entity, vx:
     let body = world.get::<&mut TileBody>(index).unwrap();
     spatial_index.insert_at(index, &body.get_rect());
     drop(body);
+    !stopped
 }
 
 fn check_player_grounded(player_rect: &IntRect, world: &World) -> bool {

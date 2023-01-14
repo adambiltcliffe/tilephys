@@ -205,6 +205,7 @@ impl LoadingManager {
                             tiles.push(t.map(|t| t.id() as u16).unwrap_or(0));
                         }
                     }
+                    let door = layer.properties.contains_key("door");
                     let body = TileBody::new(
                         x0 * map.tile_width as i32,
                         y0 * map.tile_height as i32,
@@ -212,6 +213,7 @@ impl LoadingManager {
                         (x1 - x0) + 1,
                         data,
                         tiles,
+                        door,
                     );
                     let rect = body.get_rect();
                     let id = world.spawn((body,));

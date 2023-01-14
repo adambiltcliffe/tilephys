@@ -37,6 +37,9 @@
   </object>
  </objectgroup>
  <layer id="24" name="door" width="40" height="30">
+  <properties>
+   <property name="door" type="bool" value="true"/>
+  </properties>
   <data encoding="base64" compression="zlib">
    <chunk x="-16" y="0" width="16" height="16">
    eJxjYMAEbFjESAE8FOoXolD/KBgFo4A4AACFMAAl
