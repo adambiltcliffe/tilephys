@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="24" nextobjectid="54">
+ <tileset firstgid="1" source="phtiles16.tsx"/>
+ <layer id="14" name="background" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo2AUjBTAhYYBBZAAKQ==
+  </chunk>
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo2DkAgEg5kLCpAKYPpg55OofKPsBb+AAsw==
+  </chunk>
+   <chunk x="16" y="-16" width="16" height="16">
+   eJxjYBgFo2AU4AJceDAp+gXI0I/PbkL68emBuQcEAIzgATk=
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjYGBg4KIAM5CpT4BC/cj2MxAwB1kO3V50/QI4zCDXfkLmEeN+aupHdw8yINXv9HY/Nveh66d2/A1W/QxY9JMDACXHB+0=
+  </chunk>
+   <chunk x="0" y="0" width="16" height="16">
+   eJzjYmBg4MKBBfDIkaKGFD3kmAfCDCSKk2o2A5pZ6Hxi/IIOKHUXpWFGL/NoZeZA2ydAJ7uwAXxypAAAWxUJAw==
+  </chunk>
+   <chunk x="16" y="0" width="16" height="16">
+   eJzjYmBg4MKCBbCIwQA29YQwAwH92OzDppcBTZwUe7Hpx2YGIUDIflrrh4UVun5kcVraT2v9pMQfOWmRVP240iY2/fjSMTn24/K/AA45YgCy2QDybAZD
+  </chunk>
+   <chunk x="32" y="0" width="16" height="16">
+   eJzjYmBg4ELDpACYHgEy9aObQ2/96H4nhNH9iU+eECZkP6XuJ1Y/KW4mNYyooY6WmJjwGQz6QWElBsTiSFiCRPtl0OTkgBgAj8kGjA==
+  </chunk>
+   <chunk x="48" y="0" width="16" height="16">
+   eJxjYBg+gHGI6x8IwIWEB1o/CAtgESNFPzZML/3kgIHWDwDxUwGu
+  </chunk>
+   <chunk x="16" y="16" width="16" height="16">
+   eJxjYCAdcEExuYBe+rnQsAAWMVL0Y8PE6sdlHin6R8EooDYAABP0AWU=
+  </chunk>
+   <chunk x="32" y="16" width="16" height="16">
+   eJxjYEAFXHiwDJpaOQZMQC39Alj0KwGxMhJWIWAfsRibXaRgbO4nJjzQ9RKjnlL96H7FBiixH90MQmGLD1Bi/yggDgAAASwF2A==
+  </chunk>
+   <chunk x="48" y="16" width="16" height="16">
+   eJzjYmBg4IJicoAAhfq5GEb1D7R+WBwOlP2U6B8FlAEArO0BVw==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="12" name="releaser" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="48" y="0" width="16" height="16">
+   eJxjYBgFo2BwAMYhrn8oAgAHnAAE
+  </chunk>
+  </data>
+ </layer>
+ <layer id="7" name="finaldoor" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="32" y="16" width="16" height="16">
+   eJxjYBj6gGmA9Y+CUTBUAQAQcAAF
+  </chunk>
+  </data>
+ </layer>
+ <layer id="17" name="falsewall" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="48" y="0" width="16" height="16">
+   eJxjYBgFo2DwAcYRrp9eAAAIIAAF
+  </chunk>
+  </data>
+ </layer>
+ <layer id="8" name="towerhatch" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjYBh6gBGKR8EoGAWUAQAKlAAD
+  </chunk>
+  </data>
+ </layer>
+ <layer id="3" name="hatchleft" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo2AUDFXACMXkAgAEfAAD
+  </chunk>
+  </data>
+ </layer>
+ <layer id="4" name="hatchright" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo2AUDHXACMWkAgAEbAAD
+  </chunk>
+  </data>
+ </layer>
+ <layer id="13" name="releaser2" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="32" y="0" width="16" height="16">
+   eJxjYBgcgBEJj4JRMAroAwAOXAAE
+  </chunk>
+  </data>
+ </layer>
+ <layer id="10" name="platform" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="32" y="16" width="16" height="16">
+   eJxjYBgF9ACMSHgUjILBAgALvAAE
+  </chunk>
+  </data>
+ </layer>
+ <layer id="11" name="lift" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjYBgFTGh4FIyCkQIAG7AACQ==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="19" name="door" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjYCAMmIhQQ0v9o2AUjALaAAAS8AAF
+  </chunk>
+  </data>
+ </layer>
+ <layer id="22" name="door2" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYCAM2IhQgw/wUKhfiEL9o2AUjALsAACC8AAl
+  </chunk>
+  </data>
+ </layer>
+ <layer id="23" name="door3" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBgFgx2wUaifh0L9QhTqHwWDFwAATPAAJQ==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="16" name="secretplat" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjYBgagBmIWQfaEaNgFAwzAAAerAAJ
+  </chunk>
+   <chunk x="16" y="16" width="16" height="16">
+   eJxjYCAOMAMxK5FqR8EoGAVDAwAAIqwACQ==
+  </chunk>
+  </data>
+ </layer>
+ <objectgroup id="5" name="paths" opacity="0.6">
+  <object id="4" name="hatchleft" x="32" y="-16">
+   <polyline points="0,0 0,16 -32,16"/>
+  </object>
+  <object id="5" name="hatchright" x="32" y="-16">
+   <polyline points="0,0 0,16 32,16"/>
+  </object>
+  <object id="6" type="enemy" x="320" y="64">
+   <point/>
+  </object>
+  <object id="14" type="walker_enemy" x="48" y="-16">
+   <point/>
+  </object>
+  <object id="16" type="enemy" x="208" y="144">
+   <point/>
+  </object>
+  <object id="17" type="walker_enemy" x="32" y="-16">
+   <point/>
+  </object>
+  <object id="21" type="enemy" x="784" y="432">
+   <point/>
+  </object>
+  <object id="27" type="enemy" x="848" y="208">
+   <point/>
+  </object>
+  <object id="28" type="enemy" x="848" y="208">
+   <point/>
+  </object>
+  <object id="31" type="enemy" x="568" y="32">
+   <point/>
+  </object>
+  <object id="22" type="enemy" x="744" y="432">
+   <point/>
+  </object>
+  <object id="23" type="enemy" x="704" y="432">
+   <point/>
+  </object>
+  <object id="8" type="enemy" x="0" y="48">
+   <point/>
+  </object>
+  <object id="12" name="hatch_trigger" x="120" y="0" width="24" height="48"/>
+  <object id="24" name="lift" x="336" y="64">
+   <polyline points="0,0 0,80"/>
+  </object>
+  <object id="50" name="door_reverse" x="160" y="96">
+   <polyline points="0,0 0,-48"/>
+  </object>
+  <object id="52" name="door" x="160" y="-48">
+   <polyline points="0,0 0,48"/>
+  </object>
+  <object id="51" name="lift_trigger" x="272" y="0" width="64" height="64"/>
+ </objectgroup>
+ <objectgroup id="2" name="entities">
+  <object id="1" name="start" type="player" x="-176" y="48">
+   <point/>
+  </object>
+  <object id="3" type="walker_enemy" x="-80" y="48">
+   <point/>
+  </object>
+  <object id="37" type="heart" x="368" y="64">
+   <point/>
+  </object>
+  <object id="39" type="heart" x="128" y="48">
+   <point/>
+  </object>
+  <object id="40" type="heart" x="896" y="208">
+   <point/>
+  </object>
+  <object id="42" name="final_switch" type="switch" x="712" y="96">
+   <point/>
+  </object>
+  <object id="43" name="door3" type="switch" x="192" y="192">
+   <point/>
+  </object>
+  <object id="53" name="door" type="switch" x="-208" y="48">
+   <point/>
+  </object>
+  <object id="45" type="parrot_enemy" x="-48" y="48">
+   <point/>
+  </object>
+  <object id="46" type="parrot_enemy" x="248" y="64">
+   <point/>
+  </object>
+ </objectgroup>
+ <layer id="1" name="main" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo2BkAsZhoJ9SDAAIsAAV
+  </chunk>
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo4AwYByk+hmxYErsHw76cWEmNAwSAwAVQAAg
+  </chunk>
+   <chunk x="16" y="-16" width="16" height="16">
+   eJxjYBgFowAVMA4T/YxEYEL6ibEHmzg+84nVTwjA1DGhYXx6GdHYABw8ACQ=
+  </chunk>
+   <chunk x="32" y="-16" width="16" height="16">
+   eJxjYBgFo4AywDiqn6r6GbFgfHpBmAkJk+IeAA58ABU=
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjZKAMMFJBPy8BNUwE9FOCR8EooDfgoIIZ1Mh3IAwAehgALg==
+  </chunk>
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBjagJFITC070MUocSMtAKVmU+I+YuOC1mFACRgs7ucl4CZS3cuAQw8Ac2AAUw==
+  </chunk>
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjYCAeMEIxOYCRgXz9yPoY0cRJ0YtNPzYzGBlwu5cY+/G5a7jppzT8uLBgdP24zCPH/fjcSWoaJTcvkKKfkP+JwbjsBLEBzLAAfg==
+  </chunk>
+   <chunk x="32" y="0" width="16" height="16">
+   eJxjYMAEjFjESAGk6GfEop4a+onFlABK9HMSoZ9S99Pa/8MBDNb0QY5+ctwPAIuwAD8=
+  </chunk>
+   <chunk x="48" y="0" width="16" height="16">
+   eJxjYBhZgHGQ6WdEw/TWT6wcsfqZoBgfm1Qw2OIMnzrkeCAlXkixh5r6AUlwACs=
+  </chunk>
+   <chunk x="16" y="16" width="16" height="16">
+   eJxjYCANMOJgU1s/Ix5MrH5KALX1g/jMQMyChonRz8tAOCyw6SdW7SgYuQAAoqQAPQ==
+  </chunk>
+   <chunk x="32" y="16" width="16" height="16">
+   eJxjYEAARgbKADn6GdHwUAOsDKjuZ0YTIwSQ1Q1E+ONyy3AxgxAe6QAAaMQALQ==
+  </chunk>
+   <chunk x="48" y="16" width="16" height="16">
+   eJxjYEAARgbKwKj+Uf301s+IhkcBaQAAJqQAEA==
+  </chunk>
+  </data>
+ </layer>
+</map>
