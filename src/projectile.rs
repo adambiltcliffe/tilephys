@@ -1,11 +1,9 @@
 use crate::draw::ZapSprite;
 use crate::enemy::EnemyHittable;
-use crate::enemy::EnemyKind;
 use crate::physics::collide_any;
 use crate::physics::IntRect;
 use crate::player::Controller;
 use crate::resources::SceneResources;
-use crate::vfx::create_explosion;
 use crate::vfx::ZapFlash;
 use hecs::{CommandBuffer, World};
 

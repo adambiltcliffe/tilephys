@@ -280,22 +280,6 @@ impl Actor {
         }
     }
 }
-pub struct ConstantMotion {
-    vx: i32,
-    vy: i32,
-}
-
-impl ConstantMotion {
-    pub fn new(vx: i32, vy: i32) -> Self {
-        Self { vx, vy }
-    }
-    pub fn apply(resources: &mut SceneResources) {
-        let world = resources.world_ref.lock().unwrap();
-        for (e, cm) in world.query::<&ConstantMotion>().iter() {
-            move_body(&world, &mut resources.body_index, e, cm.vx, cm.vy);
-        }
-    }
-}
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum PathMotionType {
@@ -307,7 +291,6 @@ pub enum PathMotionType {
 }
 
 pub struct PathMotion {
-    pub path_name: String,
     pub motion_type: PathMotionType,
     pub speed: f32,
     prec_x: f32,
@@ -318,15 +301,13 @@ pub struct PathMotion {
 
 impl PathMotion {
     pub fn new(
-        path_name: &str,
         x: f32,
         y: f32,
-        point_list: Vec<(f32, f32)>,
+        point_list: &Vec<(f32, f32)>,
         speed: f32,
         motion_type: PathMotionType,
     ) -> Self {
         Self {
-            path_name: path_name.to_owned(),
             prec_x: x,
             prec_y: y,
             next_node: 0,
