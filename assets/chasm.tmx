@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="28" nextobjectid="86">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="30" nextobjectid="95">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -13,7 +13,7 @@
    eJxjYMANuIjA+MBg1U8swKefFLOopV+ASvaTGhbDTT817CRk1kDrx2cWshgAQUcEow==
   </chunk>
    <chunk x="-32" y="0" width="16" height="16">
-   eJzjYmBgEABiriGKKQG4zJTBolaOBDeRqh89/OllP64woKX9xKQ1eof/cNAvQKZ+ADouCWE=
+   eJzjYmBgEABiLiQsw4AJ5NDU4MP01E8JGAzuB+GBCn9cYUBL+9H9OhjCfzjoFyBTPwAkJglb
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
    eJzjYmBg4CKABYhQM5CYgYAYMlsAjx5sZhAC+MKGGECp/ZQCSu0cLvqR08VA2D9Q+gEkZASD
@@ -25,13 +25,19 @@
    eJxjYCAMuNAwqQCbfnLNQjcTlx348GDQj8s/pGJa6ifGfcTqJwQG2v/o5hDrtqGgHx8AAHb1Bd0=
   </chunk>
    <chunk x="-32" y="16" width="16" height="16">
-   eJxjYGBg4ELDMgyYQA5NjQAWfaTox4eHkn4YGKrup5b/kQG97GcY1Y8BCOlHBwAInQkV
+   eJxjYGBg4ELDMgyYQA5NjQAWfaTox4eHkn4YGKrup5b/kcFQcv9Q148OCOlHBwAu5QlH
   </chunk>
    <chunk x="-16" y="16" width="16" height="16">
-   eJzjYmBg4ELCpAIuhpGtfxSMgqEMALtuAMk=
+   eJzjYmBg4ELCpAIuhlH9o/op0y8wwPYPJv24MCX68QEAbesC9Q==
   </chunk>
    <chunk x="-48" y="32" width="16" height="16">
-   eJxjYEAFXFBMLhho/aNgFIwC4gEA4MgAPQ==
+   eJxjYEAFXFBMLiCknwsNU1s/se6j1J+jYBQMBwAAa5YAtQ==
+  </chunk>
+   <chunk x="-32" y="32" width="16" height="16">
+   eJxjYMAEMljE5LCIgQAXFoxLPza11NIvQKb+UTAKRjIAADwRAhs=
+  </chunk>
+   <chunk x="-16" y="32" width="16" height="16">
+   eJzjYmBg4MKBBaA0PoBLLzImRj8u8wgBYtWNglEwCjABANkFAQs=
   </chunk>
   </data>
  </layer>
@@ -44,6 +50,9 @@
   </object>
   <object id="80" name="up7" x="-688" y="560">
    <polyline points="0,0 0,-112"/>
+  </object>
+  <object id="91" name="down3" x="-336" y="512">
+   <polyline points="0,0 0,48"/>
   </object>
  </objectgroup>
  <objectgroup id="2" name="entities">
@@ -68,6 +77,18 @@
   <object id="81" type="enemy" x="-408" y="512">
    <point/>
   </object>
+  <object id="87" type="enemy" x="-504" y="576">
+   <point/>
+  </object>
+  <object id="88" type="enemy" x="-488" y="576">
+   <point/>
+  </object>
+  <object id="89" type="enemy" x="-312" y="576">
+   <point/>
+  </object>
+  <object id="90" type="enemy" x="-296" y="576">
+   <point/>
+  </object>
   <object id="82" type="enemy" x="-392" y="512">
    <point/>
   </object>
@@ -78,6 +99,15 @@
    <point/>
   </object>
   <object id="85" type="heart" x="-600" y="288">
+   <point/>
+  </object>
+  <object id="86" type="parrot_enemy" x="-536" y="576">
+   <point/>
+  </object>
+  <object id="92" name="side_switch" type="switch" x="-200" y="544">
+   <point/>
+  </object>
+  <object id="93" name="temp_switch" type="switch" x="-472" y="496">
    <point/>
   </object>
  </objectgroup>
@@ -123,11 +153,31 @@
    <chunk x="-32" y="16" width="16" height="16">
    eJxjZBgFlABGKB6pAOR3JgZEOIzksBgIwMhAWtijqwcAGOAAEg==
   </chunk>
+   <chunk x="-16" y="16" width="16" height="16">
+   eJxjYBgFo2AUDGfAiEcOAAQcAAI=
+  </chunk>
    <chunk x="-48" y="32" width="16" height="16">
-   eJxjYEAARhxsYsFw0I+MR8EoGO4AACwoAA0=
+   eJxjYEAARhxsZDF0jC5PSD8+MBj04/IbNnlC5o2CUTDYAQBXHAAa
   </chunk>
    <chunk x="-32" y="32" width="16" height="16">
-   eJxjYEAARiLxKBgFo2B4AAAq1AAL
+   eJxjZGBgYETDuAC6OnxqhwogxU/D0f+jYGQDAEeoABU=
+  </chunk>
+   <chunk x="-16" y="32" width="16" height="16">
+   eJxjYCAMGIlQQ6l+RhzqcInjUocNE+tGSv05CkbBUAMANUAAEA==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="28" name="chasm_bottom" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-32" y="32" width="16" height="16">
+   eJxjYMAEjDgwsWA46CdGbBSMgqEOAF30ABs=
+  </chunk>
+  </data>
+ </layer>
+ <layer id="29" name="chasm_bottom2" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-16" y="32" width="16" height="16">
+   eJxjZGBgYGQgHzAOcf2jYBSMZAAAIPAACQ==
   </chunk>
   </data>
  </layer>
