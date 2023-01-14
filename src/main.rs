@@ -5,7 +5,7 @@ use hecs::CommandBuffer;
 use input::{Input, VirtualKey};
 use levels::Level;
 use macroquad::prelude::*;
-use physics::{Actor, ConstantMotion, PathMotion};
+use physics::{Actor, PathMotion};
 use pickup::Pickup;
 use player::Controller;
 use projectile::Projectile;
@@ -115,7 +115,6 @@ async fn main() {
             Scene::PlayLevel(ref mut resources) => {
                 for _ in 0..clock.get_num_updates() {
                     let mut buffer = CommandBuffer::new();
-                    ConstantMotion::apply(resources);
                     PathMotion::apply(resources);
                     Controller::update(resources, &mut buffer, &input);
                     update_enemies(resources, &mut buffer);

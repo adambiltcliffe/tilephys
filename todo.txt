@@ -9,7 +9,8 @@ more general sprite handling?
 nicer text rendering
 nice script debug output
 better error handling in general
-rewrite scripting layer?
+script coroutines
 optimisations:
 * investigate speeding up move_body
 * trivial optimisation of projectile::find_collision_pos
+* remove some cloning in PathMotion creation

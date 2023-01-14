@@ -1,48 +1,48 @@
 fn init() {
-    set_path("door", "door");
-    set_path("finaldoor", "door");
-    set_path("hatchleft", "hatchleft");
-    set_path("hatchright", "hatchright");
-    set_path("towerhatch", "right3");
-    set_path("releaser", "releaser");
-    set_path("releaser2", "right3");
-    set_path("secretdoors", "door");
-    set_path("secretplat", "right3");
-    set_path("falsewall", "drop3");
+    door.set_path(door_path);
+    finaldoor.set_path(door_path);
+    hatchleft.set_path(hatchleft_path);
+    hatchright.set_path(hatchright_path);
+    towerhatch.set_path(right3);
+    releaser.set_path(releaser_path);
+    releaser2.set_path(right3);
+    secretdoors.set_path(door_path);
+    secretplat.set_path(right3);
+    falsewall.set_path(drop3);
 
-    set_path("doodler", "doodler");
-    set_motion("doodler", ForwardCycle, 0.5);
-    set_path("platform", "platform");
-    set_motion("platform", ForwardCycle, 1.0);
-    set_path("piston", "piston");
-    set_motion("piston", ForwardCycle, 0.5);
+    doodler.set_path(doodle);
+    doodler.set_motion(forward_cycle, 0.5);
+    platform.set_path(platform_circuit);
+    platform.set_motion(forward_cycle, 1.0);
+    piston.set_path(piston_path);
+    piston.set_motion(forward_cycle, 0.5);
 }
 
 fn door_switch_interact() {
-    set_motion_goto("door", 1, 2.0);
+    door.go_to(1, 2.0);
 }
 
 fn hatch_trigger_enter() {
-    set_motion_goto("hatchleft", 2, 4.0);
-    set_motion_goto("hatchright", 2, 4.0);
+    hatchleft.go_to(2, 4.0);
+    hatchright.go_to(2, 4.0);
 }
 
 fn unlock_switch_interact() {
-    set_motion_goto("finaldoor", 1, 1.0);
-    set_motion_goto("towerhatch", 1, 4.0);
+    finaldoor.go_to(1, 1.0);
+    towerhatch.go_to(1, 4.0);
 }
 
 fn releaser_trigger_enter() {
-    set_motion_goto("releaser", 1, 4.0);
-    set_motion_goto("releaser2", 1, 4.0);
-    set_motion_goto("secretdoors", 1, 4.0);
-    set_motion_goto("secretplat", 1, 0.5);
+    releaser.go_to(1, 4.0);
+    releaser2.go_to(1, 4.0);
+    secretdoors.go_to(1, 4.0);
+    secretplat.go_to(1, 0.5);
 }
 
 fn compartment_enter() {
-    set_motion_goto("falsewall", 1, 4.0);
+    falsewall.go_to(1, 4.0);
 }
 
 fn final_switch_interact() {
-    win();
+    flags.win();
 }
