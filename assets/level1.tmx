@@ -203,7 +203,7 @@
   <object id="42" name="final_switch" type="switch" x="712" y="96">
    <point/>
   </object>
-  <object id="43" name="door2" type="switch" x="192" y="192">
+  <object id="43" name="door3" type="switch" x="192" y="192">
    <point/>
   </object>
   <object id="53" name="door" type="switch" x="-208" y="48">

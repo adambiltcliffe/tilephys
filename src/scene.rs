@@ -3,6 +3,7 @@ use crate::{resources::SceneResources, stats::LevelStats};
 use macroquad::experimental::coroutines::{start_coroutine, Coroutine};
 
 pub enum Scene {
+    PreGame,
     PreLevel(Coroutine<Result<Scene, String>>, bool),
     PlayLevel(SceneResources),
     PostLevel(LevelStats),

@@ -98,6 +98,9 @@ async fn main() {
         input.update();
 
         match &mut scene {
+            Scene::PreGame => {
+                
+            },
             Scene::PreLevel(coro, fast) => {
                 for _ in 0..clock.get_num_updates() {
                     renderer.tick();

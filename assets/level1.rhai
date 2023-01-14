@@ -1,6 +1,7 @@
 fn init() {
     set_path("door", "door");
-    set_path("door2", "door_reverse");
+    set_path("door2", "door");
+    set_path("door3", "door");
     set_path("finaldoor", "door");
     set_path("hatchleft", "hatchleft");
     set_path("hatchright", "hatchright");
@@ -15,6 +16,10 @@ fn door_interact() {
 
 fn door2_interact() {
     set_motion_goto("door2", 1, 1.0)
+}
+
+fn door3_interact() {
+    set_motion_goto("door3", 1, 1.0);
 }
 
 fn hatch_trigger_enter() {

@@ -37,5 +37,6 @@ impl Level {
 
     pub async fn init_scene(&self, fast: bool) -> Scene {
         return new_prelevel(self.as_map_name().to_string().clone(), fast).await;
+        Scene::PreGame
     }
 }

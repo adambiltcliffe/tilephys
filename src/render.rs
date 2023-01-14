@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use crate::draw::draw;
 use crate::messages::Messages;
 use crate::player::Controller;
@@ -120,6 +122,9 @@ impl Renderer {
     pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets, level_name: &str) {
         // draw the current scene
         match scene {
+            Scene::PreGame => {
+                self.draw_pregame(assets);
+            },
             Scene::PreLevel(_, _) => {
                 self.draw_prelevel(assets, level_name);
             }
@@ -197,6 +202,18 @@ impl Renderer {
             WHITE,
         );
         self.render_to_screen();
+    }
+
+    pub(crate) fn draw_pregame(&self, assets: &GlobalAssets) {
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            vec2(self.width / 2., self.height / 2.),
+            Origin::TopLeft,
+        ));
+        let mouse_pos = mouse_position_local().clamp(Vec2::NEG_ONE, Vec2::ONE) * Vec2::new(-self.width/20.0, -self.height/20.0);// + Vec2::new(self.width/2.0, self.height/2.0);
+        //println!("{:?}", mouse_pos);
+        draw_texture(assets.pregame_bg, mouse_pos.x, mouse_pos.y, WHITE);
     }
 
     pub(crate) fn draw_prelevel(&self, assets: &GlobalAssets, level_name: &str) {
@@ -446,6 +463,21 @@ impl Renderer {
                 },
             );
         }
+
+        for rot in 0..3 {
+            draw_texture_ex(
+                assets.controls,
+                wvdc + 64.0 + 8. * rot as f32,
+                self.height - wvdc - 16. - (rot % 2) as f32 * 12.,// + 16.0 * (rot % 2) as f32,
+                WHITE,
+                DrawTextureParams {
+                    rotation: rot as f32 * PI / 2.,
+                    flip_x: true,
+                    ..Default::default()
+                }
+            )
+        }
+        
     }
 
     pub fn start_transition(&mut self, typ: TransitionEffectType) {
