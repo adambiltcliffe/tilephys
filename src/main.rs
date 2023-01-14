@@ -2,6 +2,7 @@ use camera::PlayerCamera;
 use enemy::update_enemies;
 use hecs::CommandBuffer;
 use input::{Input, VirtualKey};
+use macroquad::experimental::coroutines::{start_coroutine, stop_all_coroutines};
 use macroquad::prelude::*;
 use physics::{Actor, PathMotion};
 use pickup::Pickup;
@@ -65,7 +66,7 @@ async fn main() {
     let mut clock = Timer::new();
     let mut input = Input::new();
 
-    let coro = macroquad::experimental::coroutines::start_coroutine(load_assets());
+    let coro = start_coroutine(load_assets());
     let mut result = None;
     let mut loading_frames = 0;
     while result.is_none() {
@@ -133,8 +134,10 @@ async fn main() {
                         resources.script_engine.call_entry_point(&t);
                     }
                     resources.triggers.clear();
+                    resources.script_engine.schedule_queued_funcs();
 
                     if input.is_pressed(VirtualKey::DebugRestart) {
+                        stop_all_coroutines();
                         assets.next_scene = Some((
                             // skip the transition for faster debugging
                             new_prelevel(name.clone(), true).await,
@@ -143,6 +146,7 @@ async fn main() {
                     }
                     if input.is_pressed(VirtualKey::DebugWin) || resources.script_engine.win_flag()
                     {
+                        stop_all_coroutines();
                         assets.next_scene = Some((
                             crate::scene::Scene::PostLevel(resources.stats.clone()),
                             TransitionEffectType::Shatter,

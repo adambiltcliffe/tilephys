@@ -44,5 +44,5 @@ fn compartment_enter() {
 }
 
 fn final_switch_interact() {
-    flags.win();
+    context.win();
 }
