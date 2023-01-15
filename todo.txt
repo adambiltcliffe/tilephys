@@ -1,16 +1,28 @@
-explosion debris (esp. for player)
-fix visuals when player crushed
+BUGFIXES
+--------
+fix visuals when player crushed (not currently visible in any real level?)
+
+ONE-LEVEL CONCEPT DEMO
+----------------------
+popup messages for signs
+restart on any keypress after death
+disable debug keys in release mode
+
+TWO-LEVEL CONCEPT DEMO
+----------------------
+progress from one level to another
 weapons/ammo
 * ammo pickups
+
+MISC ENHANCEMENTS
+-----------------
+explosion debris (esp. for player)
 more tiles
-loading/top-level flow stuff:
-* progress from one level to another
-more general sprite handling?
-nicer text rendering
-nice script debug output
-better error handling in general
-script coroutines
 optimisations:
 * investigate speeding up move_body
 * trivial optimisation of projectile::find_collision_pos
 * remove some cloning in PathMotion creation
+nicer text rendering
+nice script debug output
+better error handling in general
+more general sprite handling?
