@@ -3,7 +3,7 @@ use crate::messages::Messages;
 use crate::player::Controller;
 use crate::resources::{GlobalAssets, SceneResources};
 use crate::scene::Scene;
-use crate::stats::LevelStats;
+use crate::stats::{LevelNumber, LevelStats};
 use crate::transition::{new_transition, TransitionEffect, TransitionEffectType};
 use crate::vfx::draw_vfx;
 use crate::visibility::draw_visibility;
@@ -120,14 +120,14 @@ impl Renderer {
     pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets) {
         // draw the current scene
         match scene {
-            Scene::PreLevel(_, _) => {
-                self.draw_prelevel(assets);
+            Scene::PreLevel(n, _, _) => {
+                self.draw_prelevel(n, assets);
             }
             Scene::PlayLevel(resources) => {
                 self.draw_world(resources, assets);
             }
             Scene::PostLevel(stats) => {
-                self.draw_postlevel(stats);
+                self.draw_postlevel(stats, assets);
             }
         }
 
@@ -199,7 +199,7 @@ impl Renderer {
         self.render_to_screen();
     }
 
-    pub(crate) fn draw_prelevel(&self, assets: &GlobalAssets) {
+    pub(crate) fn draw_prelevel(&self, n: &LevelNumber, assets: &GlobalAssets) {
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -217,7 +217,10 @@ impl Renderer {
                 );
             }
         }
-        let level_name = "Entryway";
+        let level_name = match n {
+            Some(number) => &assets.level_info[number.get() - 1].name,
+            None => "???",
+        };
         let td1 = measure_text(level_name, None, 32, 1.0);
         draw_text(
             level_name,
@@ -241,7 +244,7 @@ impl Renderer {
         );
     }
 
-    pub(crate) fn draw_postlevel(&self, stats: &LevelStats) {
+    pub(crate) fn draw_postlevel(&self, stats: &LevelStats, assets: &GlobalAssets) {
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -262,8 +265,12 @@ impl Renderer {
                 },
             );
         }
+        let level_name = match stats.n {
+            Some(number) => &assets.level_info[number.get() - 1].name,
+            None => "???",
+        };
         self.draw_centred_text("Completed", 16, 72.0);
-        self.draw_centred_text("Entryway", 32, 100.0);
+        self.draw_centred_text(level_name, 32, 100.0);
         self.draw_centred_text(&format!("Time: {}", stats.pretty_time()), 16, 128.0);
         self.draw_centred_text(
             &format!("Enemies defeated: {}/{}", stats.kills, stats.max_kills),

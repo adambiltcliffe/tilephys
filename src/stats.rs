@@ -1,5 +1,11 @@
+use std::num::NonZeroUsize;
+
+pub type LevelNumber = Option<NonZeroUsize>;
+
 #[derive(Clone)]
 pub struct LevelStats {
+    pub n: LevelNumber,
+    pub path: String,
     pub frames: u32,
     pub kills: u32,
     pub max_kills: u32,
@@ -10,8 +16,16 @@ pub struct LevelStats {
 }
 
 impl LevelStats {
-    pub fn new(max_kills: u32, max_items: u32, max_secrets: u32) -> Self {
+    pub fn new(
+        n: LevelNumber,
+        path: String,
+        max_kills: u32,
+        max_items: u32,
+        max_secrets: u32,
+    ) -> Self {
         Self {
+            n,
+            path,
             frames: 0,
             kills: 0,
             max_kills,

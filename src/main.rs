@@ -1,3 +1,5 @@
+use std::num::NonZeroUsize;
+
 use camera::PlayerCamera;
 use enemy::update_enemies;
 use hecs::CommandBuffer;
@@ -54,13 +56,6 @@ fn window_conf() -> Conf {
 async fn main() {
     set_pc_assets_folder("assets");
     let argv: Vec<String> = std::env::args().collect();
-    let name = if argv.len() > 1 {
-        argv[1].clone()
-    } else {
-        "intro".to_owned()
-    };
-
-    let mut scene: Scene = new_prelevel(name.clone(), false).await;
 
     let mut renderer = Renderer::new(RENDER_W, RENDER_H);
     let mut clock = Timer::new();
@@ -79,6 +74,23 @@ async fn main() {
     }
     let mut assets = result.unwrap();
 
+    let (level_n, level_path) = {
+        if argv.len() > 1 {
+            match assets
+                .level_info
+                .iter()
+                .position(|info| info.path == argv[1])
+            {
+                Some(p) => (NonZeroUsize::new(p + 1), assets.level_info[p].path.clone()),
+                None => (None, argv[1].clone()),
+            }
+        } else {
+            (NonZeroUsize::new(1), assets.level_info[0].path.clone())
+        }
+    };
+
+    let mut scene: Scene = new_prelevel(level_n, level_path, false).await;
+
     loop {
         match assets.next_scene {
             None => (),
@@ -95,7 +107,7 @@ async fn main() {
         input.update();
 
         match &mut scene {
-            Scene::PreLevel(coro, fast) => {
+            Scene::PreLevel(_n, coro, fast) => {
                 for _ in 0..clock.get_num_updates() {
                     renderer.tick();
                 }
@@ -140,7 +152,8 @@ async fn main() {
                         stop_all_coroutines();
                         assets.next_scene = Some((
                             // skip the transition for faster debugging
-                            new_prelevel(name.clone(), true).await,
+                            new_prelevel(resources.stats.n, resources.stats.path.clone(), true)
+                                .await,
                             TransitionEffectType::Shatter,
                         ));
                     }
@@ -163,13 +176,20 @@ async fn main() {
                     } */
                 }
             }
-            Scene::PostLevel(_) => {
+            Scene::PostLevel(stats) => {
                 for _ in 0..clock.get_num_updates() {
                     renderer.tick();
                 }
                 if input.is_any_pressed() {
+                    let (idx, next_n) = match stats.n {
+                        None => (0, NonZeroUsize::new(1)),
+                        Some(number) => {
+                            let idx = number.get() % assets.level_info.len();
+                            (idx, NonZeroUsize::new(idx + 1))
+                        }
+                    };
                     assets.next_scene = Some((
-                        new_prelevel(name.clone(), false).await,
+                        new_prelevel(next_n, assets.level_info[idx].path.clone(), false).await,
                         TransitionEffectType::Shatter,
                     ));
                 }

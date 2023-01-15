@@ -10,7 +10,7 @@ use crate::resources::SceneResources;
 use crate::resources::TilesetInfo;
 use crate::scene::Scene;
 use crate::script::ScriptEngine;
-use crate::stats::LevelStats;
+use crate::stats::{LevelNumber, LevelStats};
 use crate::switch::add_switch;
 use crate::visibility::compute_obscurers;
 use bitflags::bitflags;
@@ -94,7 +94,7 @@ impl LoadingManager {
     }
 
     // eventually this should probably not use String as its error type
-    pub(crate) async fn load_level(&mut self, name: &str) -> Result<Scene, String> {
+    pub(crate) async fn load_level(&mut self, n: LevelNumber, name: &str) -> Result<Scene, String> {
         let map_name = format!("{}.tmx", name).to_owned();
         println!("attempting to load level: {:?}", map_name);
         self.loader.reader_mut().preload(&map_name).await;
@@ -327,7 +327,7 @@ impl LoadingManager {
 
         compute_obscurers(&mut world_ref.lock().unwrap());
 
-        let stats = LevelStats::new(max_kills, max_items, max_secrets);
+        let stats = LevelStats::new(n, name.to_string(), max_kills, max_items, max_secrets);
 
         let resources = SceneResources {
             world_ref,
@@ -347,6 +347,6 @@ impl LoadingManager {
     }
 }
 
-pub async fn load_level(name: String) -> Result<Scene, String> {
-    LoadingManager::new().load_level(&name).await
+pub async fn load_level(n: LevelNumber, name: String) -> Result<Scene, String> {
+    LoadingManager::new().load_level(n, &name).await
 }
