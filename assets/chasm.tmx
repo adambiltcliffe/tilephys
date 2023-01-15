@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="30" nextobjectid="95">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="30" nextobjectid="97">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -110,6 +110,7 @@
   <object id="93" name="temp_switch" type="switch" x="-472" y="496">
    <point/>
   </object>
+  <object id="95" name="start_lift_trigger" x="-704" y="544" width="32" height="16"/>
  </objectgroup>
  <layer id="25" name="top_door" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -157,7 +158,7 @@
    eJxjYBgFo2AUDGfAiEcOAAQcAAI=
   </chunk>
    <chunk x="-48" y="32" width="16" height="16">
-   eJxjYEAARhxsZDF0jC5PSD8+MBj04/IbNnlC5o2CUTDYAQBXHAAa
+   eJxjYEAARhxsZDF0jC5PSD8+MBT04/P/KBgFQw0AAFFAABg=
   </chunk>
    <chunk x="-32" y="32" width="16" height="16">
    eJxjZGBgYETDuAC6OnxqhwogxU/D0f+jYGQDAEeoABU=
@@ -184,7 +185,7 @@
  <layer id="27" name="start_lift" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-48" y="32" width="16" height="16">
-   eJxjYBhegBGKR8EoGAWEAQAKXAAD
+   eJxjYBhegAmKyQWMUDwKRsFIAAAWlAAH
   </chunk>
   </data>
  </layer>

@@ -3,9 +3,15 @@ fn init() {
     slow_lift.set_path(lift_path);
     slow_lift.set_motion(forward_cycle, 1.0);
     start_lift.set_path(up7);
-    start_lift.go_to(1, 2.0);
     chasm_bottom.set_path(down3);
     chasm_bottom2.set_path(down3);
+}
+
+fn start_lift_trigger_enter() {
+    start_lift.go_to(1, 2.0);
+    context.after_frames(150, || {
+        start_lift.go_to(0, 2.0);
+    })
 }
 
 fn top_switch_interact() {
