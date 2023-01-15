@@ -216,10 +216,8 @@ impl ParrotBehaviour {
                                 beh.facing = -beh.facing;
                                 beh.state_timer = 0;
                             }
-                        } else {
-                            if !parrot_should_stop(world, resources, rect, new_vx) {
-                                beh.set_state(ParrotState::Move);
-                            }
+                        } else if !parrot_should_stop(world, resources, rect, new_vx) {
+                            beh.set_state(ParrotState::Move);
                         }
                     }
                 }
@@ -299,7 +297,7 @@ pub fn update_enemies(resources: &mut SceneResources, buffer: &mut CommandBuffer
         .iter()
     {
         hittable.was_hit = false;
-        if hittable.hp <= 0 || actor.crushed {
+        if hittable.hp == 0 || actor.crushed {
             match kind {
                 EnemyKind::Dog | EnemyKind::JumpyDog => {
                     resources.messages.add("Destroyed a hound.".to_owned())

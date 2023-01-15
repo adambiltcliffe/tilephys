@@ -131,7 +131,7 @@ async fn main() {
                     }
 
                     for t in &resources.triggers {
-                        resources.script_engine.call_entry_point(&t);
+                        resources.script_engine.call_entry_point(t);
                     }
                     resources.triggers.clear();
                     resources.script_engine.schedule_queued_funcs();

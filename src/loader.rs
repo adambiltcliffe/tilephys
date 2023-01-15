@@ -77,7 +77,7 @@ impl tiled::ResourceReader for AsyncPreloadReader {
         self.cache
             .get(path)
             .map(|data| Cursor::new(Arc::clone(data)))
-            .ok_or(std::io::Error::from(std::io::ErrorKind::NotFound))
+            .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::NotFound))
     }
 }
 

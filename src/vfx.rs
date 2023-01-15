@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use hecs::{CommandBuffer, World};
 use macroquad::prelude::*;
 
@@ -154,16 +156,20 @@ pub fn draw_vfx(world: &World) {
     }
 
     for (_, ex) in world.query::<&Explosion>().iter() {
-        if ex.n == 0 {
-            draw_circle(ex.x as f32 + 12.0, ex.y as f32 + 12.0, 24.0, WHITE);
-        } else if ex.n > 0 {
-            draw_circle_lines(
-                ex.x as f32 + 12.0,
-                ex.y as f32 + 12.0,
-                4.0 * ex.n as f32,
-                2.0,
-                WHITE,
-            );
+        match ex.n.cmp(&0) {
+            Ordering::Less => (),
+            Ordering::Equal => {
+                draw_circle(ex.x as f32 + 12.0, ex.y as f32 + 12.0, 24.0, WHITE);
+            }
+            Ordering::Greater => {
+                draw_circle_lines(
+                    ex.x as f32 + 12.0,
+                    ex.y as f32 + 12.0,
+                    4.0 * ex.n as f32,
+                    2.0,
+                    WHITE,
+                );
+            }
         }
     }
 }

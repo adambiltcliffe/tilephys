@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 
 pub fn add_camera(world: &mut World, player_pos: Vec2) -> Vec2 {
     let pos = vec2(player_pos.x, player_pos.y - CAMERA_FLOOR_OFFSET);
-    world.spawn((PlayerCamera::new(pos.y), pos.clone()));
+    world.spawn((PlayerCamera::new(pos.y), pos));
     pos
 }
 

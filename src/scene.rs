@@ -2,6 +2,8 @@ use crate::loader::load_level;
 use crate::{resources::SceneResources, stats::LevelStats};
 use macroquad::experimental::coroutines::{start_coroutine, Coroutine};
 
+// eventually there will be variants whose names don't end in "...Level"
+#[allow(clippy::enum_variant_names)]
 pub enum Scene {
     PreLevel(Coroutine<Result<Scene, String>>, bool),
     PlayLevel(SceneResources),

@@ -49,7 +49,7 @@ impl Projectile {
         {
             let mut live = true;
             for (_, (en, e_rect)) in world.query::<(&mut EnemyHittable, &IntRect)>().iter() {
-                if live && en.hp > 0 && rect.intersects(&e_rect) {
+                if live && en.hp > 0 && rect.intersects(e_rect) {
                     buffer.despawn(e);
                     let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
                     buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));

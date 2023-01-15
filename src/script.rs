@@ -140,7 +140,7 @@ impl ScriptEngine {
     pub async fn load_file(&mut self, path: &str) {
         self.ast = Some(
             self.engine
-                .compile(load_string(path.into()).await.unwrap())
+                .compile(load_string(path).await.unwrap())
                 .unwrap(),
         );
     }
@@ -150,7 +150,7 @@ impl ScriptEngine {
             None => panic!("no script loaded"),
             Some(ast) => self
                 .engine
-                .call_fn::<()>(&mut self.scope, &ast, name, ())
+                .call_fn::<()>(&mut self.scope, ast, name, ())
                 .unwrap_or_else(|err| println!("calling entry point {} failed: {:?}", name, err)),
         }
     }
@@ -167,7 +167,7 @@ impl ScriptEngine {
         context.queued_funcs.retain(|(n, _)| *n > 0);
         drop(context);
         for f in funcs {
-            f.call::<()>(&self.engine, &self.ast.as_ref().unwrap(), ())
+            f.call::<()>(&self.engine, self.ast.as_ref().unwrap(), ())
                 .unwrap();
         }
     }

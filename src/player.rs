@@ -38,12 +38,12 @@ impl Controller {
         for (id, (player, p_rect, sprite, controller)) in q.iter() {
             let mut new_triggers: HashSet<String> = HashSet::new();
             for (_, (trigger, t_rect)) in world.query::<(&mut TriggerZone, &IntRect)>().iter() {
-                if p_rect.intersects(&t_rect) {
+                if p_rect.intersects(t_rect) {
                     let name = format!("{}_enter", trigger.name).to_owned();
                     if !controller.triggers.contains(&name) {
                         resources.triggers.insert(name.clone());
-                        if trigger.secrecy == Secrecy::HiddenSecret {
-                            trigger.secrecy = Secrecy::FoundSecret;
+                        if trigger.secrecy == Secrecy::Hidden {
+                            trigger.secrecy = Secrecy::Found;
                             resources.stats.secrets += 1;
                             resources.messages.add("Found a secret area!".to_owned());
                         }

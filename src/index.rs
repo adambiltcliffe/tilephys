@@ -29,10 +29,7 @@ impl SpatialIndex {
         let (min_kx, max_kx, min_ky, max_ky) = get_bounds(rect);
         for kx in min_kx..=max_kx {
             for ky in min_ky..=max_ky {
-                let v = self
-                    .buckets
-                    .entry((kx, ky))
-                    .or_insert_with(|| SmallSet::new());
+                let v = self.buckets.entry((kx, ky)).or_insert_with(SmallSet::new);
                 v.insert(entity);
             }
         }
@@ -42,10 +39,7 @@ impl SpatialIndex {
         let (min_kx, max_kx, min_ky, max_ky) = get_bounds(rect);
         for kx in min_kx..=max_kx {
             for ky in min_ky..=max_ky {
-                let v = self
-                    .buckets
-                    .entry((kx, ky))
-                    .or_insert_with(|| SmallSet::new());
+                let v = self.buckets.entry((kx, ky)).or_insert_with(SmallSet::new);
                 v.remove(&entity);
             }
         }
@@ -70,7 +64,7 @@ impl SpatialIndex {
     pub fn debug(&self) {
         println!("spatial index has {} buckets", self.buckets.len());
         let mut counts = HashMap::<usize, usize>::new();
-        for (_, s) in &self.buckets {
+        for s in self.buckets.values() {
             *counts.entry(s.len()).or_insert(0) += 1;
         }
         let mut k: Vec<usize> = counts.keys().copied().collect();
