@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="73">
+ <tileset firstgid="1" source="../phtiles16.tsx"/>
+ <layer id="14" name="background" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo2AU4AJcBDAx+sWAWBwHJka/DBDL4sDE6FcCYmUcGAD5HALN
+  </chunk>
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo2DkAi4oJhdIUKhfjkL9KgyU+QEAUpAAlw==
+  </chunk>
+   <chunk x="-32" y="0" width="16" height="16">
+   eJzjYmBg4BrCeBSMglFAPgAA1BoB4Q==
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJzjYmBg4BrCGBmgi2NjC6CJjYJRMJIBAB3YAks=
+  </chunk>
+   <chunk x="0" y="0" width="16" height="16">
+   eJzjYmBg4IJicgAXA3X0kwso1T8KRsFIBgByTwBl
+  </chunk>
+  </data>
+ </layer>
+ <objectgroup id="5" name="paths">
+  <object id="72" name="door_path" x="-176" y="0">
+   <polyline points="0,0 0,-48"/>
+  </object>
+ </objectgroup>
+ <objectgroup id="2" name="entities">
+  <object id="1" name="start" type="player" x="-312" y="48">
+   <point/>
+  </object>
+  <object id="70" name="left_switch" type="switch" x="-200" y="48">
+   <point/>
+  </object>
+  <object id="71" name="right_switch" type="switch" x="-136" y="48">
+   <point/>
+  </object>
+ </objectgroup>
+ <layer id="24" name="door" width="40" height="30">
+  <properties>
+   <property name="door" type="bool" value="true"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjYMAEbFjESAE8FOoXolD/KBgFo4A4AACFMAAl
+  </chunk>
+  </data>
+ </layer>
+ <layer id="1" name="main" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-48" y="-16" width="16" height="16">
+   eJxjYBgFo2AUjETACMQABAQAAg==
+  </chunk>
+   <chunk x="-32" y="-16" width="16" height="16">
+   eJxjYBgFo2AUDFXASCEGAAYgABE=
+  </chunk>
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo2B4AkYiMCH9lNpPa/2U+A8EABEwABU=
+  </chunk>
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo2DoAkYkTKk5I1E/AAoUAAg=
+  </chunk>
+   <chunk x="-48" y="0" width="16" height="16">
+   eJxjYCAfMFKgdzjoHwWjYKgDABGQAAU=
+  </chunk>
+   <chunk x="-32" y="0" width="16" height="16">
+   eJxjYBjagJFCPApGwUgGADYgABE=
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjYBjagJFCPApGwUgGADYgABE=
+  </chunk>
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYIAARgbKwEDpZ0TCo2AUjALSAAAY3AAH
+  </chunk>
+  </data>
+ </layer>
+</map>
