@@ -113,10 +113,13 @@ impl DogBehaviour {
             .iter()
         {
             if (actor.grounded || enemy.jump_y.is_some()) && with_prob(0.1) {
-                if player_x.is_some() && with_prob(0.7) {
-                    enemy.dir = (player_x.unwrap() - rect.centre().x).signum() * 5.0;
-                } else {
-                    enemy.dir = 5.0 * rand_sign();
+                match player_x {
+                    Some(x) if with_prob(0.7) => {
+                        enemy.dir = (x - rect.centre().x).signum() * 5.0;
+                    }
+                    _ => {
+                        enemy.dir = 5.0 * rand_sign();
+                    }
                 }
             }
             if actor.grounded {
