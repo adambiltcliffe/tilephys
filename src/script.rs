@@ -54,7 +54,6 @@ mod script_interface {
                 PathMotion::new(x, y, &path, 0.0, PathMotionType::Static),
             )
             .unwrap();
-        println!("set_path ok");
     }
 
     pub fn set_motion(this: &mut EntityProxy, motion_type: PathMotionType, speed: f32) {
@@ -62,7 +61,6 @@ mod script_interface {
         let mut pm = world.get::<&mut PathMotion>(this.id).unwrap(); // fails if no path set
         pm.motion_type = motion_type;
         pm.speed = speed;
-        println!("set_motion ok");
     }
 
     pub fn go_to(this: &mut EntityProxy, index: i32, speed: f32) {

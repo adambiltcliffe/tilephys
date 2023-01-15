@@ -96,7 +96,6 @@ impl LoadingManager {
     // eventually this should probably not use String as its error type
     pub(crate) async fn load_level(&mut self, n: LevelNumber, name: &str) -> Result<Scene, String> {
         let map_name = format!("{}.tmx", name).to_owned();
-        println!("attempting to load level: {:?}", map_name);
         self.loader.reader_mut().preload(&map_name).await;
 
         let map = loop {
@@ -106,7 +105,6 @@ impl LoadingManager {
                     if path.as_os_str().to_str().unwrap() == map_name {
                         return Err("Resource loading error".to_owned());
                     }
-                    println!("loading additional resource: {:?}", path);
                     self.loader
                         .reader_mut()
                         .preload(path.as_os_str().to_str().unwrap())
@@ -115,7 +113,6 @@ impl LoadingManager {
                 Err(other_err) => return Err(other_err.to_string()),
             }
         };
-        println!("map data loaded");
 
         let mut world: World = World::new();
         let mut ids: HashMap<String, Entity> = HashMap::new();
@@ -342,7 +339,6 @@ impl LoadingManager {
             stats,
             triggers: HashSet::new(),
         };
-        println!("about to return from load_level");
         Ok(Scene::PlayLevel(resources))
     }
 }

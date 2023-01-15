@@ -100,7 +100,6 @@ async fn main() {
                 renderer.start_transition(typ);
                 scene = next_scene;
                 assets.next_scene = None;
-                println!("transitioning to next scene");
             }
         }
 

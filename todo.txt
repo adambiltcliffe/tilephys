@@ -10,7 +10,6 @@ disable debug keys in release mode
 
 TWO-LEVEL CONCEPT DEMO
 ----------------------
-progress from one level to another
 weapons/ammo
 * ammo pickups
 
