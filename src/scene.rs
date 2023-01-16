@@ -3,7 +3,6 @@ use crate::{resources::SceneResources, stats::LevelStats};
 use macroquad::experimental::coroutines::{start_coroutine, Coroutine};
 
 pub enum Scene {
-    PreGame,
     PreLevel(Coroutine<Result<Scene, String>>, bool),
     PlayLevel(SceneResources),
     PostLevel(LevelStats),
@@ -19,5 +18,4 @@ pub async fn new_prelevel(name: String, fast: bool) -> Scene {
     }
     //let d = format!("{:?}", coro).to_string();
     //println!("id is {:?}", d);
-    Scene::PreLevel(coro, fast)
 }
