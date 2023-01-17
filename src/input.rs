@@ -1,7 +1,7 @@
 use crate::{
     physics::IntRect,
     render::{WALL_VISION_DEPTH, Renderer},
-    RENDER_H, RENDER_W,
+    RENDER_H,
 };
 use macroquad::{
     input::{
@@ -98,8 +98,9 @@ impl Input {
             h: 1,
         };
         for (cl, vk) in CLICK_AREAS.iter() {
-            println!("X:{} Y:{}", cl.x, cl.y);
-            println!("X:{} Y:{}", mouse_rect.x, mouse_rect.y);
+            println!("Area X:{} Y:{}", cl.x, cl.y);
+            println!("Mouse X:{} Y:{}", mouse_rect.x, mouse_rect.y);
+            println!("Mouse old X:{} Y:{}", mouse_position().0.round(), mouse_position().1.round());
             if cl.intersects(&mouse_rect) {
                 if is_mouse_button_down(MouseButton::Left) {
                     self.down.insert(*vk);

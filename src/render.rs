@@ -130,7 +130,7 @@ impl Renderer {
             .max(1.);
         let zoomed_width = self.final_width * scale;
         let zoomed_height = self.final_height * scale;
-        return (x*scale + ((sw - zoomed_width) / 2.), y*scale + ((sh - zoomed_height) / 2.));
+        return ((x - ((sw - zoomed_width) / 2.))/scale, (y - ((sh - zoomed_height) / 2.))/scale);
     }
 
     pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets, level_name: &str) {
