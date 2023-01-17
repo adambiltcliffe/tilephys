@@ -2,6 +2,7 @@ use crate::{
     physics::IntRect,
     render::{WALL_VISION_DEPTH, Renderer},
     RENDER_H,
+    RENDER_W
 };
 use macroquad::{
     input::{
@@ -44,8 +45,8 @@ const WVDC: i32 = WALL_VISION_DEPTH as i32
 const CLICK_AREAS: [(IntRect, VirtualKey); 3] = [
     (
         IntRect {
-            x: WVDC + 64,
-            y: RENDER_H as i32 - WVDC - 16,
+            x: WVDC + 48,
+            y: RENDER_H as i32 - WVDC,
             w: 16,
             h: 16,
         },
@@ -53,8 +54,8 @@ const CLICK_AREAS: [(IntRect, VirtualKey); 3] = [
     ),
     (
         IntRect {
-            x: WVDC + 80,
-            y: RENDER_H as i32 - WVDC - 16,
+            x: WVDC + 64,
+            y: RENDER_H as i32 - WVDC,
             w: 16,
             h: 16,
         },
@@ -62,8 +63,8 @@ const CLICK_AREAS: [(IntRect, VirtualKey); 3] = [
     ),
     (
         IntRect {
-            x: WVDC + 72,
-            y: RENDER_H as i32 - WVDC - 28,
+            x: WVDC + 56,
+            y: RENDER_H as i32 - WVDC - 12,
             w: 16,
             h: 16,
         },
@@ -98,9 +99,6 @@ impl Input {
             h: 1,
         };
         for (cl, vk) in CLICK_AREAS.iter() {
-            println!("Area X:{} Y:{}", cl.x, cl.y);
-            println!("Mouse X:{} Y:{}", mouse_rect.x, mouse_rect.y);
-            println!("Mouse old X:{} Y:{}", mouse_position().0.round(), mouse_position().1.round());
             if cl.intersects(&mouse_rect) {
                 if is_mouse_button_down(MouseButton::Left) {
                     self.down.insert(*vk);
@@ -108,7 +106,6 @@ impl Input {
                 if is_mouse_button_pressed(MouseButton::Left) {
                     self.pressed.insert(*vk);
                 }
-                self.any_pressed = true;
             }
         }
         for (kc, vk) in ALL_KEYS.iter() {
@@ -120,7 +117,7 @@ impl Input {
                 self.pressed.insert(*vk);
             }
         }
-        self.any_pressed = self.any_pressed || get_char_pressed().is_some();
+        self.any_pressed = get_char_pressed().is_some() || is_mouse_button_down(MouseButton::Left);
     }
 
     pub fn is_down(&self, vk: VirtualKey) -> bool {
