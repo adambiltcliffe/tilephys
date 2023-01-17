@@ -20,7 +20,6 @@ pub struct GlobalAssets {
     pub ui_sprite: Texture2D,
     pub zap_sprite: Texture2D,
     pub interstitial: Texture2D,
-    pub pregame_bg: Texture2D,
     pub controls: Texture2D,
     pub flash_material: Material,
     // should this be here?
@@ -38,7 +37,6 @@ pub async fn load_assets() -> GlobalAssets {
         ui_sprite: load_texture("ui-heart.png").await.unwrap(),
         zap_sprite: load_texture("zap.png").await.unwrap(),
         interstitial: load_texture("interstitial.png").await.unwrap(),
-        pregame_bg: load_texture("bg_cropped.png").await.unwrap(),
         controls: load_texture("controls.png").await.unwrap(),
         flash_material: load_flash_material(),
         next_scene: None,

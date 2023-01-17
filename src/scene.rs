@@ -18,4 +18,5 @@ pub async fn new_prelevel(name: String, fast: bool) -> Scene {
     }
     //let d = format!("{:?}", coro).to_string();
     //println!("id is {:?}", d);
+    Scene::PreLevel(coro, fast)
 }

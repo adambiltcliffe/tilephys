@@ -119,12 +119,23 @@ impl Renderer {
         }
     }
 
+    pub fn format_abs_pos(&self, pos: (f32, f32)) -> (f32, f32) {
+        let x = pos.0;
+        let y = pos.1;
+        let sw = screen_width();
+        let sh = screen_height();
+        let scale = (sw / self.final_width)
+            .min(sh / self.final_height)
+            .floor()
+            .max(1.);
+        let zoomed_width = self.final_width * scale;
+        let zoomed_height = self.final_height * scale;
+        return (x*scale + ((sw - zoomed_width) / 2.), y*scale + ((sh - zoomed_height) / 2.));
+    }
+
     pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets, level_name: &str) {
         // draw the current scene
         match scene {
-            Scene::PreGame => {
-                self.draw_pregame(assets);
-            },
             Scene::PreLevel(_, _) => {
                 self.draw_prelevel(assets, level_name);
             }
@@ -202,18 +213,6 @@ impl Renderer {
             WHITE,
         );
         self.render_to_screen();
-    }
-
-    pub(crate) fn draw_pregame(&self, assets: &GlobalAssets) {
-        gl_use_default_material();
-        set_camera(&get_camera_for_target(
-            &self.draw_target,
-            vec2(self.width / 2., self.height / 2.),
-            Origin::TopLeft,
-        ));
-        let mouse_pos = mouse_position_local().clamp(Vec2::NEG_ONE, Vec2::ONE) * Vec2::new(-self.width/20.0, -self.height/20.0);// + Vec2::new(self.width/2.0, self.height/2.0);
-        //println!("{:?}", mouse_pos);
-        draw_texture(assets.pregame_bg, mouse_pos.x, mouse_pos.y, WHITE);
     }
 
     pub(crate) fn draw_prelevel(&self, assets: &GlobalAssets, level_name: &str) {

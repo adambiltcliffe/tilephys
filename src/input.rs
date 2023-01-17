@@ -1,6 +1,13 @@
-use crate::{physics::IntRect, render::WALL_VISION_DEPTH, RENDER_H};
+use crate::{
+    physics::IntRect,
+    render::{WALL_VISION_DEPTH, Renderer},
+    RENDER_H, RENDER_W,
+};
 use macroquad::{
-    input::{is_key_down, is_key_pressed, mouse_position, is_mouse_button_down, is_mouse_button_pressed, KeyCode, MouseButton},
+    input::{
+        is_key_down, is_key_pressed, is_mouse_button_down, is_mouse_button_pressed, mouse_position,
+        KeyCode, MouseButton,
+    },
     prelude::get_char_pressed,
 };
 use std::collections::HashSet;
@@ -28,21 +35,42 @@ const ALL_KEYS: [(KeyCode, VirtualKey); 8] = [
     (KeyCode::K, VirtualKey::DebugKill),
 ];
 
-pub fn control_rect(rot: i32) -> IntRect {
-    let wvdc = WALL_VISION_DEPTH.ceil();
-    IntRect { 
-        x: (wvdc + 64.0 + 8. * rot as f32) as i32,
-        y: (RENDER_H as f32 - wvdc - 16. - (rot % 2) as f32 * 12.) as i32,
-        w: 16,
-        h: 16
-    }
-}
+// I need a to do ceil by myself (works on the principle that 8.7 as i32 == 8) to be able to use it in a constant
 
-fn gen_click_areas() -> [(IntRect, VirtualKey); 3] {
-    [(control_rect(0), VirtualKey::Left),
-    (control_rect(1), VirtualKey::Right),
-    (control_rect(2), VirtualKey::Jump)]
-}
+const WVDC: i32 = WALL_VISION_DEPTH as i32
+    + (((WALL_VISION_DEPTH as i32) as f32 - WALL_VISION_DEPTH)
+        / ((WALL_VISION_DEPTH as i32) as f32 - WALL_VISION_DEPTH)) as i32;
+
+const CLICK_AREAS: [(IntRect, VirtualKey); 3] = [
+    (
+        IntRect {
+            x: WVDC + 64,
+            y: RENDER_H as i32 - WVDC - 16,
+            w: 16,
+            h: 16,
+        },
+        VirtualKey::Left,
+    ),
+    (
+        IntRect {
+            x: WVDC + 80,
+            y: RENDER_H as i32 - WVDC - 16,
+            w: 16,
+            h: 16,
+        },
+        VirtualKey::Right,
+    ),
+    (
+        IntRect {
+            x: WVDC + 72,
+            y: RENDER_H as i32 - WVDC - 28,
+            w: 16,
+            h: 16,
+        },
+        VirtualKey::Jump,
+    ),
+];
+
 pub struct Input {
     down: HashSet<VirtualKey>,
     pressed: HashSet<VirtualKey>,
@@ -58,12 +86,20 @@ impl Input {
         }
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, renderer: &Renderer) {
         self.down.clear();
-        // creates an IntRect to represent the mouse in order to check collisions with CLICK_AREAS
-        let mouse_rect: IntRect = IntRect {x: mouse_position().0.round() as i32, y: mouse_position().1.round() as i32, w: 0, h: 0};
         self.any_pressed = false;
-        for (cl, vk) in gen_click_areas().iter() {
+        // creates an IntRect to represent the mouse in order to check collisions with CLICK_AREAS
+        let mouse_pos = renderer.format_abs_pos(mouse_position());
+        let mouse_rect: IntRect = IntRect {
+            x: mouse_pos.0.clamp(0.0, RENDER_W as f32).round() as i32,
+            y: mouse_pos.1.clamp(0.0, RENDER_H as f32).round() as i32,
+            w: 1,
+            h: 1,
+        };
+        for (cl, vk) in CLICK_AREAS.iter() {
+            println!("X:{} Y:{}", cl.x, cl.y);
+            println!("X:{} Y:{}", mouse_rect.x, mouse_rect.y);
             if cl.intersects(&mouse_rect) {
                 if is_mouse_button_down(MouseButton::Left) {
                     self.down.insert(*vk);
@@ -75,6 +111,7 @@ impl Input {
             }
         }
         for (kc, vk) in ALL_KEYS.iter() {
+            //println!("updating key inputs");
             if is_key_down(*kc) {
                 self.down.insert(*vk);
             }
