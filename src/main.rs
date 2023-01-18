@@ -181,7 +181,7 @@ async fn main() {
             }
         }
 
-        renderer.render_scene(&scene, &assets, level.as_level_name());
+        renderer.render_scene(&scene, &assets, &input, level.as_level_name());
         next_frame().await;
     }
 }

@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
 use crate::draw::draw;
+use crate::input::{Input, ScreenButtons};
 use crate::messages::Messages;
 use crate::player::Controller;
 use crate::resources::{GlobalAssets, SceneResources};
@@ -9,6 +10,7 @@ use crate::stats::LevelStats;
 use crate::transition::{new_transition, TransitionEffect, TransitionEffectType};
 use crate::vfx::draw_vfx;
 use crate::visibility::draw_visibility;
+use enum_iterator::all;
 use macroquad::prelude::*;
 use miniquad::graphics::{BlendFactor, BlendState, BlendValue, Equation};
 
@@ -39,8 +41,8 @@ fn get_camera_for_target(target: &RenderTarget, camera: Vec2, o: Origin) -> Came
 }
 
 pub struct Renderer {
-    width: f32,
-    height: f32,
+    pub width: f32,
+    pub height: f32,
     final_width: f32,
     final_height: f32,
     transition: Option<(RenderTarget, Box<dyn TransitionEffect>)>,
@@ -133,14 +135,14 @@ impl Renderer {
         return ((x - ((sw - zoomed_width) / 2.))/scale, (y - ((sh - zoomed_height) / 2.))/scale);
     }
 
-    pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets, level_name: &str) {
+    pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets, input: &Input, level_name: &str) {
         // draw the current scene
         match scene {
             Scene::PreLevel(_, _) => {
                 self.draw_prelevel(assets, level_name);
             }
             Scene::PlayLevel(resources) => {
-                self.draw_world(resources, assets);
+                self.draw_world(resources, assets, input);
             }
             Scene::PostLevel(stats) => {
                 self.draw_postlevel(stats);
@@ -309,7 +311,7 @@ impl Renderer {
         );
     }
 
-    pub(crate) fn draw_world(&self, resources: &SceneResources, assets: &GlobalAssets) {
+    pub(crate) fn draw_world(&self, resources: &SceneResources, assets: &GlobalAssets, input: &Input) {
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -463,6 +465,17 @@ impl Renderer {
             );
         }
 
+        for btn in all::<ScreenButtons>() {
+            println!("{:?}", btn);
+            draw_texture_ex(
+                assets.controls,
+                btn.get_pos(self).0 as f32,
+                btn.get_pos(self).1 as f32,
+                WHITE,
+                btn.get_texture_params(),
+            )
+        }
+        /*
         for rot in 0..3 {
             draw_texture_ex(
                 assets.controls,
@@ -475,7 +488,7 @@ impl Renderer {
                     ..Default::default()
                 }
             )
-        }
+        }*/
         
     }
 
