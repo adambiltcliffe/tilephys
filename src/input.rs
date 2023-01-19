@@ -122,6 +122,22 @@ impl ClickTrigger {
     }
 }
 
+enum Trigger {
+    Click(ClickTrigger),
+    Key(KeyTrigger),
+}
+
+const ALL_TRIGGERS: [Trigger; 8] = [
+    Trigger::Key(KeyTrigger { kc: KeyCode::Left, vk: VirtualKey::Left }),
+    Trigger::Key(KeyTrigger { kc: KeyCode::Right, vk: VirtualKey::Right }),
+    Trigger::Key(KeyTrigger { kc: KeyCode::Z, vk: VirtualKey::Jump }),
+    Trigger::Key(KeyTrigger { kc: KeyCode::X, vk: VirtualKey::Fire }),
+    Trigger::Key(KeyTrigger { kc: KeyCode::C, vk: VirtualKey::Interact }),
+    Trigger::Key(KeyTrigger { kc: KeyCode::R, vk: VirtualKey::DebugRestart }),
+    Trigger::Key(KeyTrigger { kc: KeyCode::W, vk: VirtualKey::DebugWin }),
+    Trigger::Key(KeyTrigger { kc: KeyCode::K, vk: VirtualKey::DebugKill }),
+];
+
 #[derive(Sequence, Debug)]
 pub enum ScreenButtons {
     Left,
@@ -131,33 +147,27 @@ pub enum ScreenButtons {
 
 impl ScreenButtons {
     pub fn get_pos(&self, renderer: &Renderer) -> (i32, i32) {
-        println!("{}", renderer.height);
+        //return (WVDC + 64, RENDER_H as i32 - WVDC + 16);
         match self {
-            Self::Left => (WVDC + 48, RENDER_H as i32 - WVDC),
-            Self::Jump => (WVDC + 64, RENDER_H as i32 - WVDC - 16),
-            Self::Right => (WVDC + 56, RENDER_H as i32 - WVDC),
+            Self::Left => (WVDC + 64, RENDER_H as i32 - WVDC + 16),
+            Self::Jump => (WVDC + 72, RENDER_H as i32 - WVDC + 4),
+            Self::Right => (WVDC + 80, RENDER_H as i32 - WVDC + 16),
         }
     }
 
     pub fn get_texture_params(&self) -> DrawTextureParams {
         match self {
-            Self::Left => {
-                DrawTextureParams {
-                    ..Default::default()
-                }
+            Self::Left => DrawTextureParams {
+                flip_x: true,
+                ..Default::default()
             },
-            Self::Jump => {
-                DrawTextureParams {
-                    rotation: PI,
-                    ..Default::default()
-                }
+            Self::Jump => DrawTextureParams {
+                rotation: -PI / 2.,
+                ..Default::default()
             },
-            Self::Right => {
-                DrawTextureParams {
-                    flip_x: true,
-                    ..Default::default()
-                }
-            }
+            Self::Right => DrawTextureParams {
+                ..Default::default()
+            },
         }
     }
 }
@@ -180,6 +190,15 @@ impl Input {
     pub fn update(&mut self, renderer: &Renderer) {
         self.down.clear();
         self.any_pressed = false;
+        for trigger in ALL_TRIGGERS.iter() {
+            match trigger {
+                Trigger::Key(keytrigger) => {
+
+                },
+                Trigger::Click(clicktrigger) => {}
+            }
+        }
+        /* 
         // creates an IntRect to represent the mouse in order to check collisions with CLICK_AREAS
         let mouse_pos = renderer.format_abs_pos(mouse_position());
         let mouse_rect: IntRect = IntRect {
@@ -206,7 +225,7 @@ impl Input {
             if is_key_pressed(*kc) {
                 self.pressed.insert(*vk);
             }
-        }
+        }*/
         self.any_pressed = get_char_pressed().is_some() || is_mouse_button_down(MouseButton::Left);
     }
 

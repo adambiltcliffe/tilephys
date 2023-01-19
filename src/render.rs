@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use crate::draw::draw;
 use crate::input::{Input, ScreenButtons};
 use crate::messages::Messages;
@@ -466,7 +464,6 @@ impl Renderer {
         }
 
         for btn in all::<ScreenButtons>() {
-            println!("{:?}", btn);
             draw_texture_ex(
                 assets.controls,
                 btn.get_pos(self).0 as f32,
