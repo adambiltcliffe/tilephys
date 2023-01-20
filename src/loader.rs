@@ -2,6 +2,7 @@ use crate::camera::add_camera;
 use crate::draw::PlayerSprite;
 use crate::enemy::{add_enemy, EnemyKind};
 use crate::index::SpatialIndex;
+use crate::level::LevelInfo;
 use crate::messages::Messages;
 use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
 use crate::pickup::add_pickup;
@@ -10,7 +11,7 @@ use crate::resources::SceneResources;
 use crate::resources::TilesetInfo;
 use crate::scene::Scene;
 use crate::script::ScriptEngine;
-use crate::stats::{LevelNumber, LevelStats};
+use crate::stats::LevelStats;
 use crate::switch::add_switch;
 use crate::visibility::compute_obscurers;
 use crate::weapon::{new_weapon, WeaponType};
@@ -95,8 +96,8 @@ impl LoadingManager {
     }
 
     // eventually this should probably not use String as its error type
-    pub(crate) async fn load_level(&mut self, n: LevelNumber, name: &str) -> Result<Scene, String> {
-        let map_name = format!("{}.tmx", name).to_owned();
+    pub(crate) async fn load_level(&mut self, info: &LevelInfo) -> Result<Scene, String> {
+        let map_name = format!("{}.tmx", info.path).to_owned();
         self.loader.reader_mut().preload(&map_name).await;
 
         let map = loop {
@@ -304,7 +305,9 @@ impl LoadingManager {
         let world_ref = Arc::new(Mutex::new(world));
         let mut script_engine =
             ScriptEngine::new(Arc::clone(&world_ref), Arc::new(ids), Arc::new(paths));
-        script_engine.load_file(&format!("{}.rhai", name)).await;
+        script_engine
+            .load_file(&format!("{}.rhai", info.path))
+            .await;
         script_engine.call_entry_point("init");
 
         let player_start = (psx, psy);
@@ -325,7 +328,7 @@ impl LoadingManager {
 
         compute_obscurers(&mut world_ref.lock().unwrap());
 
-        let stats = LevelStats::new(n, name.to_string(), max_kills, max_items, max_secrets);
+        let stats = LevelStats::new(info.clone(), max_kills, max_items, max_secrets);
         let mut weapons = VecDeque::with_capacity(4);
         weapons.push_back(new_weapon(WeaponType::BackupLaser));
 
@@ -347,6 +350,6 @@ impl LoadingManager {
     }
 }
 
-pub async fn load_level(n: LevelNumber, name: String) -> Result<Scene, String> {
-    LoadingManager::new().load_level(n, &name).await
+pub async fn load_level(info: LevelInfo) -> Result<Scene, String> {
+    LoadingManager::new().load_level(&info).await
 }

@@ -1,9 +1,10 @@
 use crate::draw::draw;
+use crate::level::LevelInfo;
 use crate::messages::Messages;
 use crate::player::Controller;
 use crate::resources::{GlobalAssets, SceneResources};
 use crate::scene::Scene;
-use crate::stats::{LevelNumber, LevelStats};
+use crate::stats::LevelStats;
 use crate::transition::{new_transition, TransitionEffect, TransitionEffectType};
 use crate::vfx::draw_vfx;
 use crate::visibility::draw_visibility;
@@ -199,7 +200,7 @@ impl Renderer {
         self.render_to_screen();
     }
 
-    pub(crate) fn draw_prelevel(&self, n: &LevelNumber, assets: &GlobalAssets) {
+    pub(crate) fn draw_prelevel(&self, level_info: &LevelInfo, assets: &GlobalAssets) {
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -217,13 +218,9 @@ impl Renderer {
                 );
             }
         }
-        let level_name = match n {
-            Some(number) => &assets.level_info[number.get() - 1].name,
-            None => "???",
-        };
-        let td1 = measure_text(level_name, None, 32, 1.0);
+        let td1 = measure_text(&level_info.name, None, 32, 1.0);
         draw_text(
-            level_name,
+            &level_info.name,
             wvdc + 160.0 - td1.width / 2.,
             wvdc + 100.0,
             32.0,
@@ -265,12 +262,8 @@ impl Renderer {
                 },
             );
         }
-        let level_name = match stats.n {
-            Some(number) => &assets.level_info[number.get() - 1].name,
-            None => "???",
-        };
         self.draw_centred_text("Completed", 16, 72.0);
-        self.draw_centred_text(level_name, 32, 100.0);
+        self.draw_centred_text(&stats.info.name, 32, 100.0);
         self.draw_centred_text(&format!("Time: {}", stats.pretty_time()), 16, 128.0);
         self.draw_centred_text(
             &format!("Enemies defeated: {}/{}", stats.kills, stats.max_kills),

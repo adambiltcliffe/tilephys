@@ -1,4 +1,5 @@
 use crate::index::SpatialIndex;
+use crate::level::{load_level_info, LevelInfo};
 use crate::messages::Messages;
 use crate::render::load_flash_material;
 use crate::scene::Scene;
@@ -11,11 +12,6 @@ use macroquad::prelude::*;
 use std::collections::{HashSet, VecDeque};
 use std::sync::{Arc, Mutex};
 
-pub struct LevelInfo {
-    pub path: String,
-    pub name: String,
-}
-
 pub struct GlobalAssets {
     pub sky: Texture2D,
     pub player_sprite: Texture2D,
@@ -27,23 +23,13 @@ pub struct GlobalAssets {
     pub zap_sprite: Texture2D,
     pub interstitial: Texture2D,
     pub flash_material: Material,
-    pub level_info: Vec<LevelInfo>,
+    pub levels: Vec<LevelInfo>,
     // should this be here?
     pub next_scene: Option<(Scene, TransitionEffectType)>,
 }
 
 pub async fn load_assets() -> GlobalAssets {
-    let raw_level_info = load_string("levels.txt").await.unwrap();
-    let level_info = raw_level_info
-        .lines()
-        .map(|line| {
-            let mut parts = line.splitn(2, " ");
-            LevelInfo {
-                path: parts.next().unwrap().to_string(),
-                name: parts.next().unwrap().to_string(),
-            }
-        })
-        .collect();
+    let levels = load_level_info().await;
     GlobalAssets {
         sky: load_texture("sky.png").await.unwrap(),
         player_sprite: load_texture("princess.png").await.unwrap(),
@@ -55,7 +41,7 @@ pub async fn load_assets() -> GlobalAssets {
         zap_sprite: load_texture("zap.png").await.unwrap(),
         interstitial: load_texture("interstitial.png").await.unwrap(),
         flash_material: load_flash_material(),
-        level_info,
+        levels,
         next_scene: None,
     }
 }

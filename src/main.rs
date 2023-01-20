@@ -22,6 +22,7 @@ mod draw;
 mod enemy;
 mod index;
 mod input;
+mod level;
 mod loader;
 mod messages;
 mod physics;
@@ -75,22 +76,13 @@ async fn main() {
     }
     let mut assets = result.unwrap();
 
-    let (level_n, level_path) = {
-        if argv.len() > 1 {
-            match assets
-                .level_info
-                .iter()
-                .position(|info| info.path == argv[1])
-            {
-                Some(p) => (NonZeroUsize::new(p + 1), assets.level_info[p].path.clone()),
-                None => (None, argv[1].clone()),
-            }
-        } else {
-            (NonZeroUsize::new(1), assets.level_info[0].path.clone())
-        }
+    let info = if argv.len() > 1 {
+        assets.get_level_with_path(&argv[1])
+    } else {
+        assets.get_first_level()
     };
 
-    let mut scene: Scene = new_prelevel(level_n, level_path, false).await;
+    let mut scene: Scene = new_prelevel(info, false).await;
 
     loop {
         match assets.next_scene {
@@ -152,8 +144,7 @@ async fn main() {
                         stop_all_coroutines();
                         assets.next_scene = Some((
                             // skip the transition for faster debugging
-                            new_prelevel(resources.stats.n, resources.stats.path.clone(), true)
-                                .await,
+                            new_prelevel(resources.stats.info.clone(), true).await,
                             TransitionEffectType::Shatter,
                         ));
                     }
@@ -181,15 +172,9 @@ async fn main() {
                     renderer.tick();
                 }
                 if input.is_any_pressed() {
-                    let (idx, next_n) = match stats.n {
-                        None => (0, NonZeroUsize::new(1)),
-                        Some(number) => {
-                            let idx = number.get() % assets.level_info.len();
-                            (idx, NonZeroUsize::new(idx + 1))
-                        }
-                    };
+                    let info = assets.get_next_level(&stats.info);
                     assets.next_scene = Some((
-                        new_prelevel(next_n, assets.level_info[idx].path.clone(), false).await,
+                        new_prelevel(info, false).await,
                         TransitionEffectType::Shatter,
                     ));
                 }
