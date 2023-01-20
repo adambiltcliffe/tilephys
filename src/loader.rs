@@ -13,11 +13,12 @@ use crate::script::ScriptEngine;
 use crate::stats::{LevelNumber, LevelStats};
 use crate::switch::add_switch;
 use crate::visibility::compute_obscurers;
+use crate::weapon::{new_weapon, WeaponType};
 use bitflags::bitflags;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
 use macroquad::{file::load_file, texture::load_texture};
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::io::Cursor;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
@@ -325,6 +326,10 @@ impl LoadingManager {
         compute_obscurers(&mut world_ref.lock().unwrap());
 
         let stats = LevelStats::new(n, name.to_string(), max_kills, max_items, max_secrets);
+        let mut weapons = VecDeque::with_capacity(4);
+        weapons.push_back(new_weapon(WeaponType::BackupLaser));
+        weapons.push_back(new_weapon(WeaponType::ReverseLaser));
+        weapons.push_back(new_weapon(WeaponType::AutoLaser));
 
         let resources = SceneResources {
             world_ref,
@@ -338,6 +343,7 @@ impl LoadingManager {
             messages: Messages::new(),
             stats,
             triggers: HashSet::new(),
+            weapons,
         };
         Ok(Scene::PlayLevel(resources))
     }

@@ -5,9 +5,10 @@ use crate::scene::Scene;
 use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
 use crate::transition::TransitionEffectType;
+use crate::weapon::Weapon;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 use std::sync::{Arc, Mutex};
 
 pub struct LevelInfo {
@@ -71,6 +72,7 @@ pub struct SceneResources {
     pub messages: Messages,
     pub stats: LevelStats,
     pub triggers: HashSet<String>,
+    pub weapons: VecDeque<Box<dyn Weapon>>,
 }
 
 #[derive(Clone)]

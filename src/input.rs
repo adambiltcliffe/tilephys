@@ -18,17 +18,21 @@ pub enum VirtualKey {
     Jump,
     Fire,
     Interact,
+    PrevWeapon,
+    NextWeapon,
     DebugRestart,
     DebugWin,
     DebugKill,
 }
 
-const ALL_KEYS: [(KeyCode, VirtualKey); 8] = [
+const ALL_KEYS: [(KeyCode, VirtualKey); 10] = [
     (KeyCode::Left, VirtualKey::Left),
     (KeyCode::Right, VirtualKey::Right),
     (KeyCode::Z, VirtualKey::Jump),
     (KeyCode::X, VirtualKey::Fire),
     (KeyCode::C, VirtualKey::Interact),
+    (KeyCode::A, VirtualKey::PrevWeapon),
+    (KeyCode::S, VirtualKey::NextWeapon),
     (KeyCode::R, VirtualKey::DebugRestart),
     (KeyCode::W, VirtualKey::DebugWin),
     (KeyCode::K, VirtualKey::DebugKill),

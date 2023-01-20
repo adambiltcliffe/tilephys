@@ -1,10 +1,10 @@
 use crate::draw::PlayerSprite;
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Secrecy, TriggerZone};
-use crate::projectile::make_player_projectile;
 use crate::resources::SceneResources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
+use crate::weapon::weapon_name;
 use hecs::CommandBuffer;
 use macroquad::prelude::{is_key_down, KeyCode};
 use std::collections::HashSet;
@@ -88,9 +88,16 @@ impl Controller {
             if player.grounded {
                 sprite.n += player.vx.abs() as i32;
             }
-            let mut weapon = crate::weapon::new_weapon(crate::weapon::WeaponType::BackupLaser);
+            if input.is_pressed(VirtualKey::PrevWeapon) {
+                resources.weapons.rotate_right(1);
+                println!("Selected {}", weapon_name(resources.weapons[0].get_type()));
+            }
+            if input.is_pressed(VirtualKey::NextWeapon) {
+                resources.weapons.rotate_left(1);
+                println!("Selected {}", weapon_name(resources.weapons[0].get_type()));
+            }
             let fks = input.state(VirtualKey::Fire);
-            if weapon.update(buffer, player, p_rect, controller.facing, fks) {
+            if resources.weapons[0].update(buffer, player, p_rect, controller.facing, fks) {
                 controller.fire_timer = 0;
                 sprite.firing = true;
             }
