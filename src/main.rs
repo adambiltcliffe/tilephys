@@ -1,5 +1,3 @@
-use std::num::NonZeroUsize;
-
 use camera::PlayerCamera;
 use enemy::update_enemies;
 use hecs::CommandBuffer;

@@ -16,7 +16,7 @@ pub async fn load_level_info() -> Vec<LevelInfo> {
         .lines()
         .enumerate()
         .map(|(idx, line)| {
-            let mut parts = line.splitn(2, " ");
+            let mut parts = line.splitn(2, ' ');
             LevelInfo {
                 number: NonZeroUsize::new(idx + 1),
                 path: parts.next().unwrap().to_string(),

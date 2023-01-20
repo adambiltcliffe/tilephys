@@ -3,6 +3,8 @@ use crate::physics::{Actor, IntRect};
 use crate::projectile::make_player_projectile;
 use hecs::CommandBuffer;
 
+// eventually there will be variants whose names don't end in "...Laser"
+#[allow(clippy::enum_variant_names)]
 #[derive(Copy, Clone)]
 pub enum WeaponType {
     BackupLaser,

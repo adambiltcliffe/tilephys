@@ -128,7 +128,7 @@ impl Renderer {
                 self.draw_world(resources, assets);
             }
             Scene::PostLevel(stats) => {
-                self.draw_postlevel(stats, assets);
+                self.draw_postlevel(stats);
             }
         }
 
@@ -241,7 +241,7 @@ impl Renderer {
         );
     }
 
-    pub(crate) fn draw_postlevel(&self, stats: &LevelStats, assets: &GlobalAssets) {
+    pub(crate) fn draw_postlevel(&self, stats: &LevelStats) {
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
