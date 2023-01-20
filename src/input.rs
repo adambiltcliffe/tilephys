@@ -127,7 +127,7 @@ enum Trigger {
     Key(KeyTrigger),
 }
 
-const ALL_TRIGGERS: [Trigger; 8] = [
+const ALL_TRIGGERS: [Trigger; 11] = [
     Trigger::Key(KeyTrigger { kc: KeyCode::Left, vk: VirtualKey::Left }),
     Trigger::Key(KeyTrigger { kc: KeyCode::Right, vk: VirtualKey::Right }),
     Trigger::Key(KeyTrigger { kc: KeyCode::Z, vk: VirtualKey::Jump }),
@@ -136,6 +136,24 @@ const ALL_TRIGGERS: [Trigger; 8] = [
     Trigger::Key(KeyTrigger { kc: KeyCode::R, vk: VirtualKey::DebugRestart }),
     Trigger::Key(KeyTrigger { kc: KeyCode::W, vk: VirtualKey::DebugWin }),
     Trigger::Key(KeyTrigger { kc: KeyCode::K, vk: VirtualKey::DebugKill }),
+    Trigger::Click(ClickTrigger { cl: IntRect {
+        x: WVDC + 48,
+        y: RENDER_H as i32 - WVDC,
+        w: 16,
+        h: 16,
+    }, mb: MouseButton::Left, vk: VirtualKey::Left }),
+    Trigger::Click(ClickTrigger { cl: IntRect {
+        x: WVDC + 56,
+        y: RENDER_H as i32 - WVDC - 12,
+        w: 16,
+        h: 16,
+    }, mb: MouseButton::Left, vk: VirtualKey::Jump }),
+    Trigger::Click(ClickTrigger { cl: IntRect {
+        x: WVDC + 64,
+        y: RENDER_H as i32 - WVDC,
+        w: 16,
+        h: 16,
+    }, mb: MouseButton::Left, vk: VirtualKey::Right }),
 ];
 
 #[derive(Sequence, Debug)]
