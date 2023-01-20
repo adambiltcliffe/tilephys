@@ -193,9 +193,21 @@ impl Input {
         for trigger in ALL_TRIGGERS.iter() {
             match trigger {
                 Trigger::Key(keytrigger) => {
-
+                    if keytrigger.is_down() {
+                        self.down.insert(keytrigger.vk);
+                    }
+                    if keytrigger.is_pressed() {
+                        self.pressed.insert(keytrigger.vk);
+                    }
                 },
-                Trigger::Click(clicktrigger) => {}
+                Trigger::Click(clicktrigger) => {
+                    if clicktrigger.is_down(renderer) {
+                        self.down.insert(clicktrigger.vk);
+                    }
+                    if clicktrigger.is_pressed(renderer) {
+                        self.pressed.insert(clicktrigger.vk);
+                    }
+                }
             }
         }
         /* 
