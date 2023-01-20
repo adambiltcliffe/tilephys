@@ -330,6 +330,7 @@ impl LoadingManager {
         weapons.push_back(new_weapon(WeaponType::BackupLaser));
         weapons.push_back(new_weapon(WeaponType::ReverseLaser));
         weapons.push_back(new_weapon(WeaponType::AutoLaser));
+        weapons.push_back(new_weapon(WeaponType::BurstLaser));
 
         let resources = SceneResources {
             world_ref,

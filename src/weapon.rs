@@ -8,6 +8,7 @@ pub enum WeaponType {
     BackupLaser,
     ReverseLaser,
     AutoLaser,
+    BurstLaser,
 }
 
 pub fn weapon_name(typ: WeaponType) -> &'static str {
@@ -15,6 +16,7 @@ pub fn weapon_name(typ: WeaponType) -> &'static str {
         WeaponType::BackupLaser => "backup laser",
         WeaponType::ReverseLaser => "reverse laser",
         WeaponType::AutoLaser => "auto-laser",
+        WeaponType::BurstLaser => "burst laser",
     }
 }
 
@@ -92,11 +94,13 @@ impl Weapon for ReverseLaser {
     }
 }
 
-struct AutoLaser {}
+struct AutoLaser {
+    delay: u8,
+}
 
 impl AutoLaser {
     fn new() -> Self {
-        Self {}
+        Self { delay: 0 }
     }
 }
 
@@ -112,12 +116,58 @@ impl Weapon for AutoLaser {
         facing: i8,
         key_state: KeyState,
     ) -> bool {
-        if key_state != KeyState::NotPressed {
+        if self.delay > 0 {
+            self.delay -= 1
+        }
+        if key_state != KeyState::NotPressed && self.delay == 0 {
             let new_x = player_rect.x + 3 + facing as i32 * 9;
             let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
             make_player_projectile(buffer, rect, facing as f32 * 10.0);
             player.vx -= facing as f32 * 10.0;
+            self.delay = 3;
             return true;
+        }
+        false
+    }
+}
+
+struct BurstLaser {
+    delay: u8,
+    shots: u8,
+}
+
+impl BurstLaser {
+    fn new() -> Self {
+        Self { delay: 0, shots: 0 }
+    }
+}
+
+impl Weapon for BurstLaser {
+    fn get_type(&self) -> WeaponType {
+        WeaponType::BurstLaser
+    }
+    fn update(
+        &mut self,
+        buffer: &mut CommandBuffer,
+        player: &mut Actor,
+        player_rect: &IntRect,
+        facing: i8,
+        key_state: KeyState,
+    ) -> bool {
+        if self.delay > 0 {
+            self.delay -= 1
+        }
+        if key_state != KeyState::NotPressed && self.delay == 0 && self.shots < 3 {
+            let new_x = player_rect.x + 3 + facing as i32 * 9;
+            let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
+            make_player_projectile(buffer, rect, facing as f32 * 10.0);
+            player.vx -= facing as f32 * 10.0;
+            self.delay = 2;
+            self.shots += 1;
+            return true;
+        }
+        if key_state == KeyState::NotPressed {
+            self.shots = 0;
         }
         false
     }
@@ -128,5 +178,6 @@ pub fn new_weapon(typ: WeaponType) -> Box<dyn Weapon> {
         WeaponType::BackupLaser => Box::new(BackupLaser::new()),
         WeaponType::ReverseLaser => Box::new(ReverseLaser::new()),
         WeaponType::AutoLaser => Box::new(AutoLaser::new()),
+        WeaponType::BurstLaser => Box::new(BurstLaser::new()),
     }
 }
