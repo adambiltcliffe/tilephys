@@ -38,6 +38,7 @@ mod timer;
 mod transition;
 mod vfx;
 mod visibility;
+mod weapon;
 
 const RENDER_W: u32 = 320;
 const RENDER_H: u32 = 200;

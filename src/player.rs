@@ -73,14 +73,6 @@ impl Controller {
                     }
                 }
             }
-            if input.is_pressed(VirtualKey::Fire) {
-                let new_x = p_rect.x + 3 + controller.facing as i32 * 9;
-                let rect = IntRect::new(new_x, p_rect.y + 11, 8, 5);
-                make_player_projectile(buffer, rect, controller.facing as f32 * 10.0);
-                player.vx -= controller.facing as f32 * 10.0;
-                controller.fire_timer = 0;
-                sprite.firing = true;
-            }
             if player.grounded && input.is_pressed(VirtualKey::Jump) {
                 player.vy = -6.0;
                 controller.jump_frames = 5;
@@ -95,6 +87,12 @@ impl Controller {
             }
             if player.grounded {
                 sprite.n += player.vx.abs() as i32;
+            }
+            let mut weapon = crate::weapon::new_weapon(crate::weapon::WeaponType::BackupLaser);
+            let fks = input.state(VirtualKey::Fire);
+            if weapon.update(buffer, player, p_rect, controller.facing, fks) {
+                controller.fire_timer = 0;
+                sprite.firing = true;
             }
             controller.fire_timer += 1;
             sprite.muzzle_flash = controller.fire_timer.min(100) as u8;
