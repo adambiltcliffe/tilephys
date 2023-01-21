@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="77">
+ <tileset firstgid="1" source="../phtiles16.tsx"/>
+ <layer id="14" name="background" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-32" y="-16" width="16" height="16">
+   eJxjYBgFo2DkAi46YAE62UMOBgBMtwKH
+  </chunk>
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo2DkAi46YDEgFseBidEvA8SyODAx+pWAWBkHBgCvqwQN
+  </chunk>
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo2DkAi4oJhdIUKhfjkL9KgyU+QEAUpAAlw==
+  </chunk>
+   <chunk x="-32" y="0" width="16" height="16">
+   eJzjYmBg4KIiFqCyeYTwKBgFo4B8AADqOgHn
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJzjYmBg4MKCBXCIUxNTww5kgC6OjS2AJjYKRsFIBgBKYAJX
+  </chunk>
+   <chunk x="0" y="0" width="16" height="16">
+   eJzjYmBg4IJicgAXA3X0kwso1T8KRsFIBgByTwBl
+  </chunk>
+  </data>
+ </layer>
+ <objectgroup id="5" name="paths"/>
+ <objectgroup id="2" name="entities">
+  <object id="1" name="start" type="player" x="-312" y="48">
+   <point/>
+  </object>
+  <object id="73" type="weapon_reverse_laser" x="-248" y="48">
+   <point/>
+  </object>
+  <object id="75" type="weapon_auto_laser" x="-184" y="48">
+   <point/>
+  </object>
+  <object id="76" type="weapon_double_laser" x="-152" y="48">
+   <point/>
+  </object>
+  <object id="74" type="weapon_burst_laser" x="-216" y="48">
+   <point/>
+  </object>
+ </objectgroup>
+ <layer id="1" name="main" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-48" y="-16" width="16" height="16">
+   eJxjYBgFo2BkAsZR/QwABpQABg==
+  </chunk>
+   <chunk x="-32" y="-16" width="16" height="16">
+   eJxjYBgFo2DoAkYK8UgHABYgABE=
+  </chunk>
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo2DoAkYK8UgHABYgABE=
+  </chunk>
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo2DoAkYkTKk5I1E/AAoUAAg=
+  </chunk>
+   <chunk x="-48" y="0" width="16" height="16">
+   eJxjYCAfMFKgdzjoHwWjYKgDABGQAAU=
+  </chunk>
+   <chunk x="-32" y="0" width="16" height="16">
+   eJxjYBjagJFCPApGwUgGADYgABE=
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjYBjagJFCPApGwUgGADYgABE=
+  </chunk>
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYIAARgbKwEDpZ0TCo2AUjALSAAAY3AAH
+  </chunk>
+  </data>
+ </layer>
+</map>

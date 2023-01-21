@@ -11,6 +11,7 @@ pub enum WeaponType {
     ReverseLaser,
     AutoLaser,
     BurstLaser,
+    DoubleLaser,
 }
 
 pub fn weapon_name(typ: WeaponType) -> &'static str {
@@ -19,6 +20,7 @@ pub fn weapon_name(typ: WeaponType) -> &'static str {
         WeaponType::ReverseLaser => "reverse laser",
         WeaponType::AutoLaser => "auto-laser",
         WeaponType::BurstLaser => "burst laser",
+        WeaponType::DoubleLaser => "double laser",
     }
 }
 
@@ -175,11 +177,45 @@ impl Weapon for BurstLaser {
     }
 }
 
+struct DoubleLaser {}
+
+impl DoubleLaser {
+    fn new() -> Self {
+        Self {}
+    }
+}
+
+impl Weapon for DoubleLaser {
+    fn get_type(&self) -> WeaponType {
+        WeaponType::DoubleLaser
+    }
+    fn update(
+        &mut self,
+        buffer: &mut CommandBuffer,
+        player: &mut Actor,
+        player_rect: &IntRect,
+        facing: i8,
+        key_state: KeyState,
+    ) -> bool {
+        if key_state == KeyState::Pressed {
+            let new_x = player_rect.x + 3 + facing as i32 * 9;
+            let rect = IntRect::new(new_x, player_rect.y + 8, 8, 5);
+            make_player_projectile(buffer, rect, facing as f32 * 10.0);
+            let rect = IntRect::new(new_x, player_rect.y + 14, 8, 5);
+            make_player_projectile(buffer, rect, facing as f32 * 10.0);
+            player.vx -= facing as f32 * 10.0;
+            return true;
+        }
+        false
+    }
+}
+
 pub fn new_weapon(typ: WeaponType) -> Box<dyn Weapon> {
     match typ {
         WeaponType::BackupLaser => Box::new(BackupLaser::new()),
         WeaponType::ReverseLaser => Box::new(ReverseLaser::new()),
         WeaponType::AutoLaser => Box::new(AutoLaser::new()),
         WeaponType::BurstLaser => Box::new(BurstLaser::new()),
+        WeaponType::DoubleLaser => Box::new(DoubleLaser::new()),
     }
 }
