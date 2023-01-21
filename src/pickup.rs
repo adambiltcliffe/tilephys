@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use crate::physics::{Actor, IntRect};
 use crate::player::Controller;
@@ -63,25 +63,27 @@ pub fn add_weapon(world: &mut World, x: i32, y: i32, typ: WeaponType) {
 
 impl WeaponPickup {
     pub fn update(resources: &mut SceneResources) -> Option<()> {
-        let mut new_touched = HashSet::new();
+        let mut new_touched = HashMap::new();
         let world = resources.world_ref.lock().unwrap();
         let mut q = world
             .query_one::<(&IntRect, &mut Controller)>(resources.player_id)
             .ok()?;
         let (p_rect, c) = q.get()?;
-        for (_, (rect, p)) in world.query::<(&IntRect, &mut WeaponPickup)>().iter() {
+        for (id, (rect, p)) in world.query::<(&IntRect, &mut WeaponPickup)>().iter() {
             if rect.intersects(p_rect) {
                 if !p.touched {
                     p.touched = true;
                     resources.stats.items += 1
                 }
-                new_touched.insert(p.typ);
+                new_touched.insert(p.typ, id);
             }
         }
-        for typ in new_touched.difference(&c.touched_weapons) {
-            resources
-                .messages
-                .add(format!("Press C to pick up {}.", weapon_name(*typ)));
+        for typ in new_touched.keys() {
+            if !c.touched_weapons.contains_key(&typ) {
+                resources
+                    .messages
+                    .add(format!("Press C to pick up {}.", weapon_name(*typ)));
+            }
         }
         c.touched_weapons = new_touched;
         Some(())
