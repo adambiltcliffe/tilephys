@@ -1,10 +1,9 @@
-use std::collections::{HashMap, HashSet};
-
 use crate::physics::{Actor, IntRect};
 use crate::player::Controller;
 use crate::resources::SceneResources;
 use crate::weapon::{weapon_name, WeaponType};
 use hecs::{CommandBuffer, World};
+use std::collections::HashMap;
 
 pub struct Pickup {
     touched: bool,

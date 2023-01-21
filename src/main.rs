@@ -112,12 +112,12 @@ async fn main() {
                 for _ in 0..clock.get_num_updates() {
                     let mut buffer = CommandBuffer::new();
                     PathMotion::apply(resources);
+                    Pickup::update(resources, &mut buffer);
+                    WeaponPickup::update(resources);
                     Controller::update(resources, &mut buffer, &input);
                     update_enemies(resources, &mut buffer);
                     Actor::update(resources);
                     Projectile::update(resources, &mut buffer);
-                    Pickup::update(resources, &mut buffer);
-                    WeaponPickup::update(resources);
                     update_vfx(resources, &mut buffer);
                     buffer.run_on(&mut resources.world_ref.lock().unwrap());
 

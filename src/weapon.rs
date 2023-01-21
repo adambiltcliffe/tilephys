@@ -24,6 +24,16 @@ pub fn weapon_name(typ: WeaponType) -> &'static str {
     }
 }
 
+pub fn weapon_name_indef(typ: WeaponType) -> &'static str {
+    match typ {
+        WeaponType::BackupLaser => unreachable!(),
+        WeaponType::ReverseLaser => "a reverse laser",
+        WeaponType::AutoLaser => "an auto-laser",
+        WeaponType::BurstLaser => "a burst laser",
+        WeaponType::DoubleLaser => "a double laser",
+    }
+}
+
 pub trait Weapon {
     fn get_type(&self) -> WeaponType;
     fn update(

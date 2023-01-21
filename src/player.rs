@@ -4,7 +4,7 @@ use crate::physics::{Actor, IntRect, Secrecy, TriggerZone};
 use crate::resources::SceneResources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
-use crate::weapon::{weapon_name, WeaponType};
+use crate::weapon::{new_weapon, weapon_name, weapon_name_indef, WeaponType};
 use hecs::{CommandBuffer, Entity};
 use macroquad::prelude::{is_key_down, KeyCode};
 use std::collections::{HashMap, HashSet};
@@ -65,6 +65,7 @@ impl Controller {
                 sprite.flipped = true;
             }
             if input.is_pressed(VirtualKey::Interact) {
+                let mut interacted = false;
                 let mut q = world.query::<(&Actor, &IntRect, &mut Switch)>();
                 for (_, (_, s_rect, s)) in q.iter() {
                     if p_rect.intersects(s_rect) && s.enabled {
@@ -72,6 +73,19 @@ impl Controller {
                             .triggers
                             .insert(format!("{}_interact", s.name).to_owned());
                         s.enabled = false;
+                        interacted = true;
+                    }
+                }
+                if !interacted {
+                    match controller.touched_weapons.iter().next() {
+                        None => (),
+                        Some((typ, id)) => {
+                            buffer.despawn(*id);
+                            resources.weapons.push_front(new_weapon(*typ));
+                            resources
+                                .messages
+                                .add(format!("Picked up {}.", weapon_name_indef(*typ)));
+                        }
                     }
                 }
             }
