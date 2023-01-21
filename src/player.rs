@@ -11,7 +11,7 @@ use std::collections::{HashMap, HashSet};
 
 pub struct Controller {
     jump_frames: u32,
-    triggers: HashSet<String>,
+    zones: HashSet<String>,
     pub touched_weapons: HashMap<WeaponType, Entity>,
     facing: i8,
     fire_timer: u32,
@@ -24,7 +24,7 @@ impl Controller {
     pub fn new() -> Self {
         Self {
             jump_frames: 0,
-            triggers: HashSet::new(),
+            zones: HashSet::new(),
             touched_weapons: HashMap::new(),
             facing: 1,
             fire_timer: 100000,
@@ -38,22 +38,23 @@ impl Controller {
         let world = resources.world_ref.lock().unwrap();
         let mut q = world.query::<(&mut Actor, &IntRect, &mut PlayerSprite, &mut Controller)>();
         for (id, (player, p_rect, sprite, controller)) in q.iter() {
-            let mut new_triggers: HashSet<String> = HashSet::new();
+            let mut new_zones: HashSet<String> = HashSet::new();
             for (_, (trigger, t_rect)) in world.query::<(&mut TriggerZone, &IntRect)>().iter() {
                 if p_rect.intersects(t_rect) {
-                    let name = format!("{}_enter", trigger.name).to_owned();
-                    if !controller.triggers.contains(&name) {
-                        resources.triggers.insert(name.clone());
+                    if !controller.zones.contains(&trigger.name) {
+                        resources
+                            .triggers
+                            .insert(format!("{}_enter", trigger.name).to_owned());
                         if trigger.secrecy == Secrecy::Hidden {
                             trigger.secrecy = Secrecy::Found;
                             resources.stats.secrets += 1;
                             resources.messages.add("Found a secret area!".to_owned());
                         }
                     }
-                    new_triggers.insert(name);
+                    new_zones.insert(trigger.name.clone());
                 }
             }
-            controller.triggers = new_triggers;
+            controller.zones = new_zones;
             if input.is_down(VirtualKey::Left) {
                 player.vx -= 3.0;
                 controller.facing = -1;
