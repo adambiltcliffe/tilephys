@@ -5,6 +5,7 @@ fn init() {
     start_lift.set_path(up7);
     chasm_bottom.set_path(down3);
     chasm_bottom2.set_path(down3);
+    shutters.set_path(shutter_open);
 }
 
 fn start_lift_trigger_enter() {
@@ -13,6 +14,10 @@ fn start_lift_trigger_enter() {
 
 fn start_lift_top_exit() {
     start_lift.go_to(0, 2.0);
+}
+
+fn shutter_trigger_enter() {
+    shutters.go_to(1, 4.0);
 }
 
 fn top_switch_interact() {
