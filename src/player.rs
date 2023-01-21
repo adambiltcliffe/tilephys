@@ -80,6 +80,13 @@ impl Controller {
                     match controller.touched_weapons.iter().next() {
                         None => (),
                         Some((typ, id)) => {
+                            // if current weapon is the backup laser, remove it
+                            // backup laser can only be in weapon slot 0 so don't have to check anywhere else
+                            if resources.weapons.front().unwrap().get_type()
+                                == WeaponType::BackupLaser
+                            {
+                                resources.weapons.pop_front();
+                            }
                             buffer.despawn(*id);
                             resources.weapons.push_front(new_weapon(*typ));
                             resources
