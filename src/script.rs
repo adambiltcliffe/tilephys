@@ -149,7 +149,13 @@ impl ScriptEngine {
             Some(ast) => self
                 .engine
                 .call_fn::<()>(&mut self.scope, ast, name, ())
-                .unwrap_or_else(|err| println!("calling entry point {} failed: {:?}", name, err)),
+                .unwrap_or_else(|err| match *err {
+                    // if the entry point itself didn't exist, that's not an error
+                    EvalAltResult::ErrorFunctionNotFound(fname, _) if name == fname => (),
+                    _ => {
+                        println!("calling entry point {} failed: {:?}", name, err)
+                    }
+                }),
         }
     }
 

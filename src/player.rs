@@ -54,6 +54,11 @@ impl Controller {
                     new_zones.insert(trigger.name.clone());
                 }
             }
+            for z in &controller.zones {
+                if !new_zones.contains(z) {
+                    resources.triggers.insert(format!("{}_exit", z).to_owned());
+                }
+            }
             controller.zones = new_zones;
             if input.is_down(VirtualKey::Left) {
                 player.vx -= 3.0;

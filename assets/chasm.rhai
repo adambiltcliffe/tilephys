@@ -9,9 +9,10 @@ fn init() {
 
 fn start_lift_trigger_enter() {
     start_lift.go_to(1, 2.0);
-    context.after_frames(150, || {
-        start_lift.go_to(0, 2.0);
-    })
+}
+
+fn start_lift_top_exit() {
+    start_lift.go_to(0, 2.0);
 }
 
 fn top_switch_interact() {
