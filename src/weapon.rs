@@ -5,7 +5,7 @@ use hecs::CommandBuffer;
 
 // eventually there will be variants whose names don't end in "...Laser"
 #[allow(clippy::enum_variant_names)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub enum WeaponType {
     BackupLaser,
     ReverseLaser,

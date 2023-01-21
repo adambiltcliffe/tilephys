@@ -5,7 +5,7 @@ use crate::index::SpatialIndex;
 use crate::level::LevelInfo;
 use crate::messages::Messages;
 use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
-use crate::pickup::add_pickup;
+use crate::pickup::{add_pickup, add_weapon};
 use crate::player::Controller;
 use crate::resources::SceneResources;
 use crate::resources::TilesetInfo;
@@ -285,6 +285,38 @@ impl LoadingManager {
                                     max_kills += 1;
                                 } else if obj_type == "heart" {
                                     add_pickup(&mut world, *x as i32, *y as i32);
+                                    max_items += 1;
+                                } else if obj_type == "weapon_reverse_laser" {
+                                    add_weapon(
+                                        &mut world,
+                                        *x as i32,
+                                        *y as i32,
+                                        WeaponType::ReverseLaser,
+                                    );
+                                    max_items += 1;
+                                } else if obj_type == "weapon_auto_laser" {
+                                    add_weapon(
+                                        &mut world,
+                                        *x as i32,
+                                        *y as i32,
+                                        WeaponType::AutoLaser,
+                                    );
+                                    max_items += 1;
+                                } else if obj_type == "weapon_burst_laser" {
+                                    add_weapon(
+                                        &mut world,
+                                        *x as i32,
+                                        *y as i32,
+                                        WeaponType::BurstLaser,
+                                    );
+                                    max_items += 1;
+                                } else if obj_type == "weapon_double_laser" {
+                                    add_weapon(
+                                        &mut world,
+                                        *x as i32,
+                                        *y as i32,
+                                        WeaponType::DoubleLaser,
+                                    );
                                     max_items += 1;
                                 } else if obj_type == "switch" {
                                     let id =

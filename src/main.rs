@@ -5,7 +5,7 @@ use input::{Input, VirtualKey};
 use macroquad::experimental::coroutines::{start_coroutine, stop_all_coroutines};
 use macroquad::prelude::*;
 use physics::{Actor, PathMotion};
-use pickup::Pickup;
+use pickup::{Pickup, WeaponPickup};
 use player::Controller;
 use projectile::Projectile;
 use render::Renderer;
@@ -117,6 +117,7 @@ async fn main() {
                     Actor::update(resources);
                     Projectile::update(resources, &mut buffer);
                     Pickup::update(resources, &mut buffer);
+                    WeaponPickup::update(resources);
                     update_vfx(resources, &mut buffer);
                     buffer.run_on(&mut resources.world_ref.lock().unwrap());
 

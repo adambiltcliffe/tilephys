@@ -4,7 +4,7 @@ use crate::physics::{Actor, IntRect, Secrecy, TriggerZone};
 use crate::resources::SceneResources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
-use crate::weapon::weapon_name;
+use crate::weapon::{weapon_name, WeaponType};
 use hecs::CommandBuffer;
 use macroquad::prelude::{is_key_down, KeyCode};
 use std::collections::HashSet;
@@ -12,6 +12,7 @@ use std::collections::HashSet;
 pub struct Controller {
     jump_frames: u32,
     triggers: HashSet<String>,
+    pub touched_weapons: HashSet<WeaponType>,
     facing: i8,
     fire_timer: u32,
     hurt_timer: u8,
@@ -24,6 +25,7 @@ impl Controller {
         Self {
             jump_frames: 0,
             triggers: HashSet::new(),
+            touched_weapons: HashSet::new(),
             facing: 1,
             fire_timer: 100000,
             hurt_timer: 0,
