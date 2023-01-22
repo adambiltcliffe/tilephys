@@ -42,7 +42,7 @@ impl Pickup {
 
 pub struct WeaponPickup {
     touched: bool,
-    typ: WeaponType,
+    pub typ: WeaponType,
 }
 
 pub fn add_weapon(world: &mut World, x: i32, y: i32, typ: WeaponType) {
@@ -79,9 +79,15 @@ impl WeaponPickup {
         }
         for typ in new_touched.keys() {
             if !c.touched_weapons.contains_key(&typ) {
-                resources
-                    .messages
-                    .add(format!("Press C to pick up {}.", weapon_name(*typ)));
+                if resources.weapons.len() < 3 {
+                    resources
+                        .messages
+                        .add(format!("Press C to pick up {}.", weapon_name(*typ)));
+                } else {
+                    resources
+                        .messages
+                        .add(format!("Press C to swap for {}.", weapon_name(*typ)));
+                }
             }
         }
         c.touched_weapons = new_touched;

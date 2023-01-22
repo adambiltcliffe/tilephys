@@ -1,6 +1,7 @@
 use crate::draw::PlayerSprite;
 use crate::input::{Input, VirtualKey};
 use crate::physics::{Actor, IntRect, Secrecy, TriggerZone};
+use crate::pickup::WeaponPickup;
 use crate::resources::SceneResources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
@@ -83,7 +84,13 @@ impl Controller {
                     }
                 }
                 if !interacted {
-                    match controller.touched_weapons.iter().next() {
+                    let tw = controller
+                        .touched_weapons
+                        .iter()
+                        .next()
+                        // copy the references now so that the borrow can be dropped
+                        .map(|(&typ, &id)| (typ, id));
+                    match tw {
                         None => (),
                         Some((typ, id)) => {
                             // if current weapon is the backup laser, remove it
@@ -93,11 +100,22 @@ impl Controller {
                             {
                                 resources.weapons.pop_front();
                             }
-                            buffer.despawn(*id);
-                            resources.weapons.push_front(new_weapon(*typ));
+                            // at the moment we can't have the backup laser along with anything else
+                            // so we can ignore it when working out if the inventory is full
+                            if resources.weapons.len() < 3 {
+                                buffer.despawn(id);
+                                resources.weapons.push_front(new_weapon(typ));
+                            } else {
+                                let mut w = world.get::<&mut WeaponPickup>(id).unwrap();
+                                w.typ = resources.weapons[0].get_type();
+                                resources.weapons.pop_front();
+                                resources.weapons.push_front(new_weapon(typ));
+                                // mark it as touched to suppress the message next frame
+                                controller.touched_weapons.insert(typ, id);
+                            }
                             resources
                                 .messages
-                                .add(format!("Picked up {}.", weapon_name_indef(*typ)));
+                                .add(format!("Picked up {}.", weapon_name_indef(typ)));
                         }
                     }
                 }
