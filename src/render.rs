@@ -466,27 +466,12 @@ impl Renderer {
         for btn in all::<ScreenButtons>() {
             draw_texture_ex(
                 assets.controls,
-                btn.get_pos(self).0 as f32,
-                btn.get_pos(self).1 as f32,
+                btn.get_pos().0 as f32,
+                btn.get_pos().1 as f32,
                 WHITE,
-                btn.get_texture_params(),
-            )
+                btn.get_texture_params(!(input.is_hovered(btn.get_vk()) || input.is_down(btn.get_vk()))),
+            );
         }
-        /*
-        for rot in 0..3 {
-            draw_texture_ex(
-                assets.controls,
-                wvdc + 64.0 + 8. * rot as f32,
-                self.height - wvdc - 16. - (rot % 2) as f32 * 12.,// + 16.0 * (rot % 2) as f32,
-                WHITE,
-                DrawTextureParams {
-                    rotation: rot as f32 * PI / 2.,
-                    flip_x: true,
-                    ..Default::default()
-                }
-            )
-        }*/
-        
     }
 
     pub fn start_transition(&mut self, typ: TransitionEffectType) {

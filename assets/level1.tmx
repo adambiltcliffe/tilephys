@@ -133,10 +133,10 @@
   </data>
  </layer>
  <objectgroup id="5" name="paths" opacity="0.6">
-  <object id="4" name="hatchleft" x="32" y="-16">
+  <object id="4" name="hatchleft_path" x="32" y="-16">
    <polyline points="0,0 0,16 -32,16"/>
   </object>
-  <object id="5" name="hatchright" x="32" y="-16">
+  <object id="5" name="hatchright_path" x="32" y="-16">
    <polyline points="0,0 0,16 32,16"/>
   </object>
   <object id="6" type="enemy" x="320" y="64">
@@ -173,13 +173,13 @@
    <point/>
   </object>
   <object id="12" name="hatch_trigger" x="120" y="0" width="24" height="48"/>
-  <object id="24" name="lift" x="336" y="64">
+  <object id="24" name="lift_path" x="336" y="64">
    <polyline points="0,0 0,80"/>
   </object>
   <object id="50" name="door_reverse" x="160" y="96">
    <polyline points="0,0 0,-48"/>
   </object>
-  <object id="52" name="door" x="160" y="-48">
+  <object id="52" name="door_path" x="160" y="-48">
    <polyline points="0,0 0,48"/>
   </object>
   <object id="51" name="lift_trigger" x="272" y="0" width="64" height="64"/>

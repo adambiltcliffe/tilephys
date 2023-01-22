@@ -10,6 +10,7 @@ use macroquad::{
         is_mouse_button_pressed, mouse_position, KeyCode, MouseButton,
     },
     texture::DrawTextureParams,
+    math::{Rect, Vec2},
 };
 use std::{collections::HashSet, f32::consts::PI};
 
@@ -25,52 +26,6 @@ pub enum VirtualKey {
     DebugKill,
 }
 
-const ALL_KEYS: [(KeyCode, VirtualKey); 8] = [
-    (KeyCode::Left, VirtualKey::Left),
-    (KeyCode::Right, VirtualKey::Right),
-    (KeyCode::Z, VirtualKey::Jump),
-    (KeyCode::X, VirtualKey::Fire),
-    (KeyCode::C, VirtualKey::Interact),
-    (KeyCode::R, VirtualKey::DebugRestart),
-    (KeyCode::W, VirtualKey::DebugWin),
-    (KeyCode::K, VirtualKey::DebugKill),
-];
-
-// I need a to do ceil by myself (works on the principle that 8.7 as i32 == 8) to be able to use it in a constant
-
-const WVDC: i32 = WALL_VISION_DEPTH as i32
-    + (((WALL_VISION_DEPTH as i32) as f32 - WALL_VISION_DEPTH)
-        / ((WALL_VISION_DEPTH as i32) as f32 - WALL_VISION_DEPTH)) as i32;
-
-const CLICK_AREAS: [(IntRect, VirtualKey); 3] = [
-    (
-        IntRect {
-            x: WVDC + 48,
-            y: RENDER_H as i32 - WVDC,
-            w: 16,
-            h: 16,
-        },
-        VirtualKey::Left,
-    ),
-    (
-        IntRect {
-            x: WVDC + 64,
-            y: RENDER_H as i32 - WVDC,
-            w: 16,
-            h: 16,
-        },
-        VirtualKey::Right,
-    ),
-    (
-        IntRect {
-            x: WVDC + 56,
-            y: RENDER_H as i32 - WVDC - 12,
-            w: 16,
-            h: 16,
-        },
-        VirtualKey::Jump,
-    ),
-];
 
 pub struct KeyTrigger {
     kc: KeyCode,
@@ -78,10 +33,6 @@ pub struct KeyTrigger {
 }
 
 impl KeyTrigger {
-    pub fn new(kc: KeyCode, vk: VirtualKey) -> Self {
-        Self { kc, vk }
-    }
-
     pub fn is_down(&self) -> bool {
         is_key_down(self.kc)
     }
@@ -98,10 +49,6 @@ pub struct ClickTrigger {
 }
 
 impl ClickTrigger {
-    pub fn new(cl: IntRect, mb: MouseButton, vk: VirtualKey) -> Self {
-        Self { cl, mb, vk }
-    }
-
     pub fn is_hovered(&self, renderer: &Renderer) -> bool {
         let mouse_pos = renderer.format_abs_pos(mouse_position());
         let mouse_rect: IntRect = IntRect {
@@ -127,7 +74,12 @@ enum Trigger {
     Key(KeyTrigger),
 }
 
-const ALL_TRIGGERS: [Trigger; 11] = [
+// I need a to do ceil by myself (works on the principle that 8.7 as i32 == 8) to be able to use it in a constant
+const WVDC: i32 = WALL_VISION_DEPTH as i32
+    + (((WALL_VISION_DEPTH as i32) as f32 - WALL_VISION_DEPTH)
+        / ((WALL_VISION_DEPTH as i32) as f32 - WALL_VISION_DEPTH)) as i32;
+
+const ALL_TRIGGERS: [Trigger; 12] = [
     Trigger::Key(KeyTrigger { kc: KeyCode::Left, vk: VirtualKey::Left }),
     Trigger::Key(KeyTrigger { kc: KeyCode::Right, vk: VirtualKey::Right }),
     Trigger::Key(KeyTrigger { kc: KeyCode::Z, vk: VirtualKey::Jump }),
@@ -154,6 +106,12 @@ const ALL_TRIGGERS: [Trigger; 11] = [
         w: 16,
         h: 16,
     }, mb: MouseButton::Left, vk: VirtualKey::Right }),
+    Trigger::Click(ClickTrigger { cl: IntRect {
+        x: WVDC + 96,
+        y: RENDER_H as i32 - WVDC,
+        w: 16,
+        h: 16,
+    }, mb: MouseButton::Left, vk: VirtualKey::Interact }),
 ];
 
 #[derive(Sequence, Debug)]
@@ -161,31 +119,51 @@ pub enum ScreenButtons {
     Left,
     Jump,
     Right,
+    Interact,
 }
 
 impl ScreenButtons {
-    pub fn get_pos(&self, renderer: &Renderer) -> (i32, i32) {
-        //return (WVDC + 64, RENDER_H as i32 - WVDC + 16);
+    pub fn get_vk(&self) -> VirtualKey {
+        match self {
+            Self::Left => VirtualKey::Left,
+            Self::Jump => VirtualKey::Jump,
+            Self::Right => VirtualKey::Right,
+            Self::Interact => VirtualKey::Interact,
+        }
+    }
+    pub fn get_pos(&self) -> (i32, i32) {
         match self {
             Self::Left => (WVDC + 64, RENDER_H as i32 - WVDC + 16),
             Self::Jump => (WVDC + 72, RENDER_H as i32 - WVDC + 4),
             Self::Right => (WVDC + 80, RENDER_H as i32 - WVDC + 16),
+            Self::Interact => (WVDC + 112, RENDER_H as i32 - WVDC + 16)
         }
     }
 
-    pub fn get_texture_params(&self) -> DrawTextureParams {
+    pub fn get_texture_params(&self, hovered: bool) -> DrawTextureParams {
+        let source: Rect = match hovered {
+            true => Rect::new(16., 0., 16., 16.),
+            false => Rect::new(0., 0., 16., 16.),
+        };
         match self {
             Self::Left => DrawTextureParams {
                 flip_x: true,
+                source: Some(source),
                 ..Default::default()
             },
             Self::Jump => DrawTextureParams {
                 rotation: -PI / 2.,
+                source: Some(source),
                 ..Default::default()
             },
             Self::Right => DrawTextureParams {
+                source: Some(source),
                 ..Default::default()
             },
+            Self::Interact => DrawTextureParams {
+                source: Some(source.offset(Vec2::new(0., 16.))),
+                ..Default::default()
+            } 
         }
     }
 }
@@ -193,6 +171,7 @@ impl ScreenButtons {
 pub struct Input {
     down: HashSet<VirtualKey>,
     pressed: HashSet<VirtualKey>,
+    hovered: HashSet<VirtualKey>,
     any_pressed: bool,
 }
 
@@ -201,12 +180,14 @@ impl Input {
         Self {
             down: HashSet::new(),
             pressed: HashSet::new(),
+            hovered: HashSet::new(),
             any_pressed: false,
         }
     }
 
     pub fn update(&mut self, renderer: &Renderer) {
         self.down.clear();
+        self.hovered.clear();
         self.any_pressed = false;
         for trigger in ALL_TRIGGERS.iter() {
             match trigger {
@@ -224,6 +205,9 @@ impl Input {
                     }
                     if clicktrigger.is_pressed(renderer) {
                         self.pressed.insert(clicktrigger.vk);
+                    }
+                    if clicktrigger.is_hovered(renderer) {
+                        self.hovered.insert(clicktrigger.vk);
                     }
                 }
             }
@@ -257,6 +241,10 @@ impl Input {
             }
         }*/
         self.any_pressed = get_char_pressed().is_some() || is_mouse_button_down(MouseButton::Left);
+    }
+    
+    pub fn is_hovered(&self, vk: VirtualKey) -> bool {
+        self.hovered.contains(&vk)
     }
 
     pub fn is_down(&self, vk: VirtualKey) -> bool {
