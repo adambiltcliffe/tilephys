@@ -10,8 +10,10 @@ disable debug keys in release mode
 
 TWO-LEVEL CONCEPT DEMO
 ----------------------
-weapons/ammo
-* ammo pickups
+three weapon limit
+weapon switcher visuals
+ammo pickups
+* restore backup laser when out of ammo
 
 MISC ENHANCEMENTS
 -----------------
@@ -21,6 +23,7 @@ optimisations:
 * investigate speeding up move_body
 * trivial optimisation of projectile::find_collision_pos
 * remove some cloning in PathMotion creation
+* resize some render targets and remove some of the +WVDC stuff
 nicer text rendering
 nice script debug output
 better error handling in general
