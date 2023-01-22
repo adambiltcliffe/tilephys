@@ -23,7 +23,11 @@ pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
     };
     let rect = IntRect::new(x - 12, y - h, 24, h);
     let actor = Actor::new(&rect, 0.4);
-    let hittable = EnemyHittable::new(3);
+    let hp = match kind {
+        EnemyKind::SpiderParrot => 7,
+        _ => 3,
+    };
+    let hittable = EnemyHittable::new(hp);
     let dmg = EnemyContactDamage::new();
     if kind == EnemyKind::SpiderParrot {
         world.spawn((
@@ -213,7 +217,7 @@ impl ParrotBehaviour {
                             (x - rect.centre().x).signum() == beh.facing as f32
                         });
                         if with_prob(0.5) {
-                            if is_facing_player && with_prob(0.7) {
+                            if is_facing_player && with_prob(0.4) {
                                 beh.set_state(ParrotState::Attack);
                             } else {
                                 beh.facing = -beh.facing;
