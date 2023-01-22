@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="31" nextobjectid="105">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="31" nextobjectid="106">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -130,6 +130,9 @@
   <object id="99" type="parrot_enemy" x="-856" y="352">
    <point/>
   </object>
+  <object id="105" type="parrot_enemy" x="-880" y="352">
+   <point/>
+  </object>
   <object id="101" type="enemy" x="-1048" y="384">
    <point/>
   </object>
@@ -139,7 +142,7 @@
   <object id="100" type="parrot_enemy" x="-800" y="368">
    <point/>
   </object>
-  <object id="103" name="shutter_trigger" x="-736" y="288" width="96" height="96"/>
+  <object id="103" name="shutter_trigger" x="-736" y="288" width="32" height="96"/>
  </objectgroup>
  <layer id="25" name="top_door" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -184,7 +187,7 @@
    eJxjYMANGHGw0dXgw7jUETIXH8BmzlAGhMIQV9gh6yfHLgaG4RWOo4B0AABuEAAl
   </chunk>
    <chunk x="-48" y="16" width="16" height="16">
-   eJxjYGBgYGTADdDlGNEwNjXE6MfFx6YfGyYXDBb9lJqDbuZg1I8r7pgYiE8/lNhPin5c6ZIUs9H1o4sNlH58GAB8gABA
+   eJxjYGBgYGTADdDlGNEwNjXE6MfFx6YfGyYXDBb95JqDTR8l7qGlflxxx8SA6o/B4H5c6ZIUs9H1o4sNlH58GACBHABC
   </chunk>
    <chunk x="-32" y="16" width="16" height="16">
    eJxjZBgFlABGKB6pAOR3JgZEOIzksBgIwMhAWtijqwcAGOAAEg==
