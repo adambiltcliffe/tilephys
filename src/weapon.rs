@@ -44,6 +44,16 @@ pub fn weapon_sprite_frame(typ: WeaponType) -> usize {
     }
 }
 
+pub fn weapon_v_offset(typ: WeaponType) -> f32 {
+    match typ {
+        WeaponType::BackupLaser => 4.0,
+        WeaponType::ReverseLaser => 2.0,
+        WeaponType::AutoLaser => 3.0,
+        WeaponType::BurstLaser => 3.0,
+        WeaponType::DoubleLaser => 2.0,
+    }
+}
+
 pub trait Weapon {
     fn get_type(&self) -> WeaponType;
     fn update(
@@ -237,5 +247,25 @@ pub fn new_weapon(typ: WeaponType) -> Box<dyn Weapon> {
         WeaponType::AutoLaser => Box::new(AutoLaser::new()),
         WeaponType::BurstLaser => Box::new(BurstLaser::new()),
         WeaponType::DoubleLaser => Box::new(DoubleLaser::new()),
+    }
+}
+
+pub struct WeaponSelectorUI {
+    pub timer: u16,
+}
+
+impl WeaponSelectorUI {
+    pub fn new() -> Self {
+        Self { timer: 0 }
+    }
+
+    pub fn change(&mut self) {
+        self.timer = 45;
+    }
+
+    pub fn update(&mut self) {
+        if self.timer > 0 {
+            self.timer -= 1;
+        }
     }
 }

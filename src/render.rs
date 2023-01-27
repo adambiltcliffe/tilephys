@@ -8,6 +8,7 @@ use crate::stats::LevelStats;
 use crate::transition::{new_transition, TransitionEffect, TransitionEffectType};
 use crate::vfx::draw_vfx;
 use crate::visibility::draw_visibility;
+use crate::weapon::{weapon_name, weapon_sprite_frame, weapon_v_offset};
 use macroquad::prelude::*;
 use miniquad::graphics::{BlendFactor, BlendState, BlendValue, Equation};
 
@@ -447,6 +448,21 @@ impl Renderer {
                 },
             );
         }
+        let typ = resources.weapons[0].get_type();
+        if resources.selector.timer > 0 {
+            self.draw_centred_text(weapon_name(typ), 16, 184.0);
+        }
+        let frame = weapon_sprite_frame(typ);
+        draw_texture_ex(
+            assets.weapon_sprite,
+            self.width / 2.0 - 12.0,
+            wvdc + 184.0 - weapon_v_offset(typ),
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(0.0, 16.0 * frame as f32, 24.0, 16.0)),
+                ..Default::default()
+            },
+        );
     }
 
     pub fn start_transition(&mut self, typ: TransitionEffectType) {

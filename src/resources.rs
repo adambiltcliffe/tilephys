@@ -6,7 +6,7 @@ use crate::scene::Scene;
 use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
 use crate::transition::TransitionEffectType;
-use crate::weapon::Weapon;
+use crate::weapon::{Weapon, WeaponSelectorUI};
 use hecs::{Entity, World};
 use macroquad::prelude::*;
 use std::collections::{HashSet, VecDeque};
@@ -58,6 +58,7 @@ pub struct SceneResources {
     pub body_index: SpatialIndex,
     pub tileset_info: TilesetInfo,
     pub messages: Messages,
+    pub selector: WeaponSelectorUI,
     pub stats: LevelStats,
     pub triggers: HashSet<String>,
     pub weapons: VecDeque<Box<dyn Weapon>>,

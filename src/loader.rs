@@ -14,7 +14,7 @@ use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
 use crate::switch::add_switch;
 use crate::visibility::compute_obscurers;
-use crate::weapon::{new_weapon, WeaponType};
+use crate::weapon::{new_weapon, WeaponSelectorUI, WeaponType};
 use bitflags::bitflags;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
@@ -377,6 +377,7 @@ impl LoadingManager {
             stats,
             triggers: HashSet::new(),
             weapons,
+            selector: WeaponSelectorUI::new(),
         };
         Ok(Scene::PlayLevel(resources))
     }

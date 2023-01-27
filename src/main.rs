@@ -158,6 +158,7 @@ async fn main() {
 
                     input.reset();
                     resources.messages.update();
+                    resources.selector.update();
                     resources.stats.frames += 1;
                     renderer.tick();
 

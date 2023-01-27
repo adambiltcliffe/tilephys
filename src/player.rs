@@ -116,6 +116,7 @@ impl Controller {
                             resources
                                 .messages
                                 .add(format!("Picked up {}.", weapon_name_indef(typ)));
+                            resources.selector.change();
                         }
                     }
                 }
@@ -137,11 +138,11 @@ impl Controller {
             }
             if input.is_pressed(VirtualKey::PrevWeapon) {
                 resources.weapons.rotate_right(1);
-                println!("Selected {}", weapon_name(resources.weapons[0].get_type()));
+                resources.selector.change();
             }
             if input.is_pressed(VirtualKey::NextWeapon) {
                 resources.weapons.rotate_left(1);
-                println!("Selected {}", weapon_name(resources.weapons[0].get_type()));
+                resources.selector.change();
             }
             let fks = input.state(VirtualKey::Fire);
             if resources.weapons[0].update(buffer, player, p_rect, controller.facing, fks) {
