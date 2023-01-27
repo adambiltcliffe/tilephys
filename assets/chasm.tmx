@@ -10,7 +10,7 @@
    eJxjYBgFo2DkAi4oHqn6ATVgAFE=
   </chunk>
    <chunk x="-64" y="0" width="16" height="16">
-   eJxjYBgFo2AUYANcRODBrB/dDGwAAKNgAS0=
+   eJxjYBgFo2AUoAMuIvFg1Y9uBi4AALeIAUs=
   </chunk>
    <chunk x="-48" y="0" width="16" height="16">
    eJxjYMANuIjA+MBg1U8swKefFLOopV+ASvaTGhbDTT+xZhMT/wOtn1z/w9gAwT8FVw==
@@ -25,10 +25,10 @@
    eJzjYmBg4GIgH3ANcf2jYBSMZAAAJW8AUQ==
   </chunk>
    <chunk x="-80" y="16" width="16" height="16">
-   eJxjYBgZgAsHHir6cZlBKqBU/ygYXgAAwV4BDw==
+   eJxjYBj+gAsPHgr68ZlBCqBU/ygYfgAAQ20BQQ==
   </chunk>
    <chunk x="-64" y="16" width="16" height="16">
-   eJxjYMAPuKCYXECMfi4SMTa9YkAsQQIfHSsBsQoJfGpiUgGl+kfBKIABALYGA5c=
+   eJxjYMANuKCYXECMfi4SMTb9YkAsgaSGEB8dKwGxCgl8amJSAaX6R8EoQAYAo7YDjQ==
   </chunk>
    <chunk x="-48" y="16" width="16" height="16">
    eJxjYIAALhwYmxw2QKp+dLPw6SfFPmLwYNBPDX8QE34DqZ8UMNDuRzeHWLcNBf34AAArKQb/
@@ -66,7 +66,7 @@
   <object id="98" name="shutter_open" x="-768" y="304">
    <polyline points="0,0 0,64"/>
   </object>
-  <object id="104" type="weapon_burst_laser" x="-744" y="368">
+  <object id="104" type="weapon_burst_laser" x="-752" y="368">
    <point/>
   </object>
  </objectgroup>
@@ -133,13 +133,13 @@
   <object id="105" type="parrot_enemy" x="-880" y="352">
    <point/>
   </object>
-  <object id="101" type="enemy" x="-1048" y="384">
+  <object id="101" type="enemy" x="-1064" y="384">
    <point/>
   </object>
-  <object id="102" type="enemy" x="-1032" y="384">
+  <object id="102" type="enemy" x="-1048" y="384">
    <point/>
   </object>
-  <object id="100" type="parrot_enemy" x="-800" y="368">
+  <object id="100" type="parrot_enemy" x="-816" y="368">
    <point/>
   </object>
   <object id="103" name="shutter_trigger" x="-736" y="288" width="32" height="96"/>
@@ -166,7 +166,7 @@
    eJxjYBgFo2DoAkYoptSMkaofAAjsAAc=
   </chunk>
    <chunk x="-64" y="0" width="16" height="16">
-   eJxjYBgFo2B4AkYiMCH9lNo/WPTj8j8AEBgAFA==
+   eJxjYBgFo2D4AUYiMT79lNo/WPTj8z8AEWwAFg==
   </chunk>
    <chunk x="-48" y="0" width="16" height="16">
    eJxjYMAOGHGIEwsGq35GNEyufmLsx6aWWP243EGs+3HpJxUMNv3o/kYPD2wYm35S4wGX/QOtH8ZngmJsfHz6AV2oAD4=
@@ -181,13 +181,13 @@
    eJxjYGBgYGSgDAykfkYq2D8KRsFIBQAVsAAG
   </chunk>
    <chunk x="-80" y="16" width="16" height="16">
-   eJxjYBj8gBEPJlY/pfYPtP7BZAap4T8KBi8AADWgABQ=
+   eJxjYBg4wEikGnyYGnYMdv2DyQxSw38UDG4AAD54ABc=
   </chunk>
    <chunk x="-64" y="16" width="16" height="16">
-   eJxjYMANGHGw0dXgw7jUETIXH8BmzlAGhMIQV9gh6yfHLgaG4RWOo4B0AABuEAAl
+   eJxjYMAOGHGwsanDhXGpoQRQ06zBAPCFH74wRdZPjl3k6B8Fww8AAGiYACM=
   </chunk>
    <chunk x="-48" y="16" width="16" height="16">
-   eJxjYGBgYGTADdDlGNEwNjXE6MfFx6YfGyYXDBb95JqDTR8l7qGlflxxx8SA6o/B4H5c6ZIUs9H1o4sNlH58GACBHABC
+   eJxjYGBgYGTADdDlGNEwNjXE6MfFx6YfGyYXDBb95JpDavgRayYt9OOKOyYGVHcPBvfjCldSzEbXjy42UPrxYQCDXABD
   </chunk>
    <chunk x="-32" y="16" width="16" height="16">
    eJxjZBgFlABGKB6pAOR3JgZEOIzksBgIwMhAWtijqwcAGOAAEg==
@@ -209,10 +209,7 @@
  <layer id="30" name="shutters" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-64" y="16" width="16" height="16">
-   eJxjYBi5gHFU/ygY4QAAEJQABg==
-  </chunk>
-   <chunk x="-48" y="16" width="16" height="16">
-   eJxjYBjagHFU/ygYBWQDABHAAAY=
+   eJxjYBiZgBGKR/WPgpEMAB08AAs=
   </chunk>
   </data>
  </layer>

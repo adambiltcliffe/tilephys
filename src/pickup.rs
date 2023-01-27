@@ -46,7 +46,7 @@ pub struct WeaponPickup {
 }
 
 pub fn add_weapon(world: &mut World, x: i32, y: i32, typ: WeaponType) {
-    let rect = IntRect::new(x - 8, y - 16, 16, 16);
+    let rect = IntRect::new(x - 12, y - 16, 24, 16);
     let actor = Actor::new(&rect, 0.4);
     world.spawn((
         rect,
