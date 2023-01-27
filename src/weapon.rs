@@ -34,6 +34,16 @@ pub fn weapon_name_indef(typ: WeaponType) -> &'static str {
     }
 }
 
+pub fn weapon_sprite_frame(typ: WeaponType) -> usize {
+    match typ {
+        WeaponType::BackupLaser => 0,
+        WeaponType::ReverseLaser => 3,
+        WeaponType::AutoLaser => 1,
+        WeaponType::BurstLaser => 1,
+        WeaponType::DoubleLaser => 3,
+    }
+}
+
 pub trait Weapon {
     fn get_type(&self) -> WeaponType;
     fn update(

@@ -1,8 +1,10 @@
 use crate::enemy::EnemyHittable;
 use crate::physics::{IntRect, TileBody};
+use crate::pickup::WeaponPickup;
 use crate::resources::{GlobalAssets, SceneResources};
 use crate::switch::Switch;
 use crate::vfx::ZapFlash;
+use crate::weapon::weapon_sprite_frame;
 use hecs::World;
 use macroquad::prelude::*;
 
@@ -147,7 +149,6 @@ pub(crate) fn draw(world: &mut World, resources: &SceneResources, assets: &Globa
             rect.y as f32,
             WHITE,
             DrawTextureParams {
-                //dest_size: Some(vec2(16.0, 24.0)),
                 source: Some(Rect::new(16.0 * frame as f32, 0.0, 16.0, 16.0)),
                 ..Default::default()
             },
@@ -156,6 +157,20 @@ pub(crate) fn draw(world: &mut World, resources: &SceneResources, assets: &Globa
 
     for (_, (rect, _spr)) in world.query::<(&IntRect, &PickupSprite)>().iter() {
         draw_texture(assets.pickup_sprite, rect.x as f32, rect.y as f32, WHITE);
+    }
+
+    for (_, (rect, w)) in world.query::<(&IntRect, &WeaponPickup)>().iter() {
+        let frame = weapon_sprite_frame(w.typ);
+        draw_texture_ex(
+            assets.weapon_sprite,
+            rect.x as f32,
+            rect.y as f32,
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(0.0, 16.0 * frame as f32, 24.0, 16.0)),
+                ..Default::default()
+            },
+        );
     }
 
     for (_, (rect, _spr)) in world.query::<(&IntRect, &ZapSprite)>().iter() {
