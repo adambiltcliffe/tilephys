@@ -5,7 +5,7 @@ use crate::pickup::WeaponPickup;
 use crate::resources::SceneResources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
-use crate::weapon::{new_weapon, weapon_name, weapon_name_indef, WeaponType};
+use crate::weapon::{new_weapon, weapon_name_indef, WeaponType};
 use hecs::{CommandBuffer, Entity};
 use macroquad::prelude::{is_key_down, KeyCode};
 use std::collections::{HashMap, HashSet};
@@ -139,17 +139,17 @@ impl Controller {
             if input.is_pressed(VirtualKey::PrevWeapon) {
                 if resources.weapons.len() > 1 {
                     resources.weapons.rotate_right(1);
-                    resources.selector.change(1.0);
+                    resources.selector.change(-1.0);
                 } else {
-                    resources.selector.change(-0.1);
+                    resources.selector.change(0.1);
                 }
             }
             if input.is_pressed(VirtualKey::NextWeapon) {
                 if resources.weapons.len() > 1 {
                     resources.weapons.rotate_left(1);
-                    resources.selector.change(-1.0);
+                    resources.selector.change(1.0);
                 } else {
-                    resources.selector.change(0.1);
+                    resources.selector.change(-0.1);
                 }
             }
             let fks = input.state(VirtualKey::Fire);

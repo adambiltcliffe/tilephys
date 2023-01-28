@@ -38,7 +38,7 @@ pub fn weapon_sprite_frame(typ: WeaponType) -> usize {
     match typ {
         WeaponType::BackupLaser => 0,
         WeaponType::ReverseLaser => 3,
-        WeaponType::AutoLaser => 2, //1
+        WeaponType::AutoLaser => 1,
         WeaponType::BurstLaser => 1,
         WeaponType::DoubleLaser => 3,
     }
@@ -272,6 +272,6 @@ impl WeaponSelectorUI {
         if self.timer > 0 {
             self.timer -= 1;
         }
-        self.offset *= 0.9;
+        self.offset *= 0.8;
     }
 }
