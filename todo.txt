@@ -10,9 +10,7 @@ disable debug keys in release mode
 
 TWO-LEVEL CONCEPT DEMO
 ----------------------
-three weapon limit
-weapon switcher visuals
-ammo pickups
+ammo limit and ammo pickups
 * restore backup laser when out of ammo
 
 MISC ENHANCEMENTS
