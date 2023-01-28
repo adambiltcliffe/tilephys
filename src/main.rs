@@ -1,3 +1,5 @@
+use std::num::NonZeroU8;
+
 use camera::PlayerCamera;
 use enemy::update_enemies;
 use hecs::CommandBuffer;
@@ -123,14 +125,34 @@ async fn main() {
 
                     PlayerCamera::update(resources);
 
-                    if input.is_pressed(VirtualKey::DebugKill) {
-                        resources
-                            .world_ref
-                            .lock()
-                            .unwrap()
-                            .get::<&mut Controller>(resources.player_id)
-                            .unwrap()
-                            .hp = 0
+                    let mut player_dead = true;
+                    {
+                        let w = resources.world_ref.lock().unwrap();
+                        if let Ok(mut controller) = w.get::<&mut Controller>(resources.player_id) {
+                            if input.is_pressed(VirtualKey::DebugKill) {
+                                controller.hp = 0
+                            }
+                            player_dead = controller.hp == 0;
+                        };
+                    };
+                    if player_dead {
+                        let dt = &mut resources
+                            .death_timer
+                            .get_or_insert(NonZeroU8::new(1).unwrap());
+                        **dt = dt.saturating_add(1);
+                        let n = dt.get();
+                        if n == 60 {
+                            resources
+                                .messages
+                                .add("Press any key to restart.".to_owned());
+                        }
+                        if n > 30 && input.is_any_pressed() {
+                            stop_all_coroutines();
+                            assets.next_scene = Some((
+                                new_prelevel(resources.stats.info.clone(), false).await,
+                                TransitionEffectType::Shatter,
+                            ));
+                        }
                     }
 
                     for t in &resources.triggers {

@@ -4,7 +4,6 @@ fix visuals when player crushed (not currently visible in any real level?)
 
 ONE-LEVEL CONCEPT DEMO
 ----------------------
-popup messages for signs
 restart on any keypress after death
 disable debug keys in release mode
 

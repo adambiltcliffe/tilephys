@@ -378,6 +378,7 @@ impl LoadingManager {
             triggers: HashSet::new(),
             weapons,
             selector: WeaponSelectorUI::new(),
+            death_timer: None,
         };
         Ok(Scene::PlayLevel(resources))
     }

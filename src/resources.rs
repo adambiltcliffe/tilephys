@@ -10,6 +10,7 @@ use crate::weapon::{Weapon, WeaponSelectorUI};
 use hecs::{Entity, World};
 use macroquad::prelude::*;
 use std::collections::{HashSet, VecDeque};
+use std::num::NonZeroU8;
 use std::sync::{Arc, Mutex};
 
 pub struct GlobalAssets {
@@ -54,6 +55,7 @@ pub struct SceneResources {
     pub player_id: Entity,
     pub eye_pos: Vec2,
     pub camera_pos: Vec2,
+    pub death_timer: Option<NonZeroU8>,
     pub draw_order: Vec<Entity>,
     pub body_index: SpatialIndex,
     pub tileset_info: TilesetInfo,
