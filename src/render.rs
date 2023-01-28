@@ -457,7 +457,7 @@ impl Renderer {
             .quad_gl
             .scissor(Some((130 + wvdc as i32, 0, 60, 400)));
         for didx in (offset.floor() as i32)..=(offset.ceil() as i32) {
-            let idx = (-didx).rem_euclid(resources.weapons.len() as i32);
+            let idx = didx.rem_euclid(resources.weapons.len() as i32);
             let typ = resources.weapons[idx as usize].get_type();
             let frame = weapon_sprite_frame(typ);
             draw_texture_ex(

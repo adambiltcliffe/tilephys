@@ -138,7 +138,7 @@ impl Controller {
             }
             if input.is_pressed(VirtualKey::PrevWeapon) {
                 if resources.weapons.len() > 1 {
-                    resources.weapons.rotate_right(1);
+                    resources.weapons.rotate_left(1);
                     resources.selector.change(-1.0);
                 } else {
                     resources.selector.change(0.1);
@@ -146,7 +146,7 @@ impl Controller {
             }
             if input.is_pressed(VirtualKey::NextWeapon) {
                 if resources.weapons.len() > 1 {
-                    resources.weapons.rotate_left(1);
+                    resources.weapons.rotate_right(1);
                     resources.selector.change(1.0);
                 } else {
                     resources.selector.change(-0.1);
