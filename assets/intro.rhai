@@ -46,3 +46,23 @@ fn compartment_enter() {
 fn final_switch_interact() {
     context.win();
 }
+
+fn z_sign_enter() {
+    context.popup("Press Z to jump.");
+}
+
+fn x_sign_enter() {
+    context.popup("Press X to fire laser.");
+}
+
+fn c_sign1_enter() {
+    context.popup("Press C to activate switch.");
+}
+
+fn c_sign2_enter() {
+    context.popup("Press C to activate switch.");
+}
+
+fn end_sign_enter() {
+    context.popup("Press C to activate switch and exit level.");
+}

@@ -138,6 +138,9 @@ async fn main() {
                     }
                     resources.triggers.clear();
                     resources.script_engine.schedule_queued_funcs();
+                    for m in resources.script_engine.new_popups() {
+                        resources.messages.add(m);
+                    }
 
                     if input.is_pressed(VirtualKey::DebugRestart) {
                         stop_all_coroutines();

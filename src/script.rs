@@ -23,6 +23,7 @@ impl ScriptEntityProxy {
 pub struct ScriptFlags {
     win: bool,
     queued_funcs: Vec<(rhai::INT, FnPtr)>,
+    new_popups: Vec<String>,
 }
 
 impl ScriptFlags {
@@ -30,6 +31,7 @@ impl ScriptFlags {
         Self {
             win: false,
             queued_funcs: Vec::new(),
+            new_popups: Vec::new(),
         }
     }
 }
@@ -79,6 +81,10 @@ mod script_interface {
     }
 
     // Context methods
+
+    pub fn popup(this: &mut Flags, msg: ImmutableString) {
+        this.lock().unwrap().new_popups.push(msg.to_string());
+    }
 
     pub fn after_frames(this: &mut Flags, n: rhai::INT, func: FnPtr) {
         this.lock().unwrap().queued_funcs.push((n, func));
@@ -174,6 +180,10 @@ impl ScriptEngine {
             f.call::<()>(&self.engine, self.ast.as_ref().unwrap(), ())
                 .unwrap();
         }
+    }
+
+    pub fn new_popups(&mut self) -> Vec<String> {
+        self.flags.lock().unwrap().new_popups.drain(..).collect()
     }
 
     pub fn win_flag(&self) -> bool {
