@@ -245,8 +245,8 @@
  </objectgroup>
  <objectgroup id="18" name="tutorial">
   <object id="47" name="z_sign" x="-208" y="64" width="16" height="16"/>
-  <object id="48" name="x_sign" x="-48" y="208" width="16" height="16"/>
-  <object id="49" name="c_sign1" x="96" y="224" width="16" height="16"/>
+  <object id="48" name="x_sign" x="-128" y="208" width="16" height="16"/>
+  <object id="49" name="c_sign1" x="128" y="224" width="16" height="16"/>
   <object id="50" name="c_sign2" x="400" y="352" width="16" height="16"/>
   <object id="51" name="end_sign" x="736" y="80" width="16" height="16"/>
  </objectgroup>
@@ -265,10 +265,10 @@
    eJxjYBgFo4AywDiqn6r6GbFgfHpBmAkJk+IeAA58ABU=
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJxjZKAMMA6QfkYsmBmIWYCYFYkPYxOyF8RnxyFPjBtxuQeX/cS4B5nNhIbxqWeAqqHEfiY8csToJyb88YUxofAnRj+p8Y+PTwiQop+DSP2EMCUAZgYAHK8Aig==
+   eJxjZKAMMA6QfkYsmBmIWYCYFYkPYxOyF8RnxyFPjBtxuQeX/cS4B5nNhIbxqWeAqqHEfiY8csToJyb88YUxofAnRj+p8Y+PTwjg0s9BgX5CmBIAMwMAHU8Aig==
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJxjYBhYwIiEsYmhy+EzB5/5lOrH5UZi9BMyi5A9xAAmIuynhX5scUUo/kiJX2LNHG6AF4mNz++Uhj8Aj1wAWQ==
+   eJxjYBhYwIiEsYmhy+EzB5/5lOrH5UZi9BMyi5A9xAAmIuynhX5scUUo/kiJX2LNHK6AlwG/3ykNfwCO9ABZ
   </chunk>
    <chunk x="16" y="0" width="16" height="16">
    eJxjYCAeMEIxOYCRgXz9yPoY0cRJ0YtNPwgzoWFGBtzuxaYfm5343DMS9BMbfvgAujn44pIcMBT0E/I/MRiXnSA2AJqsAE8=
