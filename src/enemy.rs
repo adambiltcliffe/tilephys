@@ -170,6 +170,7 @@ enum ParrotState {
 struct ParrotBehaviour {
     state: ParrotState,
     state_timer: u8,
+    attack_timer: u8,
     facing: i8,
 }
 
@@ -178,6 +179,7 @@ impl ParrotBehaviour {
         Self {
             state: ParrotState::Wait,
             state_timer: 0,
+            attack_timer: 0,
             facing: -1,
         }
     }
@@ -217,7 +219,7 @@ impl ParrotBehaviour {
                             (x - rect.centre().x).signum() == beh.facing as f32
                         });
                         if with_prob(0.5) {
-                            if is_facing_player && with_prob(0.4) {
+                            if is_facing_player && beh.attack_timer == 0 && with_prob(0.85) {
                                 beh.set_state(ParrotState::Attack);
                             } else {
                                 beh.facing = -beh.facing;
@@ -252,11 +254,15 @@ impl ParrotBehaviour {
                     {
                         beh.set_state(ParrotState::Move);
                     } else if beh.state_timer >= 24 {
+                        beh.attack_timer = 30;
                         beh.set_state(ParrotState::Wait);
                     }
                 }
             }
 
+            if beh.attack_timer > 0 {
+                beh.attack_timer -= 1;
+            }
             beh.state_timer += 1;
             if beh.facing < 0 {
                 spr.flipped = false
