@@ -120,6 +120,7 @@ impl LoadingManager {
         let mut ids: HashMap<String, Entity> = HashMap::new();
         let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
         let mut body_index = SpatialIndex::new();
+        let mut selector = WeaponSelectorUI::new();
         let (mut psx, mut psy) = (0, 0);
         let mut max_kills = 0;
         let mut max_items = 0;
@@ -260,10 +261,14 @@ impl LoadingManager {
                                 shape: tiled::ObjectShape::Point(x, y),
                                 obj_type,
                                 name,
+                                properties,
                                 ..
                             } => {
                                 if obj_type == "player" {
                                     (psx, psy) = (*x as i32, *y as i32);
+                                    if properties.contains_key("hide-weapon-ui") {
+                                        selector.hidden = true;
+                                    }
                                 } else if obj_type == "enemy" {
                                     add_enemy(
                                         &mut world,
@@ -377,7 +382,7 @@ impl LoadingManager {
             stats,
             triggers: HashSet::new(),
             weapons,
-            selector: WeaponSelectorUI::new(),
+            selector,
             death_timer: None,
         };
         Ok(Scene::PlayLevel(resources))

@@ -448,31 +448,33 @@ impl Renderer {
                 },
             );
         }
-        let offset = resources.selector.offset;
-        let typ = resources.weapons[0].get_type();
-        if resources.selector.timer > 0 {
-            self.draw_centred_text(weapon_name(typ), 16, 184.0);
+        if !resources.selector.hidden {
+            let offset = resources.selector.offset;
+            let typ = resources.weapons[0].get_type();
+            if resources.selector.timer > 0 {
+                self.draw_centred_text(weapon_name(typ), 16, 184.0);
+            }
+            unsafe { get_internal_gl() }
+                .quad_gl
+                .scissor(Some((130 + wvdc as i32, 0, 60, 400)));
+            for didx in (offset.floor() as i32)..=(offset.ceil() as i32) {
+                let idx = didx.rem_euclid(resources.weapons.len() as i32);
+                let typ = resources.weapons[idx as usize].get_type();
+                let frame = weapon_sprite_frame(typ);
+                draw_texture_ex(
+                    assets.weapon_sprite,
+                    self.width / 2.0 - 12.0 + didx as f32 * 50.0
+                        - (resources.selector.offset * 50.0).round(),
+                    wvdc + 184.0 - weapon_v_offset(typ),
+                    WHITE,
+                    DrawTextureParams {
+                        source: Some(Rect::new(0.0, 16.0 * frame as f32, 24.0, 16.0)),
+                        ..Default::default()
+                    },
+                );
+            }
+            unsafe { get_internal_gl() }.quad_gl.scissor(None);
         }
-        unsafe { get_internal_gl() }
-            .quad_gl
-            .scissor(Some((130 + wvdc as i32, 0, 60, 400)));
-        for didx in (offset.floor() as i32)..=(offset.ceil() as i32) {
-            let idx = didx.rem_euclid(resources.weapons.len() as i32);
-            let typ = resources.weapons[idx as usize].get_type();
-            let frame = weapon_sprite_frame(typ);
-            draw_texture_ex(
-                assets.weapon_sprite,
-                self.width / 2.0 - 12.0 + didx as f32 * 50.0
-                    - (resources.selector.offset * 50.0).round(),
-                wvdc + 184.0 - weapon_v_offset(typ),
-                WHITE,
-                DrawTextureParams {
-                    source: Some(Rect::new(0.0, 16.0 * frame as f32, 24.0, 16.0)),
-                    ..Default::default()
-                },
-            );
-        }
-        unsafe { get_internal_gl() }.quad_gl.scissor(None);
     }
 
     pub fn start_transition(&mut self, typ: TransitionEffectType) {

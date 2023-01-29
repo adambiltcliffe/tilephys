@@ -253,6 +253,7 @@ pub fn new_weapon(typ: WeaponType) -> Box<dyn Weapon> {
 pub struct WeaponSelectorUI {
     pub timer: u16,
     pub offset: f32,
+    pub hidden: bool,
 }
 
 impl WeaponSelectorUI {
@@ -260,6 +261,7 @@ impl WeaponSelectorUI {
         Self {
             timer: 0,
             offset: 0.0,
+            hidden: false,
         }
     }
 
