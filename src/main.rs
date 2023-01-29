@@ -3,7 +3,7 @@ use std::num::NonZeroU8;
 use camera::PlayerCamera;
 use enemy::update_enemies;
 use hecs::CommandBuffer;
-use input::{Input, VirtualKey};
+use input::Input;
 use macroquad::experimental::coroutines::{start_coroutine, stop_all_coroutines};
 use macroquad::prelude::*;
 use physics::{Actor, PathMotion};
@@ -16,6 +16,9 @@ use scene::{new_prelevel, Scene};
 use timer::Timer;
 use transition::TransitionEffectType;
 use vfx::update_vfx;
+
+#[cfg(debug_assertions)]
+use input::VirtualKey;
 
 mod camera;
 mod draw;
@@ -128,7 +131,9 @@ async fn main() {
                     let mut player_dead = true;
                     {
                         let w = resources.world_ref.lock().unwrap();
+                        #[allow(unused_mut)] // needs to be mut in debug mode but not release
                         if let Ok(mut controller) = w.get::<&mut Controller>(resources.player_id) {
+                            #[cfg(debug_assertions)]
                             if input.is_pressed(VirtualKey::DebugKill) {
                                 controller.hp = 0
                             }
@@ -164,6 +169,7 @@ async fn main() {
                         resources.messages.add(m);
                     }
 
+                    #[cfg(debug_assertions)]
                     if input.is_pressed(VirtualKey::DebugRestart) {
                         stop_all_coroutines();
                         assets.next_scene = Some((
@@ -172,8 +178,12 @@ async fn main() {
                             TransitionEffectType::Shatter,
                         ));
                     }
-                    if input.is_pressed(VirtualKey::DebugWin) || resources.script_engine.win_flag()
-                    {
+                    #[cfg(debug_assertions)]
+                    let won = input.is_pressed(VirtualKey::DebugWin)
+                        || resources.script_engine.win_flag();
+                    #[cfg(not(debug_assertions))]
+                    let won = resources.script_engine.win_flag();
+                    if won {
                         stop_all_coroutines();
                         assets.next_scene = Some((
                             crate::scene::Scene::PostLevel(resources.stats.clone()),

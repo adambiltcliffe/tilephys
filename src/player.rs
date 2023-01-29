@@ -7,7 +7,6 @@ use crate::switch::Switch;
 use crate::vfx::create_explosion;
 use crate::weapon::{new_weapon, weapon_name_indef, WeaponType};
 use hecs::{CommandBuffer, Entity};
-use macroquad::prelude::{is_key_down, KeyCode};
 use std::collections::{HashMap, HashSet};
 
 pub struct Controller {
@@ -175,9 +174,13 @@ impl Controller {
                 create_explosion(buffer, px, py);
                 resources.messages.add("You have died.".to_owned());
             }
-            if is_key_down(KeyCode::Q) && is_key_down(KeyCode::D) && !controller.god_mode {
-                controller.god_mode = true;
-                resources.messages.add("God mode enabled!".to_owned());
+            #[cfg(debug_assertions)]
+            {
+                use macroquad::prelude::{is_key_down, KeyCode};
+                if is_key_down(KeyCode::Q) && is_key_down(KeyCode::D) && !controller.god_mode {
+                    controller.god_mode = true;
+                    resources.messages.add("God mode enabled!".to_owned());
+                }
             }
         }
     }
