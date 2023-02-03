@@ -13,28 +13,28 @@ use macroquad::prelude::*;
 pub enum EnemyKind {
     Dog,
     JumpyDog,
-    SpiderParrot,
+    SpiderParrot(ParrotKind),
 }
 
 pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
     let h = match kind {
-        EnemyKind::SpiderParrot => 24,
+        EnemyKind::SpiderParrot(_) => 24,
         _ => 16,
     };
     let rect = IntRect::new(x - 12, y - h, 24, h);
     let actor = Actor::new(&rect, 0.4);
     let hp = match kind {
-        EnemyKind::SpiderParrot => 7,
+        EnemyKind::SpiderParrot(_) => 7,
         _ => 3,
     };
     let hittable = EnemyHittable::new(hp);
     let dmg = EnemyContactDamage::new();
-    if kind == EnemyKind::SpiderParrot {
+    if let EnemyKind::SpiderParrot(pk) = kind {
         world.spawn((
             kind,
-            ParrotBehaviour::new(),
+            ParrotBehaviour::new(pk),
             rect,
-            crate::draw::ParrotSprite::new(),
+            crate::draw::ParrotSprite::new(pk),
             actor,
             hittable,
             dmg,
@@ -160,6 +160,12 @@ impl DogBehaviour {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
+pub enum ParrotKind {
+    Laser,
+    Cannon,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
 enum ParrotState {
     Wait,
     Move,
@@ -168,6 +174,7 @@ enum ParrotState {
 }
 
 struct ParrotBehaviour {
+    kind: ParrotKind,
     state: ParrotState,
     state_timer: u8,
     attack_timer: u8,
@@ -175,8 +182,9 @@ struct ParrotBehaviour {
 }
 
 impl ParrotBehaviour {
-    pub fn new() -> Self {
+    pub fn new(kind: ParrotKind) -> Self {
         Self {
+            kind,
             state: ParrotState::Wait,
             state_timer: 0,
             attack_timer: 0,
@@ -315,9 +323,12 @@ pub fn update_enemies(resources: &mut SceneResources, buffer: &mut CommandBuffer
                 EnemyKind::Dog | EnemyKind::JumpyDog => {
                     resources.messages.add("Destroyed a hound.".to_owned())
                 }
-                EnemyKind::SpiderParrot => resources
+                EnemyKind::SpiderParrot(ParrotKind::Laser) => resources
                     .messages
                     .add("Destroyed a red scuttler.".to_owned()),
+                EnemyKind::SpiderParrot(ParrotKind::Cannon) => resources
+                    .messages
+                    .add("Destroyed a green scuttler.".to_owned()),
             }
             buffer.despawn(id);
             let (ex, ey) = rect.centre_int();

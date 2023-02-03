@@ -1,6 +1,6 @@
 use crate::camera::add_camera;
 use crate::draw::PlayerSprite;
-use crate::enemy::{add_enemy, EnemyKind};
+use crate::enemy::{add_enemy, EnemyKind, ParrotKind};
 use crate::index::SpatialIndex;
 use crate::level::LevelInfo;
 use crate::messages::Messages;
@@ -283,7 +283,15 @@ impl LoadingManager {
                                 } else if obj_type == "parrot_enemy" {
                                     add_enemy(
                                         &mut world,
-                                        EnemyKind::SpiderParrot,
+                                        EnemyKind::SpiderParrot(ParrotKind::Laser),
+                                        *x as i32,
+                                        *y as i32,
+                                    );
+                                    max_kills += 1;
+                                } else if obj_type == "cannon_parrot_enemy" {
+                                    add_enemy(
+                                        &mut world,
+                                        EnemyKind::SpiderParrot(ParrotKind::Cannon),
                                         *x as i32,
                                         *y as i32,
                                     );

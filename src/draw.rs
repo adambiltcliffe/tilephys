@@ -1,4 +1,4 @@
-use crate::enemy::EnemyHittable;
+use crate::enemy::{EnemyHittable, ParrotKind};
 use crate::physics::{IntRect, TileBody};
 use crate::pickup::WeaponPickup;
 use crate::resources::{GlobalAssets, SceneResources};
@@ -54,14 +54,16 @@ impl DogSprite {
 }
 
 pub(crate) struct ParrotSprite {
+    pub kind: ParrotKind,
     pub frame: u8,
     pub flipped: bool,
     pub muzzle_flash: Option<u8>,
 }
 
 impl ParrotSprite {
-    pub fn new() -> Self {
+    pub fn new(kind: ParrotKind) -> Self {
         Self {
+            kind,
             frame: 0,
             flipped: false,
             muzzle_flash: None,
@@ -226,8 +228,12 @@ pub(crate) fn draw(world: &mut World, resources: &SceneResources, assets: &Globa
         if hittable.was_hit {
             gl_use_material(assets.flash_material);
         }
+        let tex = match spr.kind {
+            ParrotKind::Laser => assets.parrot_sprite,
+            ParrotKind::Cannon => assets.parrot_sprite2,
+        };
         draw_texture_ex(
-            assets.parrot_sprite,
+            tex,
             rect.x as f32,
             rect.y as f32,
             WHITE,

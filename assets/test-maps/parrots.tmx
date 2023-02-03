@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="82">
+ <tileset firstgid="1" source="../phtiles16.tsx"/>
+ <layer id="14" name="background" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-32" y="-16" width="16" height="16">
+   eJxjYBgFo2DkAi46YAE62UMOBgBMtwKH
+  </chunk>
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo2DkAi4SMCX6xSnUL4ukRxYJE6tfGYf9AB2/Akk=
+  </chunk>
+   <chunk x="-32" y="0" width="16" height="16">
+   eJzjYmBg4KIiFqCyeYQwMYBS/fjMIAVQqh+bGeQASvUjm0EJoFT/KKAcAACzhwL/
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJzjYmBg4MKCBbCIYQPY9OLCQ1E/AwNuvaTYP6qfNvqJNYMQoFT/UAUAwGQFGw==
+  </chunk>
+  </data>
+ </layer>
+ <objectgroup id="5" name="paths"/>
+ <objectgroup id="2" name="entities">
+  <object id="1" name="start" type="player" x="-112" y="208">
+   <point/>
+  </object>
+  <object id="77" type="parrot_enemy" x="-112" y="-32">
+   <point/>
+  </object>
+  <object id="78" type="parrot_enemy" x="-112" y="64">
+   <point/>
+  </object>
+  <object id="79" type="parrot_enemy" x="-112" y="160">
+   <point/>
+  </object>
+  <object id="80" type="cannon_parrot_enemy" x="-112" y="112">
+   <point/>
+  </object>
+  <object id="81" type="cannon_parrot_enemy" x="-112" y="16">
+   <point/>
+  </object>
+ </objectgroup>
+ <layer id="1" name="main" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-48" y="-16" width="16" height="16">
+   eJxjYBgFo2BkAsZR/QwABpQABg==
+  </chunk>
+   <chunk x="-32" y="-16" width="16" height="16">
+   eJxjYBgFo2DoAkYK8UgHABYgABE=
+  </chunk>
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo2DoAkYSMKX2DIR+WrsfABOAABI=
+  </chunk>
+   <chunk x="-48" y="0" width="16" height="16">
+   eJxjYCAfMFKgdzjoHwWjYKgDABGQAAU=
+  </chunk>
+   <chunk x="-32" y="0" width="16" height="16">
+   eJxjYBjagBEJM6FhmDg1zB81Y3iaMdIBAEtoAB0=
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjYCAOMBKpDps+GKYEDJT+UfdTZj+l+gm5n1hz8eknxgx8ahiJxIMRAABASAAj
+  </chunk>
+  </data>
+ </layer>
+</map>
