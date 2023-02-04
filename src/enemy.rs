@@ -67,6 +67,13 @@ fn player_x(world: &World, player_id: Entity) -> Option<f32> {
         .ok()
 }
 
+fn player_y(world: &World, player_id: Entity) -> Option<f32> {
+    world
+        .get::<&IntRect>(player_id)
+        .map(|rect| rect.centre().y)
+        .ok()
+}
+
 pub struct EnemyHittable {
     pub hp: u16,
     pub was_hit: bool,
@@ -227,7 +234,30 @@ impl ParrotBehaviour {
                             (x - rect.centre().x).signum() == beh.facing as f32
                         });
                         if with_prob(0.5) {
-                            if is_facing_player && beh.attack_timer == 0 && with_prob(0.85) {
+                            let will_attack = match beh.kind {
+                                ParrotKind::Laser => {
+                                    is_facing_player && beh.attack_timer == 0 && with_prob(0.85)
+                                }
+                                ParrotKind::Cannon => {
+                                    is_facing_player
+                                        && beh.attack_timer == 0
+                                        && player_y(world, resources.player_id)
+                                            .map_or(false, |y| (y - rect.centre().y).abs() < 48.0)
+                                        && player_x.map_or(false, |x| {
+                                            let min_x = (x + 16.0).min(rect.centre().x);
+                                            let max_x = (x - 16.0).max(rect.centre().x);
+                                            let w = max_x - min_x;
+                                            let r = IntRect::new(
+                                                min_x as i32,
+                                                rect.y,
+                                                w as i32,
+                                                rect.h,
+                                            );
+                                            !collide_any(world, &resources.body_index, &r)
+                                        })
+                                }
+                            };
+                            if will_attack {
                                 beh.set_state(ParrotState::Attack);
                             } else {
                                 beh.facing = -beh.facing;
@@ -251,7 +281,7 @@ impl ParrotBehaviour {
                 ParrotState::Attack => {
                     let (freq, limit, delay) = match beh.kind {
                         ParrotKind::Laser => (6, 24, 30),
-                        ParrotKind::Cannon => (24, 12, 50),
+                        ParrotKind::Cannon => (24, 12, 120),
                     };
                     spr.frame = 3;
                     let mf = beh.state_timer % freq;
