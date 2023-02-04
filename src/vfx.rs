@@ -26,20 +26,6 @@ const EXPLOSION_SMOKE_COLOR: Color = Color {
     a: 1.0,
 };
 
-const FIREBALL_INNER_COLOR: Color = Color {
-    r: 1.0,
-    g: 0.85,
-    b: 1.0,
-    a: 1.0,
-};
-
-const FIREBALL_OUTER_COLOR: Color = Color {
-    r: 0.95,
-    g: 0.0,
-    b: 1.0,
-    a: 1.0,
-};
-
 pub struct ZapFlash {
     pub x: i32,
     pub y: i32,
@@ -185,8 +171,8 @@ pub fn draw_vfx(world: &World) {
     for (_, (rect, fb)) in world.query::<(&IntRect, &FireballEffect)>().iter() {
         let c = rect.centre();
         let r = fb.r * (1.0 - 0.5 * fb.t.cos().powi(5).abs());
-        draw_circle(c.x, c.y, r, FIREBALL_OUTER_COLOR);
-        draw_circle(c.x, c.y, r * 0.75, FIREBALL_INNER_COLOR);
+        draw_circle(c.x, c.y, r, EXPLOSION_OUTER_COLOR);
+        draw_circle(c.x, c.y, r * 0.75, EXPLOSION_INNER_COLOR);
     }
     for (_, fp) in world.query::<&FireParticle>().iter() {
         draw_circle(fp.x, fp.y, fp.r, EXPLOSION_OUTER_COLOR);

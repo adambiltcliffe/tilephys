@@ -336,12 +336,12 @@ impl Renderer {
         draw(&mut world, resources, assets);
 
         // draw explosions onto an offscreen texture
+        let vfx_texture = render_target(self.width as u32, self.height as u32);
         set_camera(&get_camera_for_target(
-            &self.vis_targets[0],
+            &vfx_texture,
             resources.camera_pos,
             Origin::TopLeft,
         ));
-
         draw_vfx(&world);
         // now draw the explosion texture back to the draw target
         gl_use_material(self.outline_material);
@@ -350,7 +350,7 @@ impl Renderer {
             vec2(self.width / 2., self.height / 2.),
             Origin::BottomLeft,
         ));
-        draw_texture(self.vis_targets[0].texture, 0., 0., WHITE);
+        draw_texture(vfx_texture.texture, 0., 0., WHITE);
 
         // initialise the offscreen texture for jump flood algorithm
         gl_use_material(self.jfa_init_material);
