@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use crate::draw::{DogSprite, ParrotSprite};
 use crate::physics::{collide_any, Actor, IntRect};
 use crate::player::Controller;
-use crate::projectile::make_enemy_projectile;
+use crate::projectile::{make_enemy_fireball, make_enemy_laser};
 use crate::resources::SceneResources;
 use crate::vfx::create_explosion;
 use hecs::{CommandBuffer, Entity, World};
@@ -289,8 +289,16 @@ impl ParrotBehaviour {
                     if beh.state_timer % freq == 1 {
                         actor.vx -= beh.facing as f32 * 10.0;
                         let new_x = rect.x + 7 + beh.facing as i32 * 6;
-                        let rect = IntRect::new(new_x, rect.y + 8, 8, 5);
-                        make_enemy_projectile(buffer, rect, beh.facing as f32 * 4.0);
+                        match beh.kind {
+                            ParrotKind::Laser => {
+                                let rect = IntRect::new(new_x, rect.y + 8, 8, 5);
+                                make_enemy_laser(buffer, rect, beh.facing as f32 * 4.0);
+                            }
+                            ParrotKind::Cannon => {
+                                let rect = IntRect::new(new_x - 6, rect.y + 4, 12, 12);
+                                make_enemy_fireball(buffer, rect, beh.facing as f32 * 2.0);
+                            }
+                        }
                     }
                     if beh.state_timer % freq == freq - 1
                         && parrot_off_edge(world, resources, rect, beh.facing)

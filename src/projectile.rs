@@ -4,6 +4,7 @@ use crate::physics::collide_any;
 use crate::physics::IntRect;
 use crate::player::Controller;
 use crate::resources::SceneResources;
+use crate::vfx::FireballEffect;
 use crate::vfx::ZapFlash;
 use hecs::{CommandBuffer, World};
 
@@ -109,7 +110,18 @@ pub fn make_player_projectile(buffer: &mut CommandBuffer, rect: IntRect, vx: f32
     buffer.spawn((rect, ZapSprite::new(), proj, DamageEnemies {}));
 }
 
-pub fn make_enemy_projectile(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
+pub fn make_enemy_laser(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
     let proj = Projectile::new(&rect, vx, 0.0);
     buffer.spawn((rect, ZapSprite::new(), proj, DamagePlayer {}));
+}
+
+pub fn make_enemy_fireball(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
+    let proj = Projectile::new(&rect, vx, 0.0);
+    buffer.spawn((
+        rect,
+        FireballEffect::new(8.0),
+        // ColorRect::new(macroquad::prelude::RED),
+        proj,
+        DamagePlayer {},
+    ));
 }
