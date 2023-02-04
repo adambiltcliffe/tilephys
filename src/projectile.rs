@@ -10,6 +10,7 @@ use hecs::{CommandBuffer, World};
 
 struct DamageEnemies {}
 struct DamagePlayer {}
+struct LaserImpact {}
 
 pub struct Projectile {
     prec_x: f32,
@@ -39,9 +40,11 @@ impl Projectile {
             rect.y = proj.prec_y.round() as i32;
             if collide_any(&world, &resources.body_index, rect) {
                 buffer.despawn(e);
-                let (x, y) = find_collision_pos(&world, resources, ox, oy, rect);
-                let sx = if proj.vx > 0.0 { x + 7 } else { x };
-                buffer.spawn((ZapFlash::new_from_centre(sx, y + 2),));
+                if world.satisfies::<&LaserImpact>(e).unwrap_or(false) {
+                    let (x, y) = find_collision_pos(&world, resources, ox, oy, rect);
+                    let sx = if proj.vx > 0.0 { x + 7 } else { x };
+                    buffer.spawn((ZapFlash::new_from_centre(sx, y + 2),));
+                }
             }
         }
         for (e, (proj, rect, _)) in world
@@ -52,8 +55,10 @@ impl Projectile {
             for (_, (en, e_rect)) in world.query::<(&mut EnemyHittable, &IntRect)>().iter() {
                 if live && en.hp > 0 && rect.intersects(e_rect) {
                     buffer.despawn(e);
-                    let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
-                    buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
+                    if world.satisfies::<&LaserImpact>(e).unwrap_or(false) {
+                        let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
+                        buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
+                    }
                     en.hurt(1);
                     live = false;
                 }
@@ -69,8 +74,10 @@ impl Projectile {
                     if rect.intersects(p_rect) {
                         c.hurt();
                         buffer.despawn(id);
-                        let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
-                        buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
+                        if world.satisfies::<&LaserImpact>(id).unwrap_or(false) {
+                            let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
+                            buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
+                        }
                     }
                 }
             };
@@ -107,12 +114,24 @@ fn find_collision_pos(
 
 pub fn make_player_projectile(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
     let proj = Projectile::new(&rect, vx, 0.0);
-    buffer.spawn((rect, ZapSprite::new(), proj, DamageEnemies {}));
+    buffer.spawn((
+        rect,
+        ZapSprite::new(),
+        proj,
+        DamageEnemies {},
+        LaserImpact {},
+    ));
 }
 
 pub fn make_enemy_laser(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
     let proj = Projectile::new(&rect, vx, 0.0);
-    buffer.spawn((rect, ZapSprite::new(), proj, DamagePlayer {}));
+    buffer.spawn((
+        rect,
+        ZapSprite::new(),
+        proj,
+        DamagePlayer {},
+        LaserImpact {},
+    ));
 }
 
 pub fn make_enemy_fireball(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
