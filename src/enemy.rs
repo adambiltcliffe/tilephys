@@ -249,20 +249,25 @@ impl ParrotBehaviour {
                     }
                 }
                 ParrotState::Attack => {
+                    let (freq, limit, delay) = match beh.kind {
+                        ParrotKind::Laser => (6, 24, 30),
+                        ParrotKind::Cannon => (24, 12, 50),
+                    };
                     spr.frame = 3;
-                    spr.muzzle_flash = Some(beh.state_timer % 6);
-                    if beh.state_timer % 6 == 1 {
+                    let mf = beh.state_timer % freq;
+                    spr.muzzle_flash = if mf > 0 && mf < 5 { Some(mf) } else { None };
+                    if beh.state_timer % freq == 1 {
                         actor.vx -= beh.facing as f32 * 10.0;
                         let new_x = rect.x + 7 + beh.facing as i32 * 6;
                         let rect = IntRect::new(new_x, rect.y + 8, 8, 5);
                         make_enemy_projectile(buffer, rect, beh.facing as f32 * 4.0);
                     }
-                    if beh.state_timer % 6 == 5
+                    if beh.state_timer % freq == freq - 1
                         && parrot_off_edge(world, resources, rect, beh.facing)
                     {
                         beh.set_state(ParrotState::Move);
-                    } else if beh.state_timer >= 24 {
-                        beh.attack_timer = 30;
+                    } else if beh.state_timer >= limit {
+                        beh.attack_timer = delay;
                         beh.set_state(ParrotState::Wait);
                     }
                 }
