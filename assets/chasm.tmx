@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="31" nextobjectid="106">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="33" nextobjectid="126">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYBgFo2AU4AJcBDAx+sWAWBwLliBSvwwQy2LBckTqVwJiZSxYBYgB+egC0A==
+   eJxjYBgFo2AU4AJcBDAx+sWAWBwLliBSvwwOOTki9SsBsTIWrALEAMyYAj8=
   </chunk>
    <chunk x="0" y="-16" width="16" height="16">
    eJxjYBgFo2DkAi4oHqn6ATVgAFE=
@@ -16,13 +16,19 @@
    eJxjYMANuIjA+MBg1U8swKefFLOopV+ASvaTGhbDTT+xZhMT/wOtn1z/w9gAwT8FVw==
   </chunk>
    <chunk x="-32" y="0" width="16" height="16">
-   eJzjYmBgEABiLiQsw4AJ5NDU4MP01E8JGAzuB+GBCn9cYUBL+9H9OhjCfzjoFyBTPwAkJglb
+   eJzjYmBgEABirkGKCbmNEoDLTBksauVIcDOp+tH9SC/7cYUBLe0nJq3RO/yHg34BMvUDAE5uCWc=
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJzjYmBg4CKABYhQM5CYgYAYMlsAjx5sZhAC+MKGGECp/ZQCSu0cLvqR08VA2D9Q+gEkZASD
+   eJzjYmBg4CKABYhQM5CYgYAYMlsAjx5y8ECHDTFgMLqbUv9S21x84SEGxOI4MDFmy5AYN/TUDwAugQll
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJzjYmBg4GIgH3ANcf2jYBSMZAAAJW8AUQ==
+   eJzjYmBg4GIgH3ANE/3EYlL0C1CoH5/9pOob7JhQuOAClNorTgSWIMHd2IDcINQPS5sAEuUGxg==
+  </chunk>
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjYBgFAwm4kDCl+tGxABHm49OPDVNbPzn+osR+augfCIzNzejxSw4GACorBLM=
+  </chunk>
+   <chunk x="32" y="0" width="16" height="16">
+   eJxjYBgFo2DkAi4kPBL1AwBNIAB5
   </chunk>
    <chunk x="-80" y="16" width="16" height="16">
    eJxjYBj+gAsPHgr68ZlBCqBU/ygYfgAAQ20BQQ==
@@ -37,7 +43,16 @@
    eJxjYGBg4ELDMgyYQA5NjQAWfaTox4eHkn4YGKrup5b/kcFQcv9Q148OCOlHBwAu5QlH
   </chunk>
    <chunk x="-16" y="16" width="16" height="16">
-   eJzjYmBg4ELCpAIuhlH9o/op0y8wwPYPJv24MCX68QEAbesC9Q==
+   eJzjYmBg4MKCBZDYMgy4ATa96HhU/6h+fPoFcOgbKu4fyvoBODkHbQ==
+  </chunk>
+   <chunk x="0" y="16" width="16" height="16">
+   eJxjYCAM5ICYCwcmBlCqHxkMdf3kgIEOf0r1ixOpbhTQHwAAX14CUg==
+  </chunk>
+   <chunk x="16" y="16" width="16" height="16">
+   eJzjYmBg4BqkWACJjQzIMYuQfkJmUxMMdLhSExPrX1x+J0YvJfrFgViCAv243EOOfkrTFS30AwCaIgYc
+  </chunk>
+   <chunk x="32" y="16" width="16" height="16">
+   eJzjYmBg4CISYwPE6iVFvwAd7ScGUMt+bG4ZLPpxhTml9hMCo/ppo59YAAB+SwYl
   </chunk>
    <chunk x="-48" y="32" width="16" height="16">
    eJxjYEAFXFBMLiCknwsNU1s/se6j1J+jYBQMBwAAa5YAtQ==
@@ -46,7 +61,13 @@
    eJxjYMAEMljE5LCIgQAXFoxLPza11NIvQKb+UTAKRjIAADwRAhs=
   </chunk>
    <chunk x="-16" y="32" width="16" height="16">
-   eJzjYmBg4MKBBaA0PoBLLzImRj8u8wgBYtWNglEwCjABANkFAQs=
+   eJzjYmBg4MKBBaC0DANugEsvMsYH0NWQoheb/lEwCkYB8QAARSQBJw==
+  </chunk>
+   <chunk x="16" y="32" width="16" height="16">
+   eJxjYCAOyAExFxZMLMCmX4BC/ZTaP5T0IwNq6ScXDBb3D5T+4QQAKmkCkQ==
+  </chunk>
+   <chunk x="32" y="32" width="16" height="16">
+   eJzjYmBg4MKCiQXY9A60flIAtfQLDJD92Mwi135yALn+ppb91Ai3kQwA4NsCFQ==
   </chunk>
   </data>
  </layer>
@@ -67,6 +88,12 @@
    <polyline points="0,0 0,64"/>
   </object>
   <object id="104" type="weapon_burst_laser" x="-752" y="368">
+   <point/>
+  </object>
+  <object id="106" name="dogpile_path" x="640" y="336">
+   <polyline points="0,0 16,0 16,64"/>
+  </object>
+  <object id="111" type="weapon_burst_laser" x="488" y="704">
    <point/>
   </object>
  </objectgroup>
@@ -122,9 +149,6 @@
   <object id="92" name="side_switch" type="switch" x="-200" y="544">
    <point/>
   </object>
-  <object id="93" name="temp_switch" type="switch" x="-472" y="496">
-   <point/>
-  </object>
   <object id="95" name="start_lift_trigger" x="-704" y="544" width="32" height="16"/>
   <object id="97" name="start_lift_top" x="-704" y="432" width="32" height="16"/>
   <object id="99" type="parrot_enemy" x="-856" y="352">
@@ -143,11 +167,73 @@
    <point/>
   </object>
   <object id="103" name="shutter_trigger" x="-736" y="288" width="32" height="96"/>
+  <object id="107" name="dogpiler" type="switch" x="624" y="496">
+   <point/>
+  </object>
+  <object id="108" type="enemy" x="720" y="400">
+   <point/>
+  </object>
+  <object id="109" type="enemy" x="704" y="400">
+   <point/>
+  </object>
+  <object id="110" type="enemy" x="688" y="400">
+   <point/>
+  </object>
+  <object id="114" name="tutorial_cycle" x="512" y="688" width="32" height="16"/>
+  <object id="116" name="tutorial_backup2" x="544" y="688" width="16" height="16"/>
+  <object id="117" name="tutorial_backup1" x="-832" y="352" width="16" height="16"/>
+  <object id="118" type="parrot_enemy" x="248" y="400">
+   <point/>
+  </object>
+  <object id="125" type="parrot_enemy" x="520" y="320">
+   <point/>
+  </object>
+  <object id="119" type="cannon_parrot_enemy" x="280" y="400">
+   <point/>
+  </object>
+  <object id="124" type="cannon_parrot_enemy" x="240" y="160">
+   <point/>
+  </object>
+  <object id="121" type="enemy" x="344" y="400">
+   <point/>
+  </object>
+  <object id="122" type="enemy" x="296" y="320">
+   <point/>
+  </object>
+  <object id="123" type="enemy" x="312" y="320">
+   <point/>
+  </object>
  </objectgroup>
  <layer id="25" name="top_door" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-16" y="0" width="16" height="16">
    eJxjYMAEbFjESAE8FOoXolD/KBgFo4A4AACFMAAl
+  </chunk>
+  </data>
+ </layer>
+ <layer id="32" name="enemy_doors" width="40" height="30">
+  <properties>
+   <property name="door" type="bool" value="true"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBgFIwmwUaifh0L9QhTqHwXUBQBCQAAl
+  </chunk>
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjYBgFwwmwUaifh0L9QhTqHwX0BQBGwAAl
+  </chunk>
+   <chunk x="0" y="16" width="16" height="16">
+   eJxjYBgFQwGwUaifh0L9QhTqHwWDEwAATGAAJQ==
+  </chunk>
+   <chunk x="16" y="16" width="16" height="16">
+   eJxjYBgFQwWwUaifh0L9QhTqHwWDDwAAS9AAJQ==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="31" name="dogpile_door" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="32" y="16" width="16" height="16">
+   eJxjYBgFtASMI1z/KBjcAAANAAAF
   </chunk>
   </data>
  </layer>
@@ -172,19 +258,25 @@
    eJxjYMAOGHGIEwsGq35GNEyufmLsx6aWWP243EGs+3HpJxUMNv3o/kYPD2wYm35S4wGX/QOtH8ZngmJsfHz6AV2oAD4=
   </chunk>
    <chunk x="-32" y="0" width="16" height="16">
-   eJxjYCAPMJGpj9r6GSnAIx2MhsEoAABKUAAX
+   eJxjYCAPMJGpj9r6GSnAIxmMhsEoAAEATFgAGA==
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJxjYBj6gBGImYGYFcomBQ91MBL8OApoBwBZ0AAf
+   eJxjYBg6gBOHOCMQMwMxK5QNw0xQzIgHD3WAz2/DxY/IYDj6iVhAC78DAIFIAC4=
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJxjYGBgYGSgDAykfkYq2D8KRsFIBQAVsAAG
+   eJxjYGBgYGSgDAykfkYSMSWAWvrJdQ+1/DEYAaF4okV8DlZAT/8BAFfwACU=
+  </chunk>
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjYBgFlABGNExNs/BhSs2n1I3U0k+O/6gZzkMF0MrNAEQUACQ=
+  </chunk>
+   <chunk x="32" y="0" width="16" height="16">
+   eJxjYBgFo2DoAkY0TKlZQ10/IYwOAAxIABE=
   </chunk>
    <chunk x="-80" y="16" width="16" height="16">
    eJxjYBg4wEikGnyYGnYMdv2DyQxSw38UDG4AAD54ABc=
   </chunk>
    <chunk x="-64" y="16" width="16" height="16">
-   eJxjYMAOGHGwsanDhXGpoQRQ06zBAPCFH74wRdZPjl3k6B8Fww8AAGiYACM=
+   eJxjYMAOGHGwsanDhXGpoQRQ06zBAPCFHzYsi0U/OXaRo38UDD8AAKuoAEA=
   </chunk>
    <chunk x="-48" y="16" width="16" height="16">
    eJxjYGBgYGTADdDlGNEwNjXE6MfFx6YfGyYXDBb95JpDavgRayYt9OOKOyYGVHcPBvfjCldSzEbXjy42UPrxYQCDXABD
@@ -192,8 +284,14 @@
    <chunk x="-32" y="16" width="16" height="16">
    eJxjZBgFlABGKB6pAOR3JgZEOIzksBgIwMhAWtijqwcAGOAAEg==
   </chunk>
-   <chunk x="-16" y="16" width="16" height="16">
-   eJxjYBgFo2AUDGfAiEcOAAQcAAI=
+   <chunk x="0" y="16" width="16" height="16">
+   eJxjYBj8gBEJk6sfmR4I/bgwPvXDBZDqf1LMotRN1FI3VAEARIwAIA==
+  </chunk>
+   <chunk x="16" y="16" width="16" height="16">
+   eJxjYBgagBEJk6sfmcZlPjH6KcXDCRDrX1z+JzasqKWfHECNtEdJvFMj3eDSDwB+VABD
+  </chunk>
+   <chunk x="32" y="16" width="16" height="16">
+   eJxjYCAeMJKgdqjoZyQC41JLbbcMR/3EhCsl9hAyk9b6CYGB0k9sOAMAWMAALQ==
   </chunk>
    <chunk x="-48" y="32" width="16" height="16">
    eJxjYEAARhxsZDF0jC5PSD8+MBT04/P/KBgFQw0AAFFAABg=
@@ -202,7 +300,16 @@
    eJxjZGBgYETDuAC6OnxqhwogxU/D0f+jYGQDAEeoABU=
   </chunk>
    <chunk x="-16" y="32" width="16" height="16">
-   eJxjYCAMGIlQQ6l+RhzqcInjUocNE+tGSv05CkbBUAMANUAAEA==
+   eJxjYKA9YARiZiBmQcOsaGoYcejFJo5LHTZMrBuJVTsKRsFwAQCGoAAn
+  </chunk>
+   <chunk x="0" y="32" width="16" height="16">
+   eJxjYKAMMEIxMxCzoGFWJHlC+smVJ9aNlJgLUsfEAPEjK5Q9CkbBcAAApoQAMQ==
+  </chunk>
+   <chunk x="16" y="32" width="16" height="16">
+   eJxjYBhegBGKiQVMQMwMxKxQNiFxct1EqX5kTKk5yHxSAaVhMdT1UxoX1IhDSgC6fgBy5AAz
+  </chunk>
+   <chunk x="32" y="32" width="16" height="16">
+   eJxjYMAOGKGYXECJXkr1D2W3k6qfEQcm115q6CcXkKOfD4j5gViWTP3UCLehDACIOABX
   </chunk>
   </data>
  </layer>
