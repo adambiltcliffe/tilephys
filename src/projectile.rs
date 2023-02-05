@@ -4,6 +4,7 @@ use crate::physics::collide_any;
 use crate::physics::IntRect;
 use crate::player::Controller;
 use crate::resources::SceneResources;
+use crate::vfx::Explosion;
 use crate::vfx::FireballEffect;
 use crate::vfx::ZapFlash;
 use hecs::{CommandBuffer, World};
@@ -11,6 +12,8 @@ use hecs::{CommandBuffer, World};
 struct DamageEnemies {}
 struct DamagePlayer {}
 struct LaserImpact {}
+struct FireballSplit {}
+struct ProjectileGravity {}
 
 pub struct Projectile {
     prec_x: f32,
@@ -45,6 +48,10 @@ impl Projectile {
                     let sx = if proj.vx > 0.0 { x + 7 } else { x };
                     buffer.spawn((ZapFlash::new_from_centre(sx, y + 2),));
                 }
+                if world.satisfies::<&FireballSplit>(e).unwrap_or(false) {
+                    let (x, y) = find_collision_pos(&world, resources, ox, oy, rect);
+                    spawn_mini_fireballs(buffer, x + 8, y + 8);
+                }
             }
         }
         for (e, (proj, rect, _)) in world
@@ -59,6 +66,9 @@ impl Projectile {
                         let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
                         buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
                     }
+                    if world.satisfies::<&FireballSplit>(e).unwrap_or(false) {
+                        spawn_mini_fireballs(buffer, rect.x + 8, rect.y + 8);
+                    }
                     en.hurt(1);
                     live = false;
                 }
@@ -67,21 +77,44 @@ impl Projectile {
 
         if let Ok(mut q) = world.query_one::<(&mut Controller, &IntRect)>(resources.player_id) {
             if let Some((c, p_rect)) = q.get() {
-                for (id, (proj, rect, _)) in world
-                    .query::<(&mut Projectile, &mut IntRect, &DamagePlayer)>()
-                    .iter()
-                {
-                    if rect.intersects(p_rect) {
-                        c.hurt();
-                        buffer.despawn(id);
-                        if world.satisfies::<&LaserImpact>(id).unwrap_or(false) {
-                            let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
-                            buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
+                if c.can_hurt() {
+                    for (id, (proj, rect, _)) in world
+                        .query::<(&mut Projectile, &mut IntRect, &DamagePlayer)>()
+                        .iter()
+                    {
+                        if rect.intersects(p_rect) {
+                            c.hurt();
+                            buffer.despawn(id);
+                            if world.satisfies::<&LaserImpact>(id).unwrap_or(false) {
+                                let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
+                                buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
+                            }
+                            if world.satisfies::<&FireballSplit>(id).unwrap_or(false) {
+                                spawn_mini_fireballs(buffer, rect.x + 8, rect.y + 8);
+                            }
                         }
                     }
                 }
             };
-        };
+        }
+
+        for (_, (proj, _)) in world
+            .query::<(&mut Projectile, &ProjectileGravity)>()
+            .iter()
+        {
+            proj.vy += 0.2;
+        }
+    }
+}
+
+fn spawn_mini_fireballs(buffer: &mut CommandBuffer, x: i32, y: i32) {
+    buffer.spawn((Explosion::new_from_centre(x, y),));
+    let mut a = quad_rand::gen_range(0.0, std::f32::consts::TAU);
+    a += std::f32::consts::TAU / std::f32::consts::E;
+    let rect = IntRect::new(x - 4, y - 4, 8, 8);
+    for _ in 0..6 {
+        make_enemy_fireball(buffer, rect.clone(), a.cos() * 2.0, a.sin() * 2.0, false);
+        a += std::f32::consts::TAU / std::f32::consts::E;
     }
 }
 
@@ -134,13 +167,29 @@ pub fn make_enemy_laser(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
     ));
 }
 
-pub fn make_enemy_fireball(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
-    let proj = Projectile::new(&rect, vx, 0.0);
-    buffer.spawn((
-        rect,
-        FireballEffect::new(8.0),
-        // ColorRect::new(macroquad::prelude::RED),
-        proj,
-        DamagePlayer {},
-    ));
+pub fn make_enemy_fireball(
+    buffer: &mut CommandBuffer,
+    rect: IntRect,
+    vx: f32,
+    vy: f32,
+    split: bool,
+) {
+    let proj = Projectile::new(&rect, vx, vy);
+    if split {
+        buffer.spawn((
+            rect,
+            FireballEffect::new(8.0),
+            proj,
+            DamagePlayer {},
+            FireballSplit {},
+        ));
+    } else {
+        buffer.spawn((
+            rect,
+            FireballEffect::new(4.0),
+            proj,
+            DamagePlayer {},
+            ProjectileGravity {},
+        ));
+    }
 }

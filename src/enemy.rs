@@ -296,7 +296,13 @@ impl ParrotBehaviour {
                             }
                             ParrotKind::Cannon => {
                                 let rect = IntRect::new(new_x - 6, rect.y + 4, 12, 12);
-                                make_enemy_fireball(buffer, rect, beh.facing as f32 * 2.0);
+                                make_enemy_fireball(
+                                    buffer,
+                                    rect,
+                                    beh.facing as f32 * 2.0,
+                                    0.0,
+                                    true,
+                                );
                             }
                         }
                     }

@@ -185,6 +185,10 @@ impl Controller {
         }
     }
 
+    pub fn can_hurt(&self) -> bool {
+        self.hurt_timer == 0 && self.hp > 0
+    }
+
     pub fn hurt(&mut self) {
         if self.hurt_timer == 0 && self.hp > 0 && !self.god_mode {
             self.hp -= 1;
