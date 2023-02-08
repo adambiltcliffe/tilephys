@@ -336,7 +336,7 @@ impl Renderer {
         draw(&mut world, resources, assets);
 
         // draw explosions onto an offscreen texture
-        let vfx_texture = render_target(self.width as u32, self.height as u32);
+        let vfx_texture = self.vis_targets[0].clone();
         set_camera(&get_camera_for_target(
             &vfx_texture,
             resources.camera_pos,
