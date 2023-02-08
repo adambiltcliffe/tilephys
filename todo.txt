@@ -1,7 +1,6 @@
 BUGFIXES
 --------
 fix visuals when player crushed (not currently visible in any real level?)
-handle what happens when picking up a duplicate weapon
 
 TWO-LEVEL CONCEPT DEMO
 ----------------------

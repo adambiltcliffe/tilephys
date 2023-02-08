@@ -90,8 +90,9 @@ impl Controller {
                         // copy the references now so that the borrow can be dropped
                         .map(|(&typ, &id)| (typ, id));
                     match tw {
-                        None => (),
-                        Some((typ, id)) => {
+                        Some((typ, id))
+                            if !resources.weapons.iter().any(|w| w.get_type() == typ) =>
+                        {
                             // if current weapon is the backup laser, remove it
                             // backup laser can only be in weapon slot 0 so don't have to check anywhere else
                             if resources.weapons.front().unwrap().get_type()
@@ -117,6 +118,8 @@ impl Controller {
                                 .add(format!("Picked up {}.", weapon_name_indef(typ)));
                             resources.selector.change(0.0);
                         }
+                        // either not touching a weapon pickup or it's one we already have
+                        _ => (),
                     }
                 }
             }

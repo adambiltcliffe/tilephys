@@ -77,7 +77,11 @@ impl WeaponPickup {
         }
         for typ in new_touched.keys() {
             if !c.touched_weapons.contains_key(&typ) {
-                if resources.weapons.len() < 3 {
+                if resources.weapons.iter().any(|w| w.get_type() == *typ) {
+                    resources
+                        .messages
+                        .add(format!("Already carrying {}.", weapon_name(*typ)));
+                } else if resources.weapons.len() < 3 {
                     resources
                         .messages
                         .add(format!("Press C to pick up {}.", weapon_name(*typ)));
