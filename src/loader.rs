@@ -299,12 +299,28 @@ impl LoadingManager {
                                 } else if obj_type == "heart" {
                                     add_pickup(&mut world, *x as i32, *y as i32);
                                     max_items += 1;
-                                } else if obj_type == "weapon_reverse_laser" {
+                                } else if obj_type == "weapon_shotgun" {
                                     add_weapon(
                                         &mut world,
                                         *x as i32,
                                         *y as i32,
-                                        WeaponType::ReverseLaser,
+                                        WeaponType::Shotgun,
+                                    );
+                                    max_items += 1;
+                                } else if obj_type == "weapon_super_shotgun" {
+                                    add_weapon(
+                                        &mut world,
+                                        *x as i32,
+                                        *y as i32,
+                                        WeaponType::SuperShotgun,
+                                    );
+                                    max_items += 1;
+                                } else if obj_type == "weapon_reverse_shotgun" {
+                                    add_weapon(
+                                        &mut world,
+                                        *x as i32,
+                                        *y as i32,
+                                        WeaponType::ReverseShotgun,
                                     );
                                     max_items += 1;
                                 } else if obj_type == "weapon_auto_laser" {

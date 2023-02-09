@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="78">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="80">
  <tileset firstgid="1" source="../phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -28,7 +28,10 @@
   <object id="1" name="start" type="player" x="-312" y="48">
    <point/>
   </object>
-  <object id="73" type="weapon_reverse_laser" x="-248" y="48">
+  <object id="73" type="weapon_reverse_shotgun" x="-56" y="48">
+   <point/>
+  </object>
+  <object id="79" type="weapon_super_shotgun" x="-88" y="48">
    <point/>
   </object>
   <object id="75" type="weapon_auto_laser" x="-184" y="48">
@@ -37,10 +40,13 @@
   <object id="76" type="weapon_double_laser" x="-152" y="48">
    <point/>
   </object>
-  <object id="77" type="weapon_double_laser" x="-120" y="48">
+  <object id="77" type="weapon_shotgun" x="-120" y="48">
    <point/>
   </object>
   <object id="74" type="weapon_burst_laser" x="-216" y="48">
+   <point/>
+  </object>
+  <object id="78" type="weapon_burst_laser" x="-248" y="48">
    <point/>
   </object>
  </objectgroup>

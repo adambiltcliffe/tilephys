@@ -93,7 +93,7 @@
   <object id="98" name="shutter_open" x="-768" y="304">
    <polyline points="0,0 0,64"/>
   </object>
-  <object id="104" type="weapon_burst_laser" x="-752" y="368">
+  <object id="104" type="weapon_shotgun" x="-752" y="368">
    <point/>
   </object>
   <object id="106" name="dogpile_path" x="640" y="336">
@@ -169,9 +169,6 @@
   <object id="99" type="parrot_enemy" x="-856" y="352">
    <point/>
   </object>
-  <object id="105" type="parrot_enemy" x="-880" y="352">
-   <point/>
-  </object>
   <object id="101" type="enemy" x="-1064" y="384">
    <point/>
   </object>
@@ -221,7 +218,7 @@
   <object id="128" name="md_right" type="switch" x="-552" y="400">
    <point/>
   </object>
-  <object id="130" type="heart" x="-768" y="592">
+  <object id="130" type="weapon_reverse_shotgun" x="-768" y="592">
    <point/>
   </object>
   <object id="131" name="secret_switch" type="switch" x="8" y="48">
