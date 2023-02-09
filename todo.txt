@@ -9,6 +9,7 @@ ammo limit and ammo pickups
 
 MISC ENHANCEMENTS
 -----------------
+suppress laser muzzle flash on shotgun fire
 explosion debris (esp. for player)
 more tiles
 optimisations:

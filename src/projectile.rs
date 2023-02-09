@@ -9,11 +9,12 @@ use crate::vfx::FireballEffect;
 use crate::vfx::ZapFlash;
 use hecs::{CommandBuffer, World};
 
-struct DamageEnemies {}
-struct DamagePlayer {}
-struct LaserImpact {}
-struct FireballSplit {}
-struct ProjectileGravity {}
+pub struct DamageEnemies {}
+pub struct DamagePlayer {}
+pub struct LaserImpact {}
+pub struct FireballSplit {}
+pub struct ProjectileGravity {}
+pub struct ProjectileDrag {}
 
 pub struct Projectile {
     prec_x: f32,
@@ -23,7 +24,7 @@ pub struct Projectile {
 }
 
 impl Projectile {
-    fn new(rect: &IntRect, vx: f32, vy: f32) -> Self {
+    pub fn new(rect: &IntRect, vx: f32, vy: f32) -> Self {
         Self {
             prec_x: rect.x as f32,
             prec_y: rect.y as f32,
@@ -45,7 +46,7 @@ impl Projectile {
                 buffer.despawn(e);
                 if world.satisfies::<&LaserImpact>(e).unwrap_or(false) {
                     let (x, y) = find_collision_pos(&world, resources, ox, oy, rect);
-                    let sx = if proj.vx > 0.0 { x + 7 } else { x };
+                    let sx = if proj.vx > 0.0 { x + rect.w - 1 } else { x };
                     buffer.spawn((ZapFlash::new_from_centre(sx, y + 2),));
                 }
                 if world.satisfies::<&FireballSplit>(e).unwrap_or(false) {
@@ -63,7 +64,11 @@ impl Projectile {
                 if live && en.hp > 0 && rect.intersects(e_rect) {
                     buffer.despawn(e);
                     if world.satisfies::<&LaserImpact>(e).unwrap_or(false) {
-                        let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
+                        let sx = if proj.vx > 0.0 {
+                            rect.x + rect.w - 1
+                        } else {
+                            rect.x
+                        };
                         buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
                     }
                     if world.satisfies::<&FireballSplit>(e).unwrap_or(false) {
@@ -86,7 +91,11 @@ impl Projectile {
                             c.hurt();
                             buffer.despawn(id);
                             if world.satisfies::<&LaserImpact>(id).unwrap_or(false) {
-                                let sx = if proj.vx > 0.0 { rect.x + 7 } else { rect.x };
+                                let sx = if proj.vx > 0.0 {
+                                    rect.x + rect.w - 1
+                                } else {
+                                    rect.x
+                                };
                                 buffer.spawn((ZapFlash::new_from_centre(sx, rect.y + 2),));
                             }
                             if world.satisfies::<&FireballSplit>(id).unwrap_or(false) {
@@ -103,6 +112,13 @@ impl Projectile {
             .iter()
         {
             proj.vy += 0.2;
+        }
+        for (id, (proj, _)) in world.query::<(&mut Projectile, &ProjectileDrag)>().iter() {
+            proj.vx *= 0.8;
+            proj.vy *= 0.8;
+            if proj.vx.abs() < 2.0 {
+                buffer.despawn(id);
+            }
         }
     }
 }

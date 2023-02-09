@@ -159,7 +159,10 @@ pub fn update_vfx(resources: &SceneResources, buffer: &mut CommandBuffer) {
         let c = rect.centre();
         let a = quad_rand::gen_range(0.0, std::f32::consts::TAU);
         buffer.spawn((SmokeParticle::new_from_centre(
-            c.x as i32, c.y as i32, a, 6.0,
+            c.x as i32,
+            c.y as i32,
+            a,
+            f.r * 0.75,
         ),));
     }
 }

@@ -1,6 +1,7 @@
 use crate::input::KeyState;
 use crate::physics::{Actor, IntRect};
-use crate::projectile::make_player_projectile;
+use crate::projectile::{make_player_projectile, DamageEnemies, Projectile, ProjectileDrag};
+use crate::vfx::{FireballEffect, SmokeParticle};
 use hecs::CommandBuffer;
 
 // eventually there will be variants whose names don't end in "...Laser"
@@ -107,6 +108,41 @@ impl Weapon for BackupLaser {
     }
 }
 
+fn make_shotgun_spray(
+    buffer: &mut CommandBuffer,
+    x: i32,
+    y: i32,
+    facing: i8,
+    n: usize,
+    spread: f32,
+) {
+    let rect = IntRect::new(x + facing as i32 * 9, y, 5, 5);
+    let vx = facing as f32 * 15.0;
+    for i in 0..n {
+        let c = rect.clone();
+        let proj = Projectile::new(
+            &c,
+            vx * quad_rand::gen_range(0.1, 1.0),
+            ((i as f32 / (n - 1) as f32) - 0.5) * spread * quad_rand::gen_range(0.8, 1.2),
+        );
+        buffer.spawn((
+            c,
+            FireballEffect::new(3.0),
+            proj,
+            DamageEnemies {},
+            ProjectileDrag {},
+        ));
+    }
+    for _ in 0..(n / 2) {
+        buffer.spawn((SmokeParticle::new_from_centre(
+            x + 2,
+            y + 2,
+            std::f32::consts::PI / -2.0 + quad_rand::gen_range(-0.3, 0.3),
+            4.0,
+        ),));
+    }
+}
+
 struct Shotgun {}
 
 impl Shotgun {
@@ -128,9 +164,14 @@ impl Weapon for Shotgun {
         key_state: KeyState,
     ) -> bool {
         if key_state == KeyState::Pressed {
-            let new_x = player_rect.x + 3 + facing as i32 * 9;
-            let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
-            make_player_projectile(buffer, rect, facing as f32 * 10.0);
+            make_shotgun_spray(
+                buffer,
+                player_rect.x + 3,
+                player_rect.y + 11,
+                facing,
+                7,
+                5.0,
+            );
             player.vx -= facing as f32 * 10.0;
             return true;
         }
@@ -158,10 +199,15 @@ impl Weapon for SuperShotgun {
         key_state: KeyState,
     ) -> bool {
         if key_state == KeyState::Pressed {
-            let new_x = player_rect.x + 3 + facing as i32 * 9;
-            let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
-            make_player_projectile(buffer, rect, facing as f32 * 10.0);
-            player.vx -= facing as f32 * 10.0;
+            make_shotgun_spray(
+                buffer,
+                player_rect.x + 3,
+                player_rect.y + 11,
+                facing,
+                15,
+                10.0,
+            );
+            player.vx -= facing as f32 * 20.0;
             return true;
         }
         false
@@ -189,9 +235,14 @@ impl Weapon for ReverseShotgun {
         key_state: KeyState,
     ) -> bool {
         if key_state == KeyState::Pressed {
-            let new_x = player_rect.x + 3 - facing as i32 * 9;
-            let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
-            make_player_projectile(buffer, rect, facing as f32 * -10.0);
+            make_shotgun_spray(
+                buffer,
+                player_rect.x + 3 + facing as i32 * 20,
+                player_rect.y + 11,
+                -facing,
+                7,
+                5.0,
+            );
             player.vx += facing as f32 * 10.0;
             return true;
         }
