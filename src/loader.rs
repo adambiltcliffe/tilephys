@@ -16,6 +16,7 @@ use crate::switch::add_switch;
 use crate::visibility::compute_obscurers;
 use crate::weapon::{new_weapon, WeaponSelectorUI, WeaponType};
 use bitflags::bitflags;
+use enum_map::EnumMap;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
 use macroquad::{file::load_file, texture::load_texture};
@@ -406,6 +407,7 @@ impl LoadingManager {
             stats,
             triggers: HashSet::new(),
             weapons,
+            ammo: EnumMap::default(),
             selector,
             death_timer: None,
         };

@@ -452,7 +452,7 @@ impl Renderer {
         draw_text("00", wvdc + 50.0, self.height - wvdc - 3.0, 16.0, WHITE);
         let mut y = self.height - wvdc - 3.0;
         for typ in all::<AmmoType>() {
-            let t = format!("{} {}", "00", ammo_symbol(typ));
+            let t = format!("{:02} {}", resources.ammo[typ], ammo_symbol(typ));
             let m = measure_text(&t, None, 16, 1.0);
             draw_text(&t, self.width - wvdc - m.width, y, 16.0, WHITE);
             y -= 12.0;

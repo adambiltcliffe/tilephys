@@ -65,7 +65,7 @@ pub fn weapon_v_offset(typ: WeaponType) -> f32 {
     }
 }
 
-#[derive(enum_iterator::Sequence)]
+#[derive(enum_iterator::Sequence, enum_map::Enum, Copy, Clone)]
 pub enum AmmoType {
     Cell,
     Shell,
@@ -77,6 +77,14 @@ pub fn ammo_symbol(typ: AmmoType) -> &'static str {
         AmmoType::Cell => "CEL",
         AmmoType::Shell => "SHL",
         AmmoType::Rocket => "RKT",
+    }
+}
+
+pub fn ammo_max(typ: AmmoType) -> u8 {
+    match typ {
+        AmmoType::Cell => 99,
+        AmmoType::Shell => 40,
+        AmmoType::Rocket => 20,
     }
 }
 

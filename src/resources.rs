@@ -6,7 +6,8 @@ use crate::scene::Scene;
 use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
 use crate::transition::TransitionEffectType;
-use crate::weapon::{Weapon, WeaponSelectorUI};
+use crate::weapon::{AmmoType, Weapon, WeaponSelectorUI};
+use enum_map::EnumMap;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
 use std::collections::{HashSet, VecDeque};
@@ -66,6 +67,7 @@ pub struct SceneResources {
     pub stats: LevelStats,
     pub triggers: HashSet<String>,
     pub weapons: VecDeque<Box<dyn Weapon>>,
+    pub ammo: EnumMap<AmmoType, u8>,
 }
 
 #[derive(Clone)]

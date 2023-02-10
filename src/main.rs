@@ -2,6 +2,7 @@ use std::num::NonZeroU8;
 
 use camera::PlayerCamera;
 use enemy::update_enemies;
+use enum_iterator::all;
 use hecs::CommandBuffer;
 use input::Input;
 use macroquad::experimental::coroutines::{start_coroutine, stop_all_coroutines};
@@ -16,6 +17,7 @@ use scene::{new_prelevel, Scene};
 use timer::Timer;
 use transition::TransitionEffectType;
 use vfx::update_vfx;
+use weapon::{ammo_max, AmmoType};
 
 #[cfg(debug_assertions)]
 use input::VirtualKey;
@@ -169,6 +171,12 @@ async fn main() {
                         resources.messages.add(m);
                     }
 
+                    #[cfg(debug_assertions)]
+                    if input.is_pressed(VirtualKey::DebugAmmo) {
+                        for typ in all::<AmmoType>() {
+                            resources.ammo[typ] = (resources.ammo[typ] + 5).min(ammo_max(typ));
+                        }
+                    }
                     #[cfg(debug_assertions)]
                     if input.is_pressed(VirtualKey::DebugRestart) {
                         stop_all_coroutines();
