@@ -8,7 +8,8 @@ use crate::stats::LevelStats;
 use crate::transition::{new_transition, TransitionEffect, TransitionEffectType};
 use crate::vfx::draw_vfx;
 use crate::visibility::draw_visibility;
-use crate::weapon::{weapon_name, weapon_sprite_frame, weapon_v_offset};
+use crate::weapon::{ammo_symbol, weapon_name, weapon_sprite_frame, weapon_v_offset, AmmoType};
+use enum_iterator::all;
 use macroquad::prelude::*;
 use miniquad::graphics::{BlendFactor, BlendState, BlendValue, Equation};
 
@@ -447,6 +448,14 @@ impl Renderer {
                     ..Default::default()
                 },
             );
+        }
+        draw_text("00", wvdc + 50.0, self.height - wvdc - 3.0, 16.0, WHITE);
+        let mut y = self.height - wvdc - 3.0;
+        for typ in all::<AmmoType>() {
+            let t = format!("{} {}", "00", ammo_symbol(typ));
+            let m = measure_text(&t, None, 16, 1.0);
+            draw_text(&t, self.width - wvdc - m.width, y, 16.0, WHITE);
+            y -= 12.0;
         }
         if !resources.selector.hidden {
             let offset = resources.selector.offset;

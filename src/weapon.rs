@@ -65,6 +65,21 @@ pub fn weapon_v_offset(typ: WeaponType) -> f32 {
     }
 }
 
+#[derive(enum_iterator::Sequence)]
+pub enum AmmoType {
+    Cell,
+    Shell,
+    Rocket,
+}
+
+pub fn ammo_symbol(typ: AmmoType) -> &'static str {
+    match typ {
+        AmmoType::Cell => "CEL",
+        AmmoType::Shell => "SHL",
+        AmmoType::Rocket => "RKT",
+    }
+}
+
 pub trait Weapon {
     fn get_type(&self) -> WeaponType;
     fn update(
