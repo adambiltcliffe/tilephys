@@ -155,9 +155,15 @@ impl Controller {
                 }
             }
             let fks = input.state(VirtualKey::Fire);
-            if resources.weapons[0].update(buffer, player, p_rect, controller.facing, fks) {
-                controller.fire_timer = 0;
-                sprite.firing = true;
+            let w = &mut resources.weapons[0];
+            let t = w.get_ammo_type();
+            let n = w.get_ammo_use();
+            if resources.ammo[t] >= n {
+                if w.update(buffer, player, p_rect, controller.facing, fks) {
+                    controller.fire_timer = 0;
+                    sprite.firing = true;
+                    resources.ammo[t] -= n;
+                }
             }
             controller.fire_timer += 1;
             sprite.muzzle_flash = controller.fire_timer.min(100) as u8;

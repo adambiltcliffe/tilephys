@@ -449,7 +449,19 @@ impl Renderer {
                 },
             );
         }
-        draw_text("00", wvdc + 50.0, self.height - wvdc - 3.0, 16.0, WHITE);
+        let w = &resources.weapons[0];
+        let t = w.get_ammo_type();
+        let n = w.get_ammo_use();
+        if n > 0 {
+            let color = if resources.ammo[t] >= n { WHITE } else { RED };
+            draw_text(
+                &format!("{:02}", resources.ammo[t]),
+                wvdc + 50.0,
+                self.height - wvdc - 3.0,
+                16.0,
+                color,
+            );
+        }
         let mut y = self.height - wvdc - 3.0;
         for typ in all::<AmmoType>() {
             let t = format!("{:02} {}", resources.ammo[typ], ammo_symbol(typ));

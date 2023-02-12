@@ -72,6 +72,8 @@ pub enum AmmoType {
     Rocket,
 }
 
+pub type AmmoQuantity = u8;
+
 pub fn ammo_symbol(typ: AmmoType) -> &'static str {
     match typ {
         AmmoType::Cell => "CEL",
@@ -80,7 +82,7 @@ pub fn ammo_symbol(typ: AmmoType) -> &'static str {
     }
 }
 
-pub fn ammo_max(typ: AmmoType) -> u8 {
+pub fn ammo_max(typ: AmmoType) -> AmmoQuantity {
     match typ {
         AmmoType::Cell => 99,
         AmmoType::Shell => 40,
@@ -90,6 +92,8 @@ pub fn ammo_max(typ: AmmoType) -> u8 {
 
 pub trait Weapon {
     fn get_type(&self) -> WeaponType;
+    fn get_ammo_type(&self) -> AmmoType;
+    fn get_ammo_use(&self) -> AmmoQuantity;
     fn update(
         &mut self,
         buffer: &mut CommandBuffer,
@@ -111,6 +115,12 @@ impl BackupLaser {
 impl Weapon for BackupLaser {
     fn get_type(&self) -> WeaponType {
         WeaponType::BackupLaser
+    }
+    fn get_ammo_type(&self) -> AmmoType {
+        AmmoType::Cell
+    }
+    fn get_ammo_use(&self) -> AmmoQuantity {
+        0
     }
     fn update(
         &mut self,
@@ -178,6 +188,12 @@ impl Weapon for Shotgun {
     fn get_type(&self) -> WeaponType {
         WeaponType::Shotgun
     }
+    fn get_ammo_type(&self) -> AmmoType {
+        AmmoType::Shell
+    }
+    fn get_ammo_use(&self) -> AmmoQuantity {
+        1
+    }
     fn update(
         &mut self,
         buffer: &mut CommandBuffer,
@@ -212,6 +228,12 @@ impl SuperShotgun {
 impl Weapon for SuperShotgun {
     fn get_type(&self) -> WeaponType {
         WeaponType::SuperShotgun
+    }
+    fn get_ammo_type(&self) -> AmmoType {
+        AmmoType::Shell
+    }
+    fn get_ammo_use(&self) -> AmmoQuantity {
+        2
     }
     fn update(
         &mut self,
@@ -248,6 +270,12 @@ impl ReverseShotgun {
 impl Weapon for ReverseShotgun {
     fn get_type(&self) -> WeaponType {
         WeaponType::ReverseShotgun
+    }
+    fn get_ammo_type(&self) -> AmmoType {
+        AmmoType::Shell
+    }
+    fn get_ammo_use(&self) -> AmmoQuantity {
+        1
     }
     fn update(
         &mut self,
@@ -287,6 +315,12 @@ impl Weapon for AutoLaser {
     fn get_type(&self) -> WeaponType {
         WeaponType::AutoLaser
     }
+    fn get_ammo_type(&self) -> AmmoType {
+        AmmoType::Cell
+    }
+    fn get_ammo_use(&self) -> AmmoQuantity {
+        1
+    }
     fn update(
         &mut self,
         buffer: &mut CommandBuffer,
@@ -324,6 +358,12 @@ impl BurstLaser {
 impl Weapon for BurstLaser {
     fn get_type(&self) -> WeaponType {
         WeaponType::BurstLaser
+    }
+    fn get_ammo_type(&self) -> AmmoType {
+        AmmoType::Cell
+    }
+    fn get_ammo_use(&self) -> AmmoQuantity {
+        1
     }
     fn update(
         &mut self,
@@ -363,6 +403,12 @@ impl DoubleLaser {
 impl Weapon for DoubleLaser {
     fn get_type(&self) -> WeaponType {
         WeaponType::DoubleLaser
+    }
+    fn get_ammo_type(&self) -> AmmoType {
+        AmmoType::Cell
+    }
+    fn get_ammo_use(&self) -> AmmoQuantity {
+        2
     }
     fn update(
         &mut self,
