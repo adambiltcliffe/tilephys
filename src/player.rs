@@ -1,5 +1,5 @@
 use crate::draw::PlayerSprite;
-use crate::input::{Input, VirtualKey};
+use crate::input::{Input, KeyState, VirtualKey};
 use crate::physics::{Actor, IntRect, Secrecy, TriggerZone};
 use crate::pickup::WeaponPickup;
 use crate::resources::SceneResources;
@@ -159,10 +159,27 @@ impl Controller {
             let t = w.get_ammo_type();
             let n = w.get_ammo_use();
             if resources.ammo[t] >= n {
+                // can fire current weapon, up to the weapon to say if we should
                 if w.update(buffer, player, p_rect, controller.facing, fks) {
                     controller.fire_timer = 0;
                     sprite.firing = true;
                     resources.ammo[t] -= n;
+                }
+            } else {
+                // can't fire current weapon
+                if fks == KeyState::Pressed {
+                    // so change to one that can if possible
+                    for idx in 1..resources.weapons.len() {
+                        let (t, u) = {
+                            let w = &resources.weapons[idx];
+                            (w.get_ammo_type(), w.get_ammo_use())
+                        };
+                        if resources.ammo[t] >= u {
+                            resources.weapons.rotate_left(idx);
+                            resources.selector.change(-(idx as f32));
+                            break;
+                        }
+                    }
                 }
             }
             controller.fire_timer += 1;
