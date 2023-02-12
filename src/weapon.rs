@@ -2,7 +2,9 @@ use crate::input::KeyState;
 use crate::physics::{Actor, IntRect};
 use crate::projectile::{make_player_projectile, DamageEnemies, Projectile, ProjectileDrag};
 use crate::vfx::{FireballEffect, SmokeParticle};
+use enum_map::EnumMap;
 use hecs::CommandBuffer;
+use std::collections::VecDeque;
 
 // eventually there will be variants whose names don't end in "...Laser"
 #[allow(clippy::enum_variant_names)]
@@ -469,4 +471,25 @@ impl WeaponSelectorUI {
         }
         self.offset *= 0.8;
     }
+}
+
+pub fn select_fireable_weapon(
+    weapons: &mut VecDeque<Box<dyn Weapon>>,
+    ammo: &mut EnumMap<AmmoType, AmmoQuantity>,
+    selector: &mut WeaponSelectorUI,
+) {
+    for idx in 1..weapons.len() {
+        let (t, u) = {
+            let w = &weapons[idx];
+            (w.get_ammo_type(), w.get_ammo_use())
+        };
+        if ammo[t] >= u {
+            weapons.rotate_left(idx);
+            selector.change(-(idx as f32));
+            return;
+        }
+    }
+    // if we couldn't find anything, add a backup laser to inventory
+    weapons.push_front(new_weapon(WeaponType::BackupLaser));
+    selector.change(-1.0);
 }

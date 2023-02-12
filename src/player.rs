@@ -5,7 +5,7 @@ use crate::pickup::WeaponPickup;
 use crate::resources::SceneResources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
-use crate::weapon::{new_weapon, weapon_name_indef, WeaponType};
+use crate::weapon::{new_weapon, select_fireable_weapon, weapon_name_indef, WeaponType};
 use hecs::{CommandBuffer, Entity};
 use std::collections::{HashMap, HashSet};
 
@@ -168,27 +168,13 @@ impl Controller {
                     resources.ammo[t] -= n;
                 }
             } else {
-                // can't fire current weapon
+                // can't fire current weapon, try changing if player pressed fire
                 if fks == KeyState::Pressed {
-                    'changed: {
-                        // so change to one that can if possible
-                        for idx in 1..resources.weapons.len() {
-                            let (t, u) = {
-                                let w = &resources.weapons[idx];
-                                (w.get_ammo_type(), w.get_ammo_use())
-                            };
-                            if resources.ammo[t] >= u {
-                                resources.weapons.rotate_left(idx);
-                                resources.selector.change(-(idx as f32));
-                                break 'changed;
-                            }
-                        }
-                        // if we couldn't, add a backup laser to inventory
-                        resources
-                            .weapons
-                            .push_front(new_weapon(WeaponType::BackupLaser));
-                        resources.selector.change(-1.0);
-                    }
+                    select_fireable_weapon(
+                        &mut resources.weapons,
+                        &mut resources.ammo,
+                        &mut resources.selector,
+                    );
                 }
             }
             controller.fire_timer += 1;
