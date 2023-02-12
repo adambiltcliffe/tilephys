@@ -93,15 +93,17 @@ impl Controller {
                         Some((typ, id))
                             if !resources.weapons.iter().any(|w| w.get_type() == typ) =>
                         {
-                            // if current weapon is the backup laser, remove it
-                            // backup laser can only be in weapon slot 0 so don't have to check anywhere else
-                            if resources.weapons.front().unwrap().get_type()
-                                == WeaponType::BackupLaser
+                            // if the backup laser is in inventory anywhere, remove it
+                            // player can always get it back again if they still have no ammo
+                            if let Some(n) = resources
+                                .weapons
+                                .iter()
+                                .position(|w| w.get_type() == WeaponType::BackupLaser)
                             {
-                                resources.weapons.pop_front();
+                                resources.weapons.remove(n);
                             }
-                            // at the moment we can't have the backup laser along with anything else
-                            // so we can ignore it when working out if the inventory is full
+                            // now we can't have the backup laser so we can just use the len()
+                            // to work out if the inventory is full
                             if resources.weapons.len() < 3 {
                                 buffer.despawn(id);
                                 resources.weapons.push_front(new_weapon(typ));
@@ -168,17 +170,24 @@ impl Controller {
             } else {
                 // can't fire current weapon
                 if fks == KeyState::Pressed {
-                    // so change to one that can if possible
-                    for idx in 1..resources.weapons.len() {
-                        let (t, u) = {
-                            let w = &resources.weapons[idx];
-                            (w.get_ammo_type(), w.get_ammo_use())
-                        };
-                        if resources.ammo[t] >= u {
-                            resources.weapons.rotate_left(idx);
-                            resources.selector.change(-(idx as f32));
-                            break;
+                    'changed: {
+                        // so change to one that can if possible
+                        for idx in 1..resources.weapons.len() {
+                            let (t, u) = {
+                                let w = &resources.weapons[idx];
+                                (w.get_ammo_type(), w.get_ammo_use())
+                            };
+                            if resources.ammo[t] >= u {
+                                resources.weapons.rotate_left(idx);
+                                resources.selector.change(-(idx as f32));
+                                break 'changed;
+                            }
                         }
+                        // if we couldn't, add a backup laser to inventory
+                        resources
+                            .weapons
+                            .push_front(new_weapon(WeaponType::BackupLaser));
+                        resources.selector.change(-1.0);
                     }
                 }
             }
