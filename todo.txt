@@ -2,10 +2,6 @@ BUGFIXES
 --------
 fix visuals when player crushed
 
-TWO-LEVEL CONCEPT DEMO
-----------------------
-carry weapons and ammo between levels
-
 MISC ENHANCEMENTS
 -----------------
 suppress laser muzzle flash on shotgun fire

@@ -165,7 +165,7 @@
    <point/>
   </object>
   <object id="95" name="start_lift_trigger" x="-704" y="544" width="32" height="16"/>
-  <object id="97" name="start_lift_top" x="-704" y="432" width="32" height="16"/>
+  <object id="97" name="start_lift_top" x="-736" y="328" width="80" height="120"/>
   <object id="99" type="parrot_enemy" x="-856" y="352">
    <point/>
   </object>
