@@ -129,7 +129,7 @@ impl Renderer {
             Scene::PlayLevel(resources) => {
                 self.draw_world(resources, assets);
             }
-            Scene::PostLevel(stats) => {
+            Scene::PostLevel(stats, _) => {
                 self.draw_postlevel(stats);
             }
         }

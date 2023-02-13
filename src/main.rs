@@ -12,7 +12,7 @@ use pickup::{Pickup, WeaponPickup};
 use player::Controller;
 use projectile::Projectile;
 use render::Renderer;
-use resources::load_assets;
+use resources::{load_assets, Inventory};
 use scene::{new_prelevel, Scene};
 use timer::Timer;
 use transition::TransitionEffectType;
@@ -87,7 +87,7 @@ async fn main() {
         assets.get_first_level()
     };
 
-    let mut scene: Scene = new_prelevel(info, false).await;
+    let mut scene: Scene = new_prelevel(info, Inventory::new(), false).await;
 
     loop {
         match assets.next_scene {
@@ -156,7 +156,8 @@ async fn main() {
                         if n > 30 && input.is_any_pressed() {
                             stop_all_coroutines();
                             assets.next_scene = Some((
-                                new_prelevel(resources.stats.info.clone(), false).await,
+                                new_prelevel(resources.stats.info.clone(), Inventory::new(), false)
+                                    .await,
                                 TransitionEffectType::Shatter,
                             ));
                         }
@@ -188,7 +189,8 @@ async fn main() {
                         stop_all_coroutines();
                         assets.next_scene = Some((
                             // skip the transition for faster debugging
-                            new_prelevel(resources.stats.info.clone(), true).await,
+                            new_prelevel(resources.stats.info.clone(), Inventory::new(), true)
+                                .await,
                             TransitionEffectType::Shatter,
                         ));
                     }
@@ -200,7 +202,10 @@ async fn main() {
                     if won {
                         stop_all_coroutines();
                         assets.next_scene = Some((
-                            crate::scene::Scene::PostLevel(resources.stats.clone()),
+                            crate::scene::Scene::PostLevel(
+                                resources.stats.clone(),
+                                resources.persist_inventory(),
+                            ),
                             TransitionEffectType::Shatter,
                         ));
                     }
@@ -216,14 +221,14 @@ async fn main() {
                     } */
                 }
             }
-            Scene::PostLevel(stats) => {
+            Scene::PostLevel(stats, inv) => {
                 for _ in 0..clock.get_num_updates() {
                     renderer.tick();
                 }
                 if input.is_any_pressed() {
                     let info = assets.get_next_level(&stats.info);
                     assets.next_scene = Some((
-                        new_prelevel(info, false).await,
+                        new_prelevel(info, inv.clone(), false).await,
                         TransitionEffectType::Shatter,
                     ));
                 }

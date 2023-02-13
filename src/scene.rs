@@ -1,5 +1,6 @@
 use crate::level::LevelInfo;
 use crate::loader::load_level;
+use crate::resources::Inventory;
 use crate::{resources::SceneResources, stats::LevelStats};
 use macroquad::experimental::coroutines::{start_coroutine, Coroutine};
 
@@ -8,11 +9,11 @@ use macroquad::experimental::coroutines::{start_coroutine, Coroutine};
 pub enum Scene {
     PreLevel(LevelInfo, Coroutine<Result<Scene, String>>, bool),
     PlayLevel(SceneResources),
-    PostLevel(LevelStats),
+    PostLevel(LevelStats, Inventory),
 }
 
-pub async fn new_prelevel(info: LevelInfo, fast: bool) -> Scene {
-    let coro: Coroutine<Result<Scene, String>> = start_coroutine(load_level(info.clone()));
+pub async fn new_prelevel(info: LevelInfo, inv: Inventory, fast: bool) -> Scene {
+    let coro: Coroutine<Result<Scene, String>> = start_coroutine(load_level(info.clone(), inv));
     if coro.is_done() {
         let res = coro.retrieve();
         assert!(res.is_some());

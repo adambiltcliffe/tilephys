@@ -6,7 +6,7 @@ use crate::scene::Scene;
 use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
 use crate::transition::TransitionEffectType;
-use crate::weapon::{AmmoType, Weapon, WeaponSelectorUI};
+use crate::weapon::{AmmoQuantity, AmmoType, Weapon, WeaponSelectorUI, WeaponType};
 use enum_map::EnumMap;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
@@ -67,7 +67,34 @@ pub struct SceneResources {
     pub stats: LevelStats,
     pub triggers: HashSet<String>,
     pub weapons: VecDeque<Box<dyn Weapon>>,
-    pub ammo: EnumMap<AmmoType, u8>,
+    pub ammo: EnumMap<AmmoType, AmmoQuantity>,
+}
+
+impl SceneResources {
+    pub fn persist_inventory(&self) -> Inventory {
+        Inventory {
+            weapon_types: self.weapons.iter().map(|w| w.get_type()).collect(),
+            ammo: self.ammo.clone(),
+            is_default: false,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct Inventory {
+    pub weapon_types: Vec<WeaponType>,
+    pub ammo: EnumMap<AmmoType, AmmoQuantity>,
+    pub is_default: bool,
+}
+
+impl Inventory {
+    pub fn new() -> Self {
+        Self {
+            weapon_types: vec![WeaponType::BackupLaser],
+            ammo: EnumMap::default(),
+            is_default: true,
+        }
+    }
 }
 
 #[derive(Clone)]

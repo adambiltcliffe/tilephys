@@ -7,8 +7,8 @@ use crate::messages::Messages;
 use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
 use crate::pickup::{add_ammo, add_heart, add_weapon};
 use crate::player::Controller;
-use crate::resources::SceneResources;
 use crate::resources::TilesetInfo;
+use crate::resources::{Inventory, SceneResources};
 use crate::scene::Scene;
 use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
@@ -16,7 +16,6 @@ use crate::switch::add_switch;
 use crate::visibility::compute_obscurers;
 use crate::weapon::{new_weapon, AmmoType, WeaponSelectorUI, WeaponType};
 use bitflags::bitflags;
-use enum_map::EnumMap;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
 use macroquad::{file::load_file, texture::load_texture};
@@ -97,7 +96,11 @@ impl LoadingManager {
     }
 
     // eventually this should probably not use String as its error type
-    pub(crate) async fn load_level(&mut self, info: &LevelInfo) -> Result<Scene, String> {
+    pub(crate) async fn load_level(
+        &mut self,
+        info: &LevelInfo,
+        inv: Inventory,
+    ) -> Result<Scene, String> {
         let map_name = format!("{}.tmx", info.path).to_owned();
         self.loader.reader_mut().preload(&map_name).await;
 
@@ -267,7 +270,8 @@ impl LoadingManager {
                             } => {
                                 if obj_type == "player" {
                                     (psx, psy) = (*x as i32, *y as i32);
-                                    if properties.contains_key("hide-weapon-ui") {
+                                    if properties.contains_key("hide-weapon-ui") && inv.is_default {
+                                        // in case we re-entered the intro level with weapons by looping
                                         selector.hidden = true;
                                     }
                                 } else if obj_type == "enemy" {
@@ -401,7 +405,9 @@ impl LoadingManager {
 
         let stats = LevelStats::new(info.clone(), max_kills, max_items, max_secrets);
         let mut weapons = VecDeque::with_capacity(4);
-        weapons.push_back(new_weapon(WeaponType::BackupLaser));
+        for t in inv.weapon_types {
+            weapons.push_back(new_weapon(t));
+        }
 
         let resources = SceneResources {
             world_ref,
@@ -416,7 +422,7 @@ impl LoadingManager {
             stats,
             triggers: HashSet::new(),
             weapons,
-            ammo: EnumMap::default(),
+            ammo: inv.ammo,
             selector,
             death_timer: None,
         };
@@ -424,6 +430,6 @@ impl LoadingManager {
     }
 }
 
-pub async fn load_level(info: LevelInfo) -> Result<Scene, String> {
-    LoadingManager::new().load_level(&info).await
+pub async fn load_level(info: LevelInfo, inv: Inventory) -> Result<Scene, String> {
+    LoadingManager::new().load_level(&info, inv).await
 }
