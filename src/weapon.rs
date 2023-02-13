@@ -519,14 +519,21 @@ pub fn select_fireable_weapon(
     ammo: &mut EnumMap<AmmoType, AmmoQuantity>,
     selector: &mut WeaponSelectorUI,
 ) {
-    for idx in 1..weapons.len() {
+    for idx in 0..weapons.len() {
         let (t, u) = {
             let w = &weapons[idx];
             (w.get_ammo_type(), w.get_ammo_use())
         };
         if ammo[t] >= u {
-            weapons.rotate_left(idx);
-            selector.change(-(idx as f32));
+            if idx == 0 {
+                // our previous selected weapon was a backup laser that was just removed
+                // so the current weapon was actually fireable, but we need to show a
+                // visual as it wasn't selected a moment ago
+                selector.change(-1.0);
+            } else {
+                weapons.rotate_left(idx);
+                selector.change(-(idx as f32));
+            }
             return;
         }
     }
