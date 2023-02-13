@@ -1,11 +1,10 @@
 BUGFIXES
 --------
-fix visuals when player crushed (not currently visible in any real level?)
+fix visuals when player crushed
 
 TWO-LEVEL CONCEPT DEMO
 ----------------------
-ammo limit and ammo pickups
-* restore backup laser when out of ammo
+carry weapons and ammo between levels
 
 MISC ENHANCEMENTS
 -----------------

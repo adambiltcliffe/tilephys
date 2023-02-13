@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="38" nextobjectid="174">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="38" nextobjectid="180">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -230,14 +230,20 @@
   <object id="133" name="start_secret_area" type="secret" x="-784" y="560" width="64" height="32"/>
   <object id="135" name="right_secret_area" type="secret" x="736" y="432" width="80" height="32"/>
   <object id="136" name="drop_trigger" x="720" y="336" width="16" height="64"/>
-  <object id="137" type="heart" x="-1208" y="352">
-   <point/>
-  </object>
-  <object id="138" name="escape_switch" type="switch" x="-1176" y="352">
+  <object id="138" name="escape_switch" type="switch" x="-1160" y="352">
    <point/>
   </object>
   <object id="139" name="left_secret_area" type="secret" x="-1232" y="304" width="80" height="48"/>
-  <object id="140" type="ammo_rocket" x="-1224" y="352">
+  <object id="140" type="weapon_auto_laser" x="-1224" y="352">
+   <point/>
+  </object>
+  <object id="174" type="ammo_cells_6" x="-1208" y="352">
+   <point/>
+  </object>
+  <object id="178" type="ammo_cells_6" x="-1192" y="352">
+   <point/>
+  </object>
+  <object id="179" type="ammo_cells_6" x="-1176" y="352">
    <point/>
   </object>
   <object id="142" type="ammo_cells_6" x="-808" y="240">
@@ -273,13 +279,13 @@
   <object id="152" type="ammo_cells_6" x="48" y="528">
    <point/>
   </object>
-  <object id="153" type="ammo_cells_6" x="776" y="464">
+  <object id="153" type="heart" x="776" y="464">
    <point/>
   </object>
-  <object id="155" type="ammo_cells_6" x="792" y="464">
+  <object id="176" type="ammo_rocket" x="808" y="464">
    <point/>
   </object>
-  <object id="156" type="ammo_cells_6" x="808" y="464">
+  <object id="177" type="ammo_rocket" x="792" y="464">
    <point/>
   </object>
   <object id="157" type="ammo_cells_6" x="568" y="624">
@@ -295,9 +301,6 @@
    <point/>
   </object>
   <object id="159" type="ammo_cells_6" x="536" y="624">
-   <point/>
-  </object>
-  <object id="154" type="weapon_auto_laser" x="760" y="464">
    <point/>
   </object>
   <object id="162" type="ammo_shells_4" x="-728" y="448">
