@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="38" nextobjectid="140">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="38" nextobjectid="174">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -28,7 +28,7 @@
    eJxjYBgFAwm4kDCl+tGxABHm49OPDVNbPzn+osR+augfCIzNzejxSw4GACorBLM=
   </chunk>
    <chunk x="32" y="0" width="16" height="16">
-   eJxjYBgFo2DkAi4kPBL1AwBNIAB5
+   eJxjYBgFo2DkAi4kTAwQQFNLqn50tfTWjw4Ac0gAuw==
   </chunk>
    <chunk x="-80" y="16" width="16" height="16">
    eJxjYBg+gIsMPJj0k+M3UgCl+kfB8AMAUBMB9Q==
@@ -237,6 +237,105 @@
    <point/>
   </object>
   <object id="139" name="left_secret_area" type="secret" x="-1232" y="304" width="80" height="48"/>
+  <object id="140" type="ammo_rocket" x="-1224" y="352">
+   <point/>
+  </object>
+  <object id="142" type="ammo_cells_6" x="-808" y="240">
+   <point/>
+  </object>
+  <object id="143" type="ammo_cells_6" x="-744" y="240">
+   <point/>
+  </object>
+  <object id="144" type="ammo_cells_6" x="-872" y="240">
+   <point/>
+  </object>
+  <object id="145" type="ammo_cells_6" x="-680" y="240">
+   <point/>
+  </object>
+  <object id="146" type="ammo_cells_6" x="-504" y="400">
+   <point/>
+  </object>
+  <object id="147" type="ammo_cells_6" x="-488" y="400">
+   <point/>
+  </object>
+  <object id="148" type="ammo_cells_6" x="-472" y="400">
+   <point/>
+  </object>
+  <object id="149" type="ammo_cells_6" x="-56" y="224">
+   <point/>
+  </object>
+  <object id="150" type="ammo_cells_6" x="80" y="528">
+   <point/>
+  </object>
+  <object id="151" type="ammo_cells_6" x="112" y="528">
+   <point/>
+  </object>
+  <object id="152" type="ammo_cells_6" x="48" y="528">
+   <point/>
+  </object>
+  <object id="153" type="ammo_cells_6" x="776" y="464">
+   <point/>
+  </object>
+  <object id="155" type="ammo_cells_6" x="792" y="464">
+   <point/>
+  </object>
+  <object id="156" type="ammo_cells_6" x="808" y="464">
+   <point/>
+  </object>
+  <object id="157" type="ammo_cells_6" x="568" y="624">
+   <point/>
+  </object>
+  <object id="160" type="ammo_cells_6" x="200" y="400">
+   <point/>
+  </object>
+  <object id="161" type="ammo_cells_6" x="216" y="400">
+   <point/>
+  </object>
+  <object id="158" type="ammo_cells_6" x="552" y="624">
+   <point/>
+  </object>
+  <object id="159" type="ammo_cells_6" x="536" y="624">
+   <point/>
+  </object>
+  <object id="154" type="weapon_auto_laser" x="760" y="464">
+   <point/>
+  </object>
+  <object id="162" type="ammo_shells_4" x="-728" y="448">
+   <point/>
+  </object>
+  <object id="163" type="ammo_shells_4" x="-712" y="448">
+   <point/>
+  </object>
+  <object id="164" type="ammo_shells_4" x="-1096" y="384">
+   <point/>
+  </object>
+  <object id="165" type="ammo_shells_4" x="-1080" y="384">
+   <point/>
+  </object>
+  <object id="166" type="ammo_shells_4" x="-440" y="576">
+   <point/>
+  </object>
+  <object id="167" type="ammo_shells_4" x="-456" y="576">
+   <point/>
+  </object>
+  <object id="168" type="heart" x="-568" y="576">
+   <point/>
+  </object>
+  <object id="169" type="ammo_shells_4" x="-232" y="48">
+   <point/>
+  </object>
+  <object id="170" type="ammo_shells_4" x="-216" y="48">
+   <point/>
+  </object>
+  <object id="171" type="ammo_shells_4" x="-600" y="240">
+   <point/>
+  </object>
+  <object id="172" type="ammo_shells_4" x="528" y="432">
+   <point/>
+  </object>
+  <object id="173" type="ammo_shells_4" x="560" y="432">
+   <point/>
+  </object>
  </objectgroup>
  <layer id="25" name="top_door" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -321,7 +420,7 @@
    eJxjYBgFlABGNExNs/BhSs2n1I3U0s8ExaT4j5rhPFQArdwMAEcQACY=
   </chunk>
    <chunk x="32" y="0" width="16" height="16">
-   eJxjYBgFo2DoAkYSMT7ABMRcBPBg1k+O/wGvVAEM
+   eJxjYBgFo2DoAkYyMTbABMRcBDA+MND6yfE/ALGMARA=
   </chunk>
    <chunk x="-80" y="16" width="16" height="16">
    eJxjYBg4wIjGJgdjM4tStwyUfmL8SYnZ1DCDmu4aBQMPAGHoACM=
