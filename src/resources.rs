@@ -6,9 +6,7 @@ use crate::scene::Scene;
 use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
 use crate::transition::TransitionEffectType;
-use crate::weapon::{
-    ammo_max, select_fireable_weapon, AmmoQuantity, AmmoType, Weapon, WeaponSelectorUI, WeaponType,
-};
+use crate::weapon::{AmmoType, Weapon, WeaponSelectorUI};
 use enum_map::EnumMap;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
@@ -70,30 +68,6 @@ pub struct SceneResources {
     pub triggers: HashSet<String>,
     pub weapons: VecDeque<Box<dyn Weapon>>,
     pub ammo: EnumMap<AmmoType, u8>,
-}
-
-impl SceneResources {
-    pub fn add_ammo(&mut self, typ: AmmoType, amt: AmmoQuantity) {
-        self.ammo[typ] = (self.ammo[typ] + amt).min(ammo_max(typ));
-        if let Some(n) = self
-            .weapons
-            .iter()
-            .position(|w| w.get_type() == WeaponType::BackupLaser)
-        {
-            // there is a backup laser in inventory at position n
-            // we should remove it if the player can now use anything else
-            if self.weapons.iter().any(|w| {
-                self.ammo[w.get_ammo_type()] >= w.get_ammo_use()
-                    && w.get_type() != WeaponType::BackupLaser
-            }) {
-                self.weapons.remove(n);
-                if n == 0 {
-                    // backup laser was previously the selected weapon
-                    select_fireable_weapon(&mut self.weapons, &mut self.ammo, &mut self.selector)
-                }
-            }
-        }
-    }
 }
 
 #[derive(Clone)]

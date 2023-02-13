@@ -5,7 +5,7 @@ use crate::index::SpatialIndex;
 use crate::level::LevelInfo;
 use crate::messages::Messages;
 use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
-use crate::pickup::{add_pickup, add_weapon};
+use crate::pickup::{add_ammo, add_heart, add_weapon};
 use crate::player::Controller;
 use crate::resources::SceneResources;
 use crate::resources::TilesetInfo;
@@ -14,7 +14,7 @@ use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
 use crate::switch::add_switch;
 use crate::visibility::compute_obscurers;
-use crate::weapon::{new_weapon, WeaponSelectorUI, WeaponType};
+use crate::weapon::{new_weapon, AmmoType, WeaponSelectorUI, WeaponType};
 use bitflags::bitflags;
 use enum_map::EnumMap;
 use hecs::{Entity, World};
@@ -298,7 +298,16 @@ impl LoadingManager {
                                     );
                                     max_kills += 1;
                                 } else if obj_type == "heart" {
-                                    add_pickup(&mut world, *x as i32, *y as i32);
+                                    add_heart(&mut world, *x as i32, *y as i32);
+                                    max_items += 1;
+                                } else if obj_type == "ammo_cells_6" {
+                                    add_ammo(&mut world, *x as i32, *y as i32, AmmoType::Cell, 6);
+                                    max_items += 1;
+                                } else if obj_type == "ammo_shells_4" {
+                                    add_ammo(&mut world, *x as i32, *y as i32, AmmoType::Shell, 4);
+                                    max_items += 1;
+                                } else if obj_type == "ammo_rocket" {
+                                    add_ammo(&mut world, *x as i32, *y as i32, AmmoType::Rocket, 1);
                                     max_items += 1;
                                 } else if obj_type == "weapon_shotgun" {
                                     add_weapon(

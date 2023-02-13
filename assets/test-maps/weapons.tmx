@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="80">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="88">
  <tileset firstgid="1" source="../phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -47,6 +47,30 @@
    <point/>
   </object>
   <object id="78" type="weapon_burst_laser" x="-248" y="48">
+   <point/>
+  </object>
+  <object id="80" type="ammo_shells_4" x="-504" y="48">
+   <point/>
+  </object>
+  <object id="81" type="ammo_shells_4" x="-488" y="48">
+   <point/>
+  </object>
+  <object id="82" type="ammo_shells_4" x="-472" y="48">
+   <point/>
+  </object>
+  <object id="83" type="ammo_cells_6" x="-424" y="48">
+   <point/>
+  </object>
+  <object id="84" type="ammo_cells_6" x="-408" y="48">
+   <point/>
+  </object>
+  <object id="85" type="ammo_cells_6" x="-392" y="48">
+   <point/>
+  </object>
+  <object id="86" type="ammo_rocket" x="24" y="48">
+   <point/>
+  </object>
+  <object id="87" type="ammo_rocket" x="8" y="48">
    <point/>
   </object>
  </objectgroup>

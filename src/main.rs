@@ -17,7 +17,7 @@ use scene::{new_prelevel, Scene};
 use timer::Timer;
 use transition::TransitionEffectType;
 use vfx::update_vfx;
-use weapon::AmmoType;
+use weapon::{add_ammo, AmmoType};
 
 #[cfg(debug_assertions)]
 use input::VirtualKey;
@@ -174,7 +174,13 @@ async fn main() {
                     #[cfg(debug_assertions)]
                     if input.is_pressed(VirtualKey::DebugAmmo) {
                         for typ in all::<AmmoType>() {
-                            resources.add_ammo(typ, 5);
+                            add_ammo(
+                                &mut resources.weapons,
+                                &mut resources.ammo,
+                                &mut resources.selector,
+                                typ,
+                                5,
+                            );
                         }
                     }
                     #[cfg(debug_assertions)]

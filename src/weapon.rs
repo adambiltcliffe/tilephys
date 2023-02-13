@@ -84,6 +84,21 @@ pub fn ammo_symbol(typ: AmmoType) -> &'static str {
     }
 }
 
+pub fn ammo_name(typ: AmmoType, amt: AmmoQuantity) -> &'static str {
+    // currently only rockets are available individually
+    match typ {
+        AmmoType::Cell => "laser cells",
+        AmmoType::Shell => "shotgun shells",
+        AmmoType::Rocket => {
+            if amt == 1 {
+                "a rocket"
+            } else {
+                "rockets"
+            }
+        }
+    }
+}
+
 pub fn ammo_max(typ: AmmoType) -> AmmoQuantity {
     match typ {
         AmmoType::Cell => 99,
@@ -470,6 +485,32 @@ impl WeaponSelectorUI {
             self.timer -= 1;
         }
         self.offset *= 0.8;
+    }
+}
+
+pub fn add_ammo(
+    weapons: &mut VecDeque<Box<dyn Weapon>>,
+    ammo: &mut EnumMap<AmmoType, AmmoQuantity>,
+    selector: &mut WeaponSelectorUI,
+    typ: AmmoType,
+    amt: AmmoQuantity,
+) {
+    ammo[typ] = (ammo[typ] + amt).min(ammo_max(typ));
+    if let Some(n) = weapons
+        .iter()
+        .position(|w| w.get_type() == WeaponType::BackupLaser)
+    {
+        // there is a backup laser in inventory at position n
+        // we should remove it if the player can now use anything else
+        if weapons.iter().any(|w| {
+            ammo[w.get_ammo_type()] >= w.get_ammo_use() && w.get_type() != WeaponType::BackupLaser
+        }) {
+            weapons.remove(n);
+            if n == 0 {
+                // backup laser was previously the selected weapon
+                select_fireable_weapon(weapons, ammo, selector)
+            }
+        }
     }
 }
 

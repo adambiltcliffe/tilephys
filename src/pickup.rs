@@ -1,19 +1,48 @@
 use crate::physics::{Actor, IntRect};
 use crate::player::Controller;
 use crate::resources::SceneResources;
-use crate::weapon::{weapon_name, WeaponType};
+use crate::weapon::{ammo_max, ammo_name, weapon_name, AmmoQuantity, AmmoType, WeaponType};
 use hecs::{CommandBuffer, World};
 use std::collections::HashMap;
 
+pub enum PickupType {
+    Heart,
+    Ammo(AmmoType, AmmoQuantity),
+}
+
 pub struct Pickup {
+    typ: PickupType,
     touched: bool,
 }
 
-pub fn add_pickup(world: &mut World, x: i32, y: i32) {
+pub fn add_heart(world: &mut World, x: i32, y: i32) {
     let rect = IntRect::new(x - 8, y - 16, 16, 16);
     let draw = crate::draw::PickupSprite::new();
     let actor = Actor::new(&rect, 0.4);
-    world.spawn((rect, draw, actor, Pickup { touched: false }));
+    world.spawn((
+        rect,
+        draw,
+        actor,
+        Pickup {
+            typ: PickupType::Heart,
+            touched: false,
+        },
+    ));
+}
+
+pub fn add_ammo(world: &mut World, x: i32, y: i32, typ: AmmoType, amt: AmmoQuantity) {
+    let rect = IntRect::new(x - 8, y - 16, 16, 16);
+    let draw = crate::draw::PickupSprite::new();
+    let actor = Actor::new(&rect, 0.4);
+    world.spawn((
+        rect,
+        draw,
+        actor,
+        Pickup {
+            typ: PickupType::Ammo(typ, amt),
+            touched: false,
+        },
+    ));
 }
 
 impl Pickup {
@@ -29,10 +58,29 @@ impl Pickup {
                     p.touched = true;
                     resources.stats.items += 1
                 }
-                if c.can_heal() {
-                    buffer.despawn(id);
-                    c.heal();
-                    resources.messages.add("Picked up a heart.".to_owned());
+                match p.typ {
+                    PickupType::Heart => {
+                        if c.can_heal() {
+                            buffer.despawn(id);
+                            c.heal();
+                            resources.messages.add("Picked up a heart.".to_owned());
+                        }
+                    }
+                    PickupType::Ammo(typ, amt) => {
+                        if resources.ammo[typ] < ammo_max(typ) {
+                            buffer.despawn(id);
+                            crate::weapon::add_ammo(
+                                &mut resources.weapons,
+                                &mut resources.ammo,
+                                &mut resources.selector,
+                                typ,
+                                amt,
+                            );
+                            resources
+                                .messages
+                                .add(format!("Picked up {}.", ammo_name(typ, amt)));
+                        }
+                    }
                 }
             }
         }
