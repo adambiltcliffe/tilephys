@@ -1,10 +1,10 @@
 use crate::enemy::{EnemyHittable, ParrotKind};
 use crate::physics::{IntRect, TileBody};
-use crate::pickup::WeaponPickup;
+use crate::pickup::{Pickup, PickupType, WeaponPickup};
 use crate::resources::{GlobalAssets, SceneResources};
 use crate::switch::Switch;
 use crate::vfx::ZapFlash;
-use crate::weapon::weapon_sprite_frame;
+use crate::weapon::{weapon_sprite_frame, AmmoType};
 use hecs::World;
 use macroquad::prelude::*;
 
@@ -157,8 +157,23 @@ pub(crate) fn draw(world: &mut World, resources: &SceneResources, assets: &Globa
         );
     }
 
-    for (_, (rect, _spr)) in world.query::<(&IntRect, &PickupSprite)>().iter() {
-        draw_texture(assets.pickup_sprite, rect.x as f32, rect.y as f32, WHITE);
+    for (_, (rect, p, _spr)) in world.query::<(&IntRect, &Pickup, &PickupSprite)>().iter() {
+        let y = match p.typ {
+            PickupType::Heart => 0.0,
+            PickupType::Ammo(AmmoType::Cell, _) => 16.0,
+            PickupType::Ammo(AmmoType::Shell, _) => 32.0,
+            PickupType::Ammo(AmmoType::Rocket, _) => 48.0,
+        };
+        draw_texture_ex(
+            assets.pickup_sprite,
+            rect.x as f32,
+            rect.y as f32,
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(0.0, y, 16.0, 16.0)),
+                ..Default::default()
+            },
+        );
     }
 
     for (_, (rect, w)) in world.query::<(&IntRect, &WeaponPickup)>().iter() {

@@ -11,7 +11,7 @@ pub enum PickupType {
 }
 
 pub struct Pickup {
-    typ: PickupType,
+    pub typ: PickupType,
     touched: bool,
 }
 
