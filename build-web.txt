@@ -1,0 +1,23 @@
+cargo build --release --target wasm32-unknown-unknown
+wasm-bindgen --target web --out-dir dist target/wasm32-unknown-unknown/release/princess-robot.wasm
+
+edit dist/princess-robot.js as follows:
+
+delete this line:
+import * as __wbg_star0 from 'env';
+
+add this after 'let wasm;':
+export const set_wasm = (w) => wasm = w;
+
+replace this line:
+imports["env"] = __wbg_star0;
+with this:
+return imports.wbg;
+
+replace every occurence of:
+const imports = getImports();
+with:
+return getImports();
+
+If anything changes, may need to update the checked in copy of princess-robot.js as described here:
+https://gist.github.com/tgolsson/d78f7887a8542f3fd6f125070e5e22d6
