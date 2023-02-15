@@ -10,6 +10,7 @@ use macroquad::prelude::*;
 use physics::{Actor, PathMotion};
 use pickup::{Pickup, WeaponPickup};
 use player::Controller;
+use profile::{Phase, Profiler};
 use projectile::Projectile;
 use render::Renderer;
 use resources::{load_assets, Inventory};
@@ -33,6 +34,7 @@ mod messages;
 mod physics;
 mod pickup;
 mod player;
+mod profile;
 mod projectile;
 mod render;
 mod resources;
@@ -67,6 +69,7 @@ async fn main() {
     let mut renderer = Renderer::new(RENDER_W, RENDER_H);
     let mut clock = Timer::new();
     let mut input = Input::new();
+    let mut profiler = Profiler::new();
 
     let coro = start_coroutine(load_assets());
     let mut result = None;
@@ -118,14 +121,22 @@ async fn main() {
             Scene::PlayLevel(ref mut resources) => {
                 for _ in 0..clock.get_num_updates() {
                     let mut buffer = CommandBuffer::new();
+                    profiler.start(Phase::Motion);
                     PathMotion::apply(resources);
+                    profiler.start(Phase::Pickups);
                     Pickup::update(resources, &mut buffer);
                     WeaponPickup::update(resources);
+                    profiler.start(Phase::Player);
                     Controller::update(resources, &mut buffer, &input);
+                    profiler.start(Phase::Enemies);
                     update_enemies(resources, &mut buffer);
+                    profiler.start(Phase::Actor);
                     Actor::update(resources);
+                    profiler.start(Phase::Projectile);
                     Projectile::update(resources, &mut buffer);
+                    profiler.start(Phase::Vfx);
                     update_vfx(resources, &mut buffer);
+                    profiler.stop();
                     buffer.run_on(&mut resources.world_ref.lock().unwrap());
 
                     PlayerCamera::update(resources);
@@ -235,7 +246,10 @@ async fn main() {
             }
         }
 
+        profiler.start(Phase::Render);
         renderer.render_scene(&scene, &assets);
+        profiler.stop();
+        profiler.draw();
         next_frame().await;
     }
 }
