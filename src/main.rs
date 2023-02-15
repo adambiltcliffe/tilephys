@@ -246,9 +246,7 @@ async fn main() {
             }
         }
 
-        profiler.start(Phase::Render);
-        renderer.render_scene(&scene, &assets);
-        profiler.stop();
+        renderer.render_scene(&scene, &assets, &mut profiler);
         profiler.draw();
         next_frame().await;
     }

@@ -14,7 +14,7 @@ const WINDOW: usize = 60;
 const X_POS: f32 = 80.0;
 
 #[cfg(debug_assertions)]
-const PHASES: [(Phase, &'static str, Color); 8] = [
+const PHASES: [(Phase, &'static str, Color); 12] = [
     (Phase::Motion, "motion", macroquad::color::RED),
     (Phase::Pickups, "pickups", macroquad::color::ORANGE),
     (Phase::Player, "player", macroquad::color::YELLOW),
@@ -22,7 +22,11 @@ const PHASES: [(Phase, &'static str, Color); 8] = [
     (Phase::Actor, "actor", macroquad::color::SKYBLUE),
     (Phase::Projectile, "projectile", macroquad::color::BLUE),
     (Phase::Vfx, "vfx", macroquad::color::PURPLE),
-    (Phase::Render, "render", macroquad::color::PINK),
+    (Phase::DrawWorld, "draw_world", macroquad::color::PINK),
+    (Phase::DrawEffects, "draw_fx", macroquad::color::RED),
+    (Phase::DrawVis, "draw_vis", macroquad::color::ORANGE),
+    (Phase::DrawUI, "draw_ui", macroquad::color::YELLOW),
+    (Phase::Render, "render", macroquad::color::GREEN),
 ];
 
 #[derive(Copy, Clone, Enum)]
@@ -34,6 +38,10 @@ pub enum Phase {
     Actor,
     Projectile,
     Vfx,
+    DrawWorld,
+    DrawEffects,
+    DrawVis,
+    DrawUI,
     Render,
 }
 
@@ -66,6 +74,7 @@ impl Profiler {
                 times.pop_front();
             }
         }
+        self.phase = None;
     }
     pub fn draw(&self) {
         use macroquad::camera::set_default_camera;
@@ -79,7 +88,7 @@ impl Profiler {
             self.draw_box(y, p, c);
             y += 12.0;
         }
-        draw_line(X_POS, 0.0, X_POS, 96.0, 1.0, WHITE);
+        draw_line(X_POS, 0.0, X_POS, PHASES.len() as f32 * 12.0, 1.0, WHITE);
     }
     fn draw_box(&self, y: f32, phase: Phase, c: Color) {
         use macroquad::shapes::{draw_line, draw_rectangle_lines};
@@ -97,7 +106,7 @@ impl Profiler {
                 times_us[(n - 1) * 3 / 4],
                 times_us[n - 1],
             ];
-            let xs = qs.map(|t| t as f32 / 10.0);
+            let xs = qs.map(|t| t as f32 / 20.0);
             draw_line(X_POS + xs[0], y - 1.0, X_POS + xs[0], y - 7.0, 1.0, c);
             draw_line(X_POS + xs[2], y - 1.0, X_POS + xs[2], y - 7.0, 1.0, c);
             draw_line(X_POS + xs[4], y - 1.0, X_POS + xs[4], y - 7.0, 1.0, c);

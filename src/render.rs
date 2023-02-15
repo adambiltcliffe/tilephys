@@ -2,6 +2,7 @@ use crate::draw::draw;
 use crate::level::LevelInfo;
 use crate::messages::Messages;
 use crate::player::Controller;
+use crate::profile::{Phase, Profiler};
 use crate::resources::{GlobalAssets, SceneResources};
 use crate::scene::Scene;
 use crate::stats::LevelStats;
@@ -120,20 +121,26 @@ impl Renderer {
         }
     }
 
-    pub(crate) fn render_scene(&self, scene: &Scene, assets: &GlobalAssets) {
+    pub(crate) fn render_scene(
+        &self,
+        scene: &Scene,
+        assets: &GlobalAssets,
+        profiler: &mut Profiler,
+    ) {
         // draw the current scene
         match scene {
             Scene::PreLevel(n, _, _) => {
                 self.draw_prelevel(n, assets);
             }
             Scene::PlayLevel(resources) => {
-                self.draw_world(resources, assets);
+                self.draw_world(resources, assets, profiler);
             }
             Scene::PostLevel(stats, _) => {
                 self.draw_postlevel(stats);
             }
         }
 
+        profiler.start(Phase::Render);
         // draw the outgoing scene if there is one
         if let Some((ff, effect)) = &self.transition {
             gl_use_default_material();
@@ -147,6 +154,7 @@ impl Renderer {
 
         // finally draw to the screen
         self.render_to_screen();
+        profiler.stop();
     }
 
     fn render_to_screen(&self) {
@@ -296,7 +304,13 @@ impl Renderer {
         );
     }
 
-    pub(crate) fn draw_world(&self, resources: &SceneResources, assets: &GlobalAssets) {
+    pub(crate) fn draw_world(
+        &self,
+        resources: &SceneResources,
+        assets: &GlobalAssets,
+        profiler: &mut Profiler,
+    ) {
+        profiler.start(Phase::DrawWorld);
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -336,6 +350,7 @@ impl Renderer {
         ));
         draw(&mut world, resources, assets);
 
+        profiler.start(Phase::DrawEffects);
         // draw explosions onto an offscreen texture
         set_camera(&get_camera_for_target(
             &self.vis_targets[0],
@@ -353,6 +368,7 @@ impl Renderer {
         ));
         draw_texture(self.vis_targets[0].texture, 0., 0., WHITE);
 
+        profiler.start(Phase::DrawVis);
         // initialise the offscreen texture for jump flood algorithm
         gl_use_material(self.jfa_init_material);
         set_camera(&get_camera_for_target(
@@ -423,6 +439,7 @@ impl Renderer {
             },
         );
 
+        profiler.start(Phase::DrawUI);
         // draw text and ui here
         gl_use_default_material();
         set_camera(&get_camera_for_target(
