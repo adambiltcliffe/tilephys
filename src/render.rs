@@ -310,7 +310,7 @@ impl Renderer {
         assets: &GlobalAssets,
         profiler: &mut Profiler,
     ) {
-        profiler.start(Phase::DrawWorld);
+        profiler.start(Phase::DrawTiles);
         gl_use_default_material();
         set_camera(&get_camera_for_target(
             &self.draw_target,
@@ -348,7 +348,7 @@ impl Renderer {
             resources.camera_pos,
             Origin::TopLeft,
         ));
-        draw(&mut world, resources, assets);
+        draw(&mut world, resources, assets, profiler);
 
         profiler.start(Phase::DrawEffects);
         // draw explosions onto an offscreen texture

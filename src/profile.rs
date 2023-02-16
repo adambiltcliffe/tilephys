@@ -14,7 +14,7 @@ const WINDOW: usize = 60;
 const X_POS: f32 = 80.0;
 
 #[cfg(debug_assertions)]
-const PHASES: [(Phase, &'static str, Color); 12] = [
+const PHASES: [(Phase, &'static str, Color); 13] = [
     (Phase::Motion, "motion", macroquad::color::RED),
     (Phase::Pickups, "pickups", macroquad::color::ORANGE),
     (Phase::Player, "player", macroquad::color::YELLOW),
@@ -22,11 +22,12 @@ const PHASES: [(Phase, &'static str, Color); 12] = [
     (Phase::Actor, "actor", macroquad::color::SKYBLUE),
     (Phase::Projectile, "projectile", macroquad::color::BLUE),
     (Phase::Vfx, "vfx", macroquad::color::PURPLE),
-    (Phase::DrawWorld, "draw_world", macroquad::color::PINK),
-    (Phase::DrawEffects, "draw_fx", macroquad::color::RED),
-    (Phase::DrawVis, "draw_vis", macroquad::color::ORANGE),
-    (Phase::DrawUI, "draw_ui", macroquad::color::YELLOW),
-    (Phase::Render, "render", macroquad::color::GREEN),
+    (Phase::DrawTiles, "draw_tiles", macroquad::color::PINK),
+    (Phase::DrawSprites, "draw_sprites", macroquad::color::RED),
+    (Phase::DrawEffects, "draw_fx", macroquad::color::ORANGE),
+    (Phase::DrawVis, "draw_vis", macroquad::color::YELLOW),
+    (Phase::DrawUI, "draw_ui", macroquad::color::GREEN),
+    (Phase::Render, "render", macroquad::color::SKYBLUE),
 ];
 
 #[derive(Copy, Clone, Enum)]
@@ -38,7 +39,8 @@ pub enum Phase {
     Actor,
     Projectile,
     Vfx,
-    DrawWorld,
+    DrawTiles,
+    DrawSprites,
     DrawEffects,
     DrawVis,
     DrawUI,

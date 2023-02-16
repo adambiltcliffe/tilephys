@@ -1,6 +1,7 @@
 use crate::enemy::{EnemyHittable, ParrotKind};
 use crate::physics::{IntRect, TileBody};
 use crate::pickup::{Pickup, PickupType, WeaponPickup};
+use crate::profile::{Phase, Profiler};
 use crate::resources::{GlobalAssets, SceneResources};
 use crate::switch::Switch;
 use crate::vfx::ZapFlash;
@@ -95,7 +96,12 @@ impl ZapSprite {
     }
 }
 
-pub(crate) fn draw(world: &mut World, resources: &SceneResources, assets: &GlobalAssets) {
+pub(crate) fn draw(
+    world: &mut World,
+    resources: &SceneResources,
+    assets: &GlobalAssets,
+    profiler: &mut Profiler,
+) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
     let _delta = get_frame_time();
@@ -132,6 +138,8 @@ pub(crate) fn draw(world: &mut World, resources: &SceneResources, assets: &Globa
             }
         }
     }
+
+    profiler.start(Phase::DrawSprites);
 
     for (_, (rect, draw)) in world.query::<(&IntRect, &ColorRect)>().iter() {
         draw_rectangle(
