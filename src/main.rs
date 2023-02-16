@@ -71,6 +71,9 @@ async fn main() {
     let mut input = Input::new();
     let mut profiler = Profiler::new();
 
+    #[cfg(debug_assertions)]
+    let mut show_profile = false;
+
     let coro = start_coroutine(load_assets());
     let mut result = None;
     let mut loading_frames = 0;
@@ -184,6 +187,10 @@ async fn main() {
                     }
 
                     #[cfg(debug_assertions)]
+                    if input.is_pressed(VirtualKey::DebugProfile) {
+                        show_profile = !show_profile;
+                    }
+                    #[cfg(debug_assertions)]
                     if input.is_pressed(VirtualKey::DebugAmmo) {
                         for typ in all::<AmmoType>() {
                             add_ammo(
@@ -247,7 +254,10 @@ async fn main() {
         }
 
         renderer.render_scene(&scene, &assets, &mut profiler);
-        profiler.draw();
+        #[cfg(debug_assertions)]
+        if show_profile {
+            profiler.draw();
+        }
         next_frame().await;
     }
 }
