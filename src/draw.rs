@@ -104,15 +104,19 @@ pub(crate) fn draw(
 ) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
-    let _delta = get_frame_time();
-
+    let cam = resources.camera_pos;
     for id in &resources.draw_order {
         let chunk = world.get::<&TileBody>(*id).unwrap();
-        let mut ty = chunk.y;
-        for cy in 0..(chunk.data.len() / chunk.width as usize) {
+        let _cx_min = 0;
+        let _cx_max = chunk.width - 1;
+        let cy_min = ((cam.y as i32 - chunk.y - crate::RENDER_H as i32 / 2) / chunk.size).max(0);
+        let cy_max = ((cam.y as i32 - chunk.y + crate::RENDER_H as i32 / 2) / chunk.size)
+            .min((chunk.data.len() as i32 / chunk.width) - 1);
+        let mut ty = chunk.y + (cy_min * chunk.size);
+        for cy in cy_min..=cy_max {
             let mut tx = chunk.x;
             for cx in 0..chunk.width as usize {
-                let ii = cy * chunk.width as usize + cx;
+                let ii = (cy * chunk.width) as usize + cx;
                 if chunk.data[ii].is_visible() {
                     let tsi = &resources.tileset_info;
                     let sx = (chunk.tiles[ii] as u32 % tsi.columns) * tsi.tile_width;

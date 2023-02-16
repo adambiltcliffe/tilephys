@@ -48,8 +48,8 @@ mod vfx;
 mod visibility;
 mod weapon;
 
-const RENDER_W: u32 = 320;
-const RENDER_H: u32 = 200;
+pub(crate) const RENDER_W: u32 = 320;
+pub(crate) const RENDER_H: u32 = 200;
 
 fn window_conf() -> Conf {
     Conf {
