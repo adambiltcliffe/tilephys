@@ -1,9 +1,9 @@
-use enum_map::{Enum, EnumMap};
+use enum_map::Enum;
 
 #[cfg(debug_assertions)]
-use macroquad::color::Color;
+use enum_map::EnumMap;
 #[cfg(debug_assertions)]
-use macroquad::time::get_time;
+use macroquad::{color::Color, time::get_time};
 #[cfg(debug_assertions)]
 use std::collections::VecDeque;
 
@@ -14,7 +14,7 @@ const WINDOW: usize = 60;
 const X_POS: f32 = 90.0;
 
 #[cfg(debug_assertions)]
-const PHASES: [(Phase, &'static str, Color); 13] = [
+const PHASES: [(Phase, &str, Color); 13] = [
     (Phase::Motion, "motion", macroquad::color::RED),
     (Phase::Pickups, "pickups", macroquad::color::ORANGE),
     (Phase::Player, "player", macroquad::color::YELLOW),
@@ -86,7 +86,7 @@ impl Profiler {
         set_default_camera();
         let mut y = 9.0; // why is it 9?
         for (p, pname, c) in PHASES {
-            draw_text(&format!("{}", pname), 0.0, y, 16.0, c);
+            draw_text(pname, 0.0, y, 16.0, c);
             self.draw_box(y, p, c);
             y += 12.0;
         }
@@ -99,7 +99,7 @@ impl Profiler {
             .map(|t| (*t * 1000000.) as i32)
             .collect();
         times_us.sort();
-        if times_us.len() > 0 {
+        if !times_us.is_empty() {
             let n = times_us.len();
             let qs = [
                 times_us[0],
@@ -127,7 +127,6 @@ impl Profiler {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn start(&mut self, phase: Phase) {}
+    pub fn start(&mut self, _phase: Phase) {}
     pub fn stop(&mut self) {}
-    pub fn draw(&self) {}
 }

@@ -74,7 +74,7 @@ impl SceneResources {
     pub fn persist_inventory(&self) -> Inventory {
         Inventory {
             weapon_types: self.weapons.iter().map(|w| w.get_type()).collect(),
-            ammo: self.ammo.clone(),
+            ammo: self.ammo,
             is_default: false,
         }
     }

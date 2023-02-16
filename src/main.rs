@@ -2,7 +2,6 @@ use std::num::NonZeroU8;
 
 use camera::PlayerCamera;
 use enemy::update_enemies;
-use enum_iterator::all;
 use hecs::CommandBuffer;
 use input::Input;
 use macroquad::experimental::coroutines::{start_coroutine, stop_all_coroutines};
@@ -18,10 +17,13 @@ use scene::{new_prelevel, Scene};
 use timer::Timer;
 use transition::TransitionEffectType;
 use vfx::update_vfx;
-use weapon::{add_ammo, AmmoType};
 
 #[cfg(debug_assertions)]
+use enum_iterator::all;
+#[cfg(debug_assertions)]
 use input::VirtualKey;
+#[cfg(debug_assertions)]
+use weapon::{add_ammo, AmmoType};
 
 mod camera;
 mod draw;

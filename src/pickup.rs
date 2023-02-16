@@ -124,7 +124,7 @@ impl WeaponPickup {
             }
         }
         for typ in new_touched.keys() {
-            if !c.touched_weapons.contains_key(&typ) {
+            if !c.touched_weapons.contains_key(typ) {
                 if resources.weapons.iter().any(|w| w.get_type() == *typ) {
                     resources
                         .messages
