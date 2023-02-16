@@ -11,7 +11,7 @@ use std::collections::VecDeque;
 const WINDOW: usize = 60;
 
 #[cfg(debug_assertions)]
-const X_POS: f32 = 80.0;
+const X_POS: f32 = 90.0;
 
 #[cfg(debug_assertions)]
 const PHASES: [(Phase, &'static str, Color); 13] = [
