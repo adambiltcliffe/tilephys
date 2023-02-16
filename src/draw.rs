@@ -108,34 +108,34 @@ pub(crate) fn draw(
 
     for id in &resources.draw_order {
         let chunk = world.get::<&TileBody>(*id).unwrap();
-        let mut tx = chunk.x;
         let mut ty = chunk.y;
-        for ii in 0..(chunk.data.len()) {
-            if chunk.data[ii].is_visible() {
-                let tsi = &resources.tileset_info;
-                let sx = (chunk.tiles[ii] as u32 % tsi.columns) * tsi.tile_width;
-                let sy = (chunk.tiles[ii] as u32 / tsi.columns) * tsi.tile_height;
-                draw_texture_ex(
-                    tsi.texture,
-                    tx as f32,
-                    ty as f32,
-                    WHITE,
-                    DrawTextureParams {
-                        source: Some(Rect::new(
-                            sx as f32,
-                            sy as f32,
-                            chunk.size as f32,
-                            chunk.size as f32,
-                        )),
-                        ..Default::default()
-                    },
-                );
+        for cy in 0..(chunk.data.len() / chunk.width as usize) {
+            let mut tx = chunk.x;
+            for cx in 0..chunk.width as usize {
+                let ii = cy * chunk.width as usize + cx;
+                if chunk.data[ii].is_visible() {
+                    let tsi = &resources.tileset_info;
+                    let sx = (chunk.tiles[ii] as u32 % tsi.columns) * tsi.tile_width;
+                    let sy = (chunk.tiles[ii] as u32 / tsi.columns) * tsi.tile_height;
+                    draw_texture_ex(
+                        tsi.texture,
+                        tx as f32,
+                        ty as f32,
+                        WHITE,
+                        DrawTextureParams {
+                            source: Some(Rect::new(
+                                sx as f32,
+                                sy as f32,
+                                chunk.size as f32,
+                                chunk.size as f32,
+                            )),
+                            ..Default::default()
+                        },
+                    );
+                }
+                tx += chunk.size as i32;
             }
-            tx += chunk.size as i32;
-            if ((ii + 1) % chunk.width as usize) == 0 {
-                tx = chunk.x;
-                ty += chunk.size as i32;
-            }
+            ty += chunk.size as i32;
         }
     }
 
