@@ -7,6 +7,7 @@ fn init() {
     slow_lift.set_path(lift_path);
     slow_lift.set_motion(forward_cycle, 1.0);
     start_lift.set_path(up7);
+    crusher_lift.set_path(down4);
     start_secret.set_path(left3);
     chasm_bottom.set_path(down3);
     chasm_bottom2.set_path(down3);
@@ -81,6 +82,14 @@ fn side_switch_interact() {
 
 fn secret_switch_interact() {
     start_secret.go_to(1, 1.0);
+}
+
+fn crusher_interact() {
+    crusher_lift.go_to(1, 4.0);
+    context.after_frames(20, || {
+        crusher_lift.go_to(0, 1.0);
+        crusher.set_enabled(true);
+    })
 }
 
 fn dogpiler_interact() {
