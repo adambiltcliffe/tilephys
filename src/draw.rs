@@ -1,7 +1,6 @@
 use crate::enemy::{EnemyHittable, ParrotKind};
 use crate::physics::{IntRect, TileBody};
 use crate::pickup::{Pickup, PickupType, WeaponPickup};
-use crate::profile::{Phase, Profiler};
 use crate::resources::{GlobalAssets, SceneResources};
 use crate::switch::Switch;
 use crate::vfx::ZapFlash;
@@ -149,11 +148,8 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
         crate::RENDER_H as i32 + 128,
     );
 
-    let mut n = 0;
-
     for (_, (rect, draw)) in world.query::<(&IntRect, &ColorRect)>().iter() {
         if rect.intersects(&camera_rect) {
-            n += 1;
             draw_rectangle(
                 rect.x as f32,
                 rect.y as f32,
@@ -166,7 +162,6 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
 
     for (_, (rect, sw, _spr)) in world.query::<(&IntRect, &Switch, &SwitchSprite)>().iter() {
         if rect.intersects(&camera_rect) {
-            n += 1;
             let frame = i32::from(!sw.enabled);
             draw_texture_ex(
                 assets.switch_sprite,
@@ -183,7 +178,6 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
 
     for (_, (rect, p, _spr)) in world.query::<(&IntRect, &Pickup, &PickupSprite)>().iter() {
         if rect.intersects(&camera_rect) {
-            n += 1;
             let y = match p.typ {
                 PickupType::Heart => 0.0,
                 PickupType::Ammo(AmmoType::Cell, _) => 16.0,
@@ -205,7 +199,6 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
 
     for (_, (rect, w)) in world.query::<(&IntRect, &WeaponPickup)>().iter() {
         if rect.intersects(&camera_rect) {
-            n += 1;
             let frame = weapon_sprite_frame(w.typ);
             draw_texture_ex(
                 assets.weapon_sprite,
@@ -222,7 +215,6 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
 
     for (_, (rect, _spr)) in world.query::<(&IntRect, &ZapSprite)>().iter() {
         if rect.intersects(&camera_rect) {
-            n += 1;
             draw_texture_ex(
                 assets.zap_sprite,
                 rect.x as f32,
@@ -274,7 +266,6 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
         .iter()
     {
         if rect.intersects(&camera_rect) {
-            n += 1;
             if hittable.was_hit {
                 gl_use_material(assets.flash_material);
             }
@@ -316,7 +307,6 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
         .iter()
     {
         if rect.intersects(&camera_rect) {
-            n += 1;
             if hittable.was_hit {
                 gl_use_material(assets.flash_material);
             }
