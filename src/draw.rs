@@ -96,12 +96,7 @@ impl ZapSprite {
     }
 }
 
-pub(crate) fn draw(
-    world: &mut World,
-    resources: &SceneResources,
-    assets: &GlobalAssets,
-    profiler: &mut Profiler,
-) {
+pub(crate) fn draw_tiles(world: &mut World, resources: &SceneResources) {
     // we don't actually need mutable access to the world but having it lets us tell
     // hecs we can skip dynamic borrow checking by using query_mut
     let cam = resources.camera_pos;
@@ -143,78 +138,103 @@ pub(crate) fn draw(
             ty += chunk.size as i32;
         }
     }
+}
 
-    profiler.start(Phase::DrawSprites);
+pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets: &GlobalAssets) {
+    let cam = resources.camera_pos;
+    let camera_rect = IntRect::new(
+        cam.x as i32 - crate::RENDER_W as i32 / 2 - 64,
+        cam.y as i32 - crate::RENDER_H as i32 / 2 - 64,
+        crate::RENDER_W as i32 + 128,
+        crate::RENDER_H as i32 + 128,
+    );
+
+    let mut n = 0;
 
     for (_, (rect, draw)) in world.query::<(&IntRect, &ColorRect)>().iter() {
-        draw_rectangle(
-            rect.x as f32,
-            rect.y as f32,
-            rect.w as f32,
-            rect.h as f32,
-            draw.color,
-        );
+        if rect.intersects(&camera_rect) {
+            n += 1;
+            draw_rectangle(
+                rect.x as f32,
+                rect.y as f32,
+                rect.w as f32,
+                rect.h as f32,
+                draw.color,
+            );
+        }
     }
 
     for (_, (rect, sw, _spr)) in world.query::<(&IntRect, &Switch, &SwitchSprite)>().iter() {
-        let frame = i32::from(!sw.enabled);
-        draw_texture_ex(
-            assets.switch_sprite,
-            rect.x as f32,
-            rect.y as f32,
-            WHITE,
-            DrawTextureParams {
-                source: Some(Rect::new(16.0 * frame as f32, 0.0, 16.0, 16.0)),
-                ..Default::default()
-            },
-        );
+        if rect.intersects(&camera_rect) {
+            n += 1;
+            let frame = i32::from(!sw.enabled);
+            draw_texture_ex(
+                assets.switch_sprite,
+                rect.x as f32,
+                rect.y as f32,
+                WHITE,
+                DrawTextureParams {
+                    source: Some(Rect::new(16.0 * frame as f32, 0.0, 16.0, 16.0)),
+                    ..Default::default()
+                },
+            );
+        }
     }
 
     for (_, (rect, p, _spr)) in world.query::<(&IntRect, &Pickup, &PickupSprite)>().iter() {
-        let y = match p.typ {
-            PickupType::Heart => 0.0,
-            PickupType::Ammo(AmmoType::Cell, _) => 16.0,
-            PickupType::Ammo(AmmoType::Shell, _) => 32.0,
-            PickupType::Ammo(AmmoType::Rocket, _) => 48.0,
-        };
-        draw_texture_ex(
-            assets.pickup_sprite,
-            rect.x as f32,
-            rect.y as f32,
-            WHITE,
-            DrawTextureParams {
-                source: Some(Rect::new(0.0, y, 16.0, 16.0)),
-                ..Default::default()
-            },
-        );
+        if rect.intersects(&camera_rect) {
+            n += 1;
+            let y = match p.typ {
+                PickupType::Heart => 0.0,
+                PickupType::Ammo(AmmoType::Cell, _) => 16.0,
+                PickupType::Ammo(AmmoType::Shell, _) => 32.0,
+                PickupType::Ammo(AmmoType::Rocket, _) => 48.0,
+            };
+            draw_texture_ex(
+                assets.pickup_sprite,
+                rect.x as f32,
+                rect.y as f32,
+                WHITE,
+                DrawTextureParams {
+                    source: Some(Rect::new(0.0, y, 16.0, 16.0)),
+                    ..Default::default()
+                },
+            );
+        }
     }
 
     for (_, (rect, w)) in world.query::<(&IntRect, &WeaponPickup)>().iter() {
-        let frame = weapon_sprite_frame(w.typ);
-        draw_texture_ex(
-            assets.weapon_sprite,
-            rect.x as f32,
-            rect.y as f32,
-            WHITE,
-            DrawTextureParams {
-                source: Some(Rect::new(0.0, 16.0 * frame as f32, 24.0, 16.0)),
-                ..Default::default()
-            },
-        );
+        if rect.intersects(&camera_rect) {
+            n += 1;
+            let frame = weapon_sprite_frame(w.typ);
+            draw_texture_ex(
+                assets.weapon_sprite,
+                rect.x as f32,
+                rect.y as f32,
+                WHITE,
+                DrawTextureParams {
+                    source: Some(Rect::new(0.0, 16.0 * frame as f32, 24.0, 16.0)),
+                    ..Default::default()
+                },
+            );
+        }
     }
 
     for (_, (rect, _spr)) in world.query::<(&IntRect, &ZapSprite)>().iter() {
-        draw_texture_ex(
-            assets.zap_sprite,
-            rect.x as f32,
-            rect.y as f32,
-            WHITE,
-            DrawTextureParams {
-                dest_size: Some(vec2(8.0, 5.0)),
-                source: Some(Rect::new(0.0, 2.0, 8.0, 5.0)),
-                ..Default::default()
-            },
-        );
+        if rect.intersects(&camera_rect) {
+            n += 1;
+            draw_texture_ex(
+                assets.zap_sprite,
+                rect.x as f32,
+                rect.y as f32,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(8.0, 5.0)),
+                    source: Some(Rect::new(0.0, 2.0, 8.0, 5.0)),
+                    ..Default::default()
+                },
+            );
+        }
     }
 
     for (_, (rect, spr)) in world.query::<(&IntRect, &PlayerSprite)>().iter() {
@@ -253,61 +273,67 @@ pub(crate) fn draw(
         .query::<(&IntRect, &ParrotSprite, &EnemyHittable)>()
         .iter()
     {
-        if hittable.was_hit {
-            gl_use_material(assets.flash_material);
-        }
-        let tex = match spr.kind {
-            ParrotKind::Laser => assets.parrot_sprite,
-            ParrotKind::Cannon => assets.parrot_sprite2,
-        };
-        draw_texture_ex(
-            tex,
-            rect.x as f32,
-            rect.y as f32,
-            WHITE,
-            DrawTextureParams {
-                dest_size: Some(vec2(24.0, 24.0)),
-                source: Some(Rect::new(0.0, 24.0 * spr.frame as f32, 24.0, 24.0)),
-                flip_x: spr.flipped,
-                ..Default::default()
-            },
-        );
-        if let Some(mf) = spr.muzzle_flash {
+        if rect.intersects(&camera_rect) {
+            n += 1;
+            if hittable.was_hit {
+                gl_use_material(assets.flash_material);
+            }
+            let tex = match spr.kind {
+                ParrotKind::Laser => assets.parrot_sprite,
+                ParrotKind::Cannon => assets.parrot_sprite2,
+            };
             draw_texture_ex(
-                assets.zap_sprite,
-                rect.x as f32 + if spr.flipped { 16.0 } else { -1.0 },
-                rect.y as f32 + 6.0,
+                tex,
+                rect.x as f32,
+                rect.y as f32,
                 WHITE,
                 DrawTextureParams {
-                    dest_size: Some(vec2(9.0, 9.0)),
-                    source: Some(Rect::new(0.0, 9.0 * mf as f32, 9.0, 9.0)),
+                    dest_size: Some(vec2(24.0, 24.0)),
+                    source: Some(Rect::new(0.0, 24.0 * spr.frame as f32, 24.0, 24.0)),
+                    flip_x: spr.flipped,
                     ..Default::default()
                 },
             );
+            if let Some(mf) = spr.muzzle_flash {
+                draw_texture_ex(
+                    assets.zap_sprite,
+                    rect.x as f32 + if spr.flipped { 16.0 } else { -1.0 },
+                    rect.y as f32 + 6.0,
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: Some(vec2(9.0, 9.0)),
+                        source: Some(Rect::new(0.0, 9.0 * mf as f32, 9.0, 9.0)),
+                        ..Default::default()
+                    },
+                );
+            }
+            gl_use_default_material();
         }
-        gl_use_default_material();
     }
 
     for (_, (rect, spr, hittable)) in world
         .query::<(&IntRect, &DogSprite, &EnemyHittable)>()
         .iter()
     {
-        if hittable.was_hit {
-            gl_use_material(assets.flash_material);
+        if rect.intersects(&camera_rect) {
+            n += 1;
+            if hittable.was_hit {
+                gl_use_material(assets.flash_material);
+            }
+            draw_texture_ex(
+                assets.dog_sprite,
+                rect.x as f32,
+                rect.y as f32,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(24.0, 16.0)),
+                    source: Some(Rect::new(0.0, 16.0 * (spr.n / 5 % 2) as f32, 24.0, 16.0)),
+                    flip_x: spr.flipped,
+                    ..Default::default()
+                },
+            );
+            gl_use_default_material();
         }
-        draw_texture_ex(
-            assets.dog_sprite,
-            rect.x as f32,
-            rect.y as f32,
-            WHITE,
-            DrawTextureParams {
-                dest_size: Some(vec2(24.0, 16.0)),
-                source: Some(Rect::new(0.0, 16.0 * (spr.n / 5 % 2) as f32, 24.0, 16.0)),
-                flip_x: spr.flipped,
-                ..Default::default()
-            },
-        );
-        gl_use_default_material();
     }
 
     for (_, zap) in world.query::<&ZapFlash>().iter() {

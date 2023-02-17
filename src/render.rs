@@ -1,4 +1,4 @@
-use crate::draw::draw;
+use crate::draw::{draw_sprites, draw_tiles};
 use crate::level::LevelInfo;
 use crate::messages::Messages;
 use crate::player::Controller;
@@ -343,12 +343,12 @@ impl Renderer {
 
         // draw the basic graphics
         gl_use_default_material();
-        set_camera(&get_camera_for_target(
-            &self.draw_target,
-            resources.camera_pos,
-            Origin::TopLeft,
-        ));
-        draw(&mut world, resources, assets, profiler);
+        let c = get_camera_for_target(&self.draw_target, resources.camera_pos, Origin::TopLeft);
+        set_camera(&c);
+        draw_tiles(&mut world, resources);
+        set_camera(&c); // complete rendering now so profiling is accurate
+        profiler.start(Phase::DrawSprites);
+        draw_sprites(&mut world, resources, assets);
         set_default_camera(); // complete rendering now so profiling is accurate
 
         profiler.start(Phase::DrawEffects);
