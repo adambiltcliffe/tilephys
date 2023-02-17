@@ -11,7 +11,7 @@ use std::collections::VecDeque;
 const WINDOW: usize = 60;
 
 #[cfg(debug_assertions)]
-const X_POS: f32 = 90.0;
+const X_POS: f32 = 120.0;
 
 #[cfg(debug_assertions)]
 const PHASES: [(Phase, &str, Color); 13] = [
@@ -94,6 +94,7 @@ impl Profiler {
     }
     fn draw_box(&self, y: f32, phase: Phase, c: Color) {
         use macroquad::shapes::{draw_line, draw_rectangle_lines};
+        use macroquad::text::draw_text;
         let mut times_us: Vec<i32> = self.times[phase]
             .iter()
             .map(|t| (*t * 1000000.) as i32)
@@ -109,6 +110,7 @@ impl Profiler {
                 times_us[n - 1],
             ];
             let xs = qs.map(|t| t as f32 / 20.0);
+            draw_text(&format!("{}", qs[2]), 90.0, y, 16.0, c);
             draw_line(X_POS + xs[0], y - 1.0, X_POS + xs[0], y - 7.0, 1.0, c);
             draw_line(X_POS + xs[2], y - 1.0, X_POS + xs[2], y - 7.0, 1.0, c);
             draw_line(X_POS + xs[4], y - 1.0, X_POS + xs[4], y - 7.0, 1.0, c);

@@ -91,6 +91,7 @@ pub struct TileBody {
     pub y: i32,
     pub base_pos: Vec2,
     pub door: bool,
+    pub indexed: bool,
 }
 
 impl TileBody {
@@ -102,6 +103,7 @@ impl TileBody {
         data: Vec<TileFlags>,
         tiles: Vec<u16>,
         door: bool,
+        indexed: bool,
     ) -> Self {
         Self {
             x,
@@ -112,6 +114,7 @@ impl TileBody {
             tiles,
             base_pos: vec2(x as f32, y as f32),
             door,
+            indexed,
         }
     }
 
@@ -516,7 +519,9 @@ fn move_body(
 ) -> bool {
     let mut stopped = false;
     let body = world.get::<&mut TileBody>(index).unwrap();
-    spatial_index.remove_at(index, &body.get_rect());
+    if body.indexed {
+        spatial_index.remove_at(index, &body.get_rect());
+    }
     drop(body);
     // this is a fiddly mess of borrows and drops but we should be able to skip
     // this in many cases if there are no actors in position to be pushed
@@ -606,7 +611,9 @@ fn move_body(
         }
     }
     let body = world.get::<&mut TileBody>(index).unwrap();
-    spatial_index.insert_at(index, &body.get_rect());
+    if body.indexed {
+        spatial_index.insert_at(index, &body.get_rect());
+    }
     drop(body);
     !stopped
 }

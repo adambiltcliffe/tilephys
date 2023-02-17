@@ -184,6 +184,8 @@ impl LoadingManager {
                     }
                     let mut data = Vec::new();
                     let mut tiles = Vec::new();
+                    let mut solid = 0;
+                    let mut not_solid = 0;
                     for y in y0..=y1 {
                         for x in x0..=x1 {
                             let t = layer_data.get_tile(x, y);
@@ -193,12 +195,16 @@ impl LoadingManager {
                                     // if map parsing is ever slow, we could cache this per tile
                                     let t = ltd.get_tile().unwrap();
                                     if t.properties.contains_key("background") {
+                                        not_solid += 1;
                                         TileFlags::VISIBLE
                                     } else if t.properties.contains_key("transparent") {
+                                        solid += 1;
                                         TileFlags::BLOCKER | TileFlags::VISIBLE
                                     } else if t.properties.contains_key("platform") {
+                                        solid += 1;
                                         TileFlags::PLATFORM | TileFlags::VISIBLE
                                     } else {
+                                        solid += 1;
                                         TileFlags::BLOCKER
                                             | TileFlags::VISIBLE
                                             | TileFlags::OBSCURER
@@ -210,6 +216,13 @@ impl LoadingManager {
                         }
                     }
                     let door = layer.properties.contains_key("door");
+                    let indexed = solid > 0;
+                    if solid > 0 && solid < not_solid {
+                        println!(
+                            "Warning: layer {} has {} solid tiles and {} background tiles so must be indexed",
+                            layer.name, solid, not_solid
+                        );
+                    }
                     let body = TileBody::new(
                         x0 * map.tile_width as i32,
                         y0 * map.tile_height as i32,
@@ -218,12 +231,15 @@ impl LoadingManager {
                         data,
                         tiles,
                         door,
+                        indexed,
                     );
                     let rect = body.get_rect();
                     let id = world.spawn((body,));
                     ids.insert(layer.name.clone(), id);
                     draw_order.push(id);
-                    body_index.insert_at(id, &rect);
+                    if indexed {
+                        body_index.insert_at(id, &rect);
+                    }
                 }
                 tiled::LayerType::Objects(data) => {
                     for obj in data.objects() {
