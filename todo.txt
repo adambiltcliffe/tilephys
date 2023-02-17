@@ -8,10 +8,10 @@ suppress laser muzzle flash on shotgun fire
 explosion debris (esp. for player)
 more tiles
 optimisations:
-* investigate speeding up move_body
-* trivial optimisation of projectile::find_collision_pos
-* remove some cloning in PathMotion creation
-* resize some render targets and remove some of the +WVDC stuff
+* investigate speeding up move_body (not currently high impact)
+* trivial optimisation of projectile::find_collision_pos (low impact)
+* remove some cloning in PathMotion creation (trivial)
+* resize some render targets and remove some of the +WVDC stuff (???)
 nicer text rendering
 nice script debug output
 better error handling in general

@@ -349,6 +349,7 @@ impl Renderer {
             Origin::TopLeft,
         ));
         draw(&mut world, resources, assets, profiler);
+        set_default_camera(); // complete rendering now so profiling is accurate
 
         profiler.start(Phase::DrawEffects);
         // draw explosions onto an offscreen texture
@@ -367,6 +368,7 @@ impl Renderer {
             Origin::BottomLeft,
         ));
         draw_texture(self.vis_targets[0].texture, 0., 0., WHITE);
+        set_default_camera(); // complete rendering now so profiling is accurate
 
         profiler.start(Phase::DrawVis);
         // initialise the offscreen texture for jump flood algorithm
@@ -438,6 +440,7 @@ impl Renderer {
                 ..Default::default()
             },
         );
+        set_default_camera(); // complete rendering now so profiling is accurate
 
         profiler.start(Phase::DrawUI);
         // draw text and ui here
