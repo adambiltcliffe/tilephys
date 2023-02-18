@@ -154,6 +154,7 @@ impl Renderer {
 
         // finally draw to the screen
         self.render_to_screen();
+        set_default_camera();
         profiler.stop();
     }
 
