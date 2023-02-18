@@ -495,6 +495,7 @@ dependencies = [
  "getrandom",
  "hecs",
  "macroquad",
+ "once_cell",
  "quad-rand",
  "rhai",
  "smallset",

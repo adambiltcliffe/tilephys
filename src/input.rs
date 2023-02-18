@@ -25,9 +25,10 @@ pub enum VirtualKey {
     DebugKill,
     DebugAmmo,
     DebugProfile,
+    DebugConsole,
 }
 
-const ALL_KEYS: [(KeyCode, VirtualKey); 12] = [
+const ALL_KEYS: [(KeyCode, VirtualKey); 13] = [
     (KeyCode::Left, VirtualKey::Left),
     (KeyCode::Right, VirtualKey::Right),
     (KeyCode::Z, VirtualKey::Jump),
@@ -40,6 +41,7 @@ const ALL_KEYS: [(KeyCode, VirtualKey); 12] = [
     (KeyCode::K, VirtualKey::DebugKill),
     (KeyCode::F, VirtualKey::DebugAmmo),
     (KeyCode::P, VirtualKey::DebugProfile),
+    (KeyCode::GraveAccent, VirtualKey::DebugConsole),
 ];
 
 pub struct Input {
@@ -93,6 +95,7 @@ impl Input {
     }
 
     pub fn reset(&mut self) {
+        self.down.clear();
         self.pressed.clear();
         while get_char_pressed().is_some() {}
     }

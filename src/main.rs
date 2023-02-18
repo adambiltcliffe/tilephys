@@ -19,6 +19,8 @@ use transition::TransitionEffectType;
 use vfx::update_vfx;
 
 #[cfg(debug_assertions)]
+use console::CONSOLE;
+#[cfg(debug_assertions)]
 use enum_iterator::all;
 #[cfg(debug_assertions)]
 use input::VirtualKey;
@@ -49,6 +51,9 @@ mod transition;
 mod vfx;
 mod visibility;
 mod weapon;
+
+#[cfg(debug_assertions)]
+mod console;
 
 pub(crate) const RENDER_W: u32 = 320;
 pub(crate) const RENDER_H: u32 = 200;
@@ -110,6 +115,23 @@ async fn main() {
         }
 
         input.update();
+
+        #[cfg(debug_assertions)]
+        {
+            let mut con = CONSOLE.lock().unwrap();
+            if input.is_pressed(VirtualKey::DebugConsole) {
+                con.toggle_visible();
+            }
+            if con.is_visible() {
+                if is_key_pressed(KeyCode::Enter) {
+                    con.execute();
+                }
+                if is_key_pressed(KeyCode::Escape) {
+                    con.escape();
+                }
+                input.reset(); // suppress all other input
+            }
+        }
 
         match &mut scene {
             Scene::PreLevel(_n, coro, fast) => {
@@ -257,8 +279,11 @@ async fn main() {
 
         renderer.render_scene(&scene, &assets, &mut profiler);
         #[cfg(debug_assertions)]
-        if show_profile {
-            profiler.draw();
+        {
+            if show_profile {
+                profiler.draw();
+            }
+            CONSOLE.lock().unwrap().draw();
         }
         next_frame().await;
     }
