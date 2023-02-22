@@ -34,6 +34,7 @@ mod index;
 mod input;
 mod level;
 mod loader;
+mod log;
 mod messages;
 mod physics;
 mod pickup;

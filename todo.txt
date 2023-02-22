@@ -2,6 +2,17 @@ BUGFIXES
 --------
 fix visuals when player crushed
 
+ERROR HANDLING
+--------------
+to catch at a minimum:
+* missing resources
+* missing levels.txt
+* missing map file
+* missing tileset
+* missing script file
+* unparseable script file
+* script functions called on wrong entity type
+
 MISC ENHANCEMENTS
 -----------------
 suppress laser muzzle flash on shotgun fire

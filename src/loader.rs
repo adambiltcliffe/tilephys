@@ -3,6 +3,7 @@ use crate::draw::PlayerSprite;
 use crate::enemy::{add_enemy, EnemyKind, ParrotKind};
 use crate::index::SpatialIndex;
 use crate::level::LevelInfo;
+use crate::log::{info as log_info, warn};
 use crate::messages::Messages;
 use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
 use crate::pickup::{add_ammo, add_heart, add_weapon};
@@ -124,6 +125,7 @@ impl LoadingManager {
         let mut ids: HashMap<String, Entity> = HashMap::new();
         let mut paths: HashMap<String, Vec<(f32, f32)>> = HashMap::new();
         let mut body_index = SpatialIndex::new();
+        let mut body_index_count = 0;
         let mut selector = WeaponSelectorUI::new();
         let (mut psx, mut psy) = (0, 0);
         let mut max_kills = 0;
@@ -218,10 +220,10 @@ impl LoadingManager {
                     let door = layer.properties.contains_key("door");
                     let indexed = solid > 0;
                     if solid > 0 && solid < not_solid {
-                        println!(
+                        warn(&format!(
                             "Warning: layer {} has {} solid tiles and {} background tiles so must be indexed",
                             layer.name, solid, not_solid
-                        );
+                        ));
                     }
                     let body = TileBody::new(
                         x0 * map.tile_width as i32,
@@ -239,6 +241,7 @@ impl LoadingManager {
                     draw_order.push(id);
                     if indexed {
                         body_index.insert_at(id, &rect);
+                        body_index_count += 1;
                     }
                 }
                 tiled::LayerType::Objects(data) => {
@@ -382,16 +385,26 @@ impl LoadingManager {
                                         add_switch(&mut world, name.clone(), *x as i32, *y as i32);
                                     ids.insert(name.clone(), id);
                                 } else {
-                                    println!("found an unknown point object type: {}", obj_type)
+                                    warn(&format!(
+                                        "found an unknown point object type: {}",
+                                        obj_type
+                                    ));
                                 }
                             }
                             _ => (),
                         }
                     }
                 }
-                _ => println!("found a layer type other than an infinite tiled layer"),
+                _ => warn("found a layer type other than an infinite tiled layer"),
             }
         }
+
+        log_info(&format!(
+            "map '{}' loaded with {} indexed layers and {} total layers",
+            info.path,
+            body_index_count,
+            draw_order.len()
+        ));
 
         let world_ref = Arc::new(Mutex::new(world));
         let mut script_engine =

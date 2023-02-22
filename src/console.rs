@@ -1,6 +1,7 @@
 use macroquad::{
     prelude::{
-        draw_rectangle, draw_text, screen_height, screen_width, vec2, Color, BLANK, GRAY, WHITE,
+        draw_rectangle, draw_text, screen_height, screen_width, vec2, Color, BLANK, GRAY, RED,
+        WHITE, YELLOW,
     },
     texture::Image,
     ui::{hash, root_ui, widgets::InputText, Skin},
@@ -16,9 +17,11 @@ enum ConsoleVisibility {
     Visible,
 }
 
-enum ConsoleEntryType {
+pub enum ConsoleEntryType {
     Input,
     Output,
+    Info,
+    Warning,
 }
 
 pub static CONSOLE: Lazy<Mutex<Console>> = Lazy::new(|| Mutex::new(Console::new()));
@@ -50,6 +53,10 @@ impl Console {
         }
     }
 
+    pub fn force_visible(&mut self) {
+        self.visibility = ConsoleVisibility::Visible;
+    }
+
     pub fn escape(&mut self) {
         self.current_input = "".to_owned();
         self.visibility = ConsoleVisibility::Hidden;
@@ -59,15 +66,16 @@ impl Console {
         if self.current_input.is_empty() {
             return;
         }
-        self.history
-            .push_front((ConsoleEntryType::Input, self.current_input.clone()));
-        self.log(format!("Executing console command: {}", self.current_input));
+        self.add(self.current_input.clone(), ConsoleEntryType::Input);
+        self.add(
+            format!("Executing console command: {}", self.current_input),
+            ConsoleEntryType::Output,
+        );
         self.current_input = "".to_owned();
     }
 
-    pub fn log(&mut self, msg: String) {
-        println!("{}", msg);
-        self.history.push_front((ConsoleEntryType::Output, msg));
+    pub fn add(&mut self, msg: String, typ: ConsoleEntryType) {
+        self.history.push_front((typ, msg));
     }
 
     pub fn draw(&mut self) {
@@ -93,6 +101,8 @@ impl Console {
                     match typ {
                         ConsoleEntryType::Input => WHITE,
                         ConsoleEntryType::Output => GRAY,
+                        ConsoleEntryType::Info => YELLOW,
+                        ConsoleEntryType::Warning => RED,
                     },
                 );
             }
