@@ -359,7 +359,7 @@ dependencies = [
 [[package]]
 name = "macroquad"
 version = "0.3.25"
-source = "git+https://github.com/not-fl3/macroquad.git?rev=6184e3b#6184e3b549694bd6421fc7008d8e22d8debca091"
+source = "git+https://github.com/not-fl3/macroquad.git?rev=b1dd8ec#b1dd8ec747649c1fc699f1f25142d9294f7ae120"
 dependencies = [
  "bumpalo",
  "fontdue",
@@ -374,7 +374,7 @@ dependencies = [
 [[package]]
 name = "macroquad_macro"
 version = "0.1.7"
-source = "git+https://github.com/not-fl3/macroquad.git?rev=6184e3b#6184e3b549694bd6421fc7008d8e22d8debca091"
+source = "git+https://github.com/not-fl3/macroquad.git?rev=b1dd8ec#b1dd8ec747649c1fc699f1f25142d9294f7ae120"
 
 [[package]]
 name = "malloc_buf"

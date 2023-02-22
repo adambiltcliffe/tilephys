@@ -12,7 +12,7 @@ enum-map = "2.4.2"
 euclid = "0.22.7"
 getrandom = { version = "0.2", features = ["js"] }
 hecs = "0.9.0"
-macroquad = { git="https://github.com/not-fl3/macroquad.git", rev="6184e3b" }
+macroquad = { git="https://github.com/not-fl3/macroquad.git", rev="b1dd8ec" }
 once_cell = "1.17.0"
 quad-rand = "0.2.1"
 rhai = {version="1.12.0", features=["only_i32","f32_float","sync"]}
