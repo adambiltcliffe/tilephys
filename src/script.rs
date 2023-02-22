@@ -8,6 +8,9 @@ use rhai::{def_package, Engine, FnPtr, Scope, AST};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
+#[cfg(debug_assertions)]
+use crate::console::{CommandExecutor, ConsoleEntryType, CONSOLE};
+
 #[derive(Clone)]
 pub struct ScriptEntityProxy {
     world_ref: Arc<Mutex<World>>,
@@ -133,6 +136,25 @@ impl ScriptEngine {
             scope.push(name, Arc::new(path.clone()));
         }
 
+        #[cfg(debug_assertions)]
+        {
+            engine.on_print(|msg| {
+                println!("{}", msg);
+                CONSOLE
+                    .lock()
+                    .unwrap()
+                    .add(msg.to_owned(), ConsoleEntryType::ScriptOutput)
+            });
+            engine.on_debug(|msg, src, pos| {
+                let line = format!("{:?}@{:?}: {}", src, pos, msg);
+                println!("{}", &line);
+                CONSOLE
+                    .lock()
+                    .unwrap()
+                    .add(line, ConsoleEntryType::ScriptOutput)
+            });
+        }
+
         Self {
             engine,
             scope,
@@ -188,5 +210,42 @@ impl ScriptEngine {
 
     pub fn win_flag(&self) -> bool {
         self.flags.lock().unwrap().win
+    }
+}
+
+#[cfg(debug_assertions)]
+impl CommandExecutor for ScriptEngine {
+    fn exec(&mut self, command: &str) -> (ConsoleEntryType, String) {
+        match self
+            .engine
+            .eval_with_scope::<Dynamic>(&mut self.scope, command)
+        {
+            Ok(v) => (ConsoleEntryType::Output, format!("{}", v)),
+            Err(e) => (ConsoleEntryType::InteractiveError, format!("{}", e)),
+        }
+    }
+}
+
+#[cfg(debug_assertions)]
+pub struct BasicEngine {
+    engine: Engine,
+}
+
+#[cfg(debug_assertions)]
+impl BasicEngine {
+    pub(crate) fn new() -> Self {
+        Self {
+            engine: Engine::new_raw(),
+        }
+    }
+}
+
+#[cfg(debug_assertions)]
+impl CommandExecutor for BasicEngine {
+    fn exec(&mut self, command: &str) -> (ConsoleEntryType, String) {
+        match self.engine.eval::<Dynamic>(command) {
+            Ok(v) => (ConsoleEntryType::Output, format!("{}", v)),
+            Err(e) => (ConsoleEntryType::InteractiveError, format!("{}", e)),
+        }
     }
 }

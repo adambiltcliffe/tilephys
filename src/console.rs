@@ -1,7 +1,7 @@
 use macroquad::{
     prelude::{
-        draw_rectangle, draw_text, screen_height, screen_width, vec2, Color, BLANK, GRAY, RED,
-        WHITE, YELLOW,
+        draw_rectangle, draw_text, screen_height, screen_width, vec2, Color, BLANK, GRAY, GREEN,
+        RED, WHITE, YELLOW,
     },
     texture::Image,
     ui::{hash, root_ui, widgets::InputText, Skin},
@@ -9,6 +9,10 @@ use macroquad::{
 use once_cell::sync::Lazy;
 use std::collections::VecDeque;
 use std::sync::Mutex;
+
+pub trait CommandExecutor {
+    fn exec(&mut self, command: &str) -> (ConsoleEntryType, String);
+}
 
 // when we show the console, we delay it by a frame so that we don't capture the keystroke that opened it
 enum ConsoleVisibility {
@@ -20,6 +24,8 @@ enum ConsoleVisibility {
 pub enum ConsoleEntryType {
     Input,
     Output,
+    InteractiveError,
+    ScriptOutput,
     Info,
     Warning,
 }
@@ -62,15 +68,13 @@ impl Console {
         self.visibility = ConsoleVisibility::Hidden;
     }
 
-    pub fn execute(&mut self) {
+    pub fn execute(&mut self, eng: &mut impl CommandExecutor) {
         if self.current_input.is_empty() {
             return;
         }
+        let (typ, res) = eng.exec(&self.current_input);
         self.add(self.current_input.clone(), ConsoleEntryType::Input);
-        self.add(
-            format!("Executing console command: {}", self.current_input),
-            ConsoleEntryType::Output,
-        );
+        self.add(res, typ);
         self.current_input = "".to_owned();
     }
 
@@ -96,11 +100,13 @@ impl Console {
                 draw_text(
                     msg,
                     4.0,
-                    (rows - ii as f32) * 16.0 as f32,
+                    (rows - ii as f32) * 16.0,
                     16.0,
                     match typ {
                         ConsoleEntryType::Input => WHITE,
                         ConsoleEntryType::Output => GRAY,
+                        ConsoleEntryType::InteractiveError => RED,
+                        ConsoleEntryType::ScriptOutput => GREEN,
                         ConsoleEntryType::Info => YELLOW,
                         ConsoleEntryType::Warning => RED,
                     },

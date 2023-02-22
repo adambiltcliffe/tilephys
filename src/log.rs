@@ -7,7 +7,6 @@ pub fn info(msg: &str) {
         .lock()
         .unwrap()
         .add(msg.to_string(), ConsoleEntryType::Info);
-    println!("{}", msg);
 }
 
 #[cfg(debug_assertions)]

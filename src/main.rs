@@ -14,6 +14,7 @@ use projectile::Projectile;
 use render::Renderer;
 use resources::{load_assets, Inventory};
 use scene::{new_prelevel, Scene};
+use script::BasicEngine;
 use timer::Timer;
 use transition::TransitionEffectType;
 use vfx::update_vfx;
@@ -81,6 +82,8 @@ async fn main() {
 
     #[cfg(debug_assertions)]
     let mut show_profile = false;
+    #[cfg(debug_assertions)]
+    let mut basic_engine = BasicEngine::new();
 
     let coro = start_coroutine(load_assets());
     let mut result = None;
@@ -125,7 +128,11 @@ async fn main() {
             }
             if con.is_visible() {
                 if is_key_pressed(KeyCode::Enter) {
-                    con.execute();
+                    if let Scene::PlayLevel(ref mut resources) = &mut scene {
+                        con.execute(&mut resources.script_engine);
+                    } else {
+                        con.execute(&mut basic_engine);
+                    }
                 }
                 if is_key_pressed(KeyCode::Escape) {
                     con.escape();
