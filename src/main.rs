@@ -1,6 +1,7 @@
 use std::num::NonZeroU8;
 
 use camera::PlayerCamera;
+use console::ConsoleEntryType;
 use enemy::update_enemies;
 use hecs::CommandBuffer;
 use input::Input;
@@ -130,6 +131,10 @@ async fn main() {
                 if is_key_pressed(KeyCode::Enter) {
                     if let Scene::PlayLevel(ref mut resources) = &mut scene {
                         con.execute(&mut resources.script_engine);
+                        let mut buf = resources.script_engine.buffer.lock().unwrap();
+                        while let Some(m) = buf.pop_front() {
+                            con.add(m, ConsoleEntryType::ScriptOutput);
+                        }
                     } else {
                         con.execute(&mut basic_engine);
                     }

@@ -5,11 +5,11 @@ use macroquad::file::load_string;
 use rhai::packages::{Package, StandardPackage};
 use rhai::plugin::*;
 use rhai::{def_package, Engine, FnPtr, Scope, AST};
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex};
 
 #[cfg(debug_assertions)]
-use crate::console::{CommandExecutor, ConsoleEntryType, CONSOLE};
+use crate::console::{CommandExecutor, ConsoleEntryType};
 
 #[derive(Clone)]
 pub struct ScriptEntityProxy {
@@ -111,6 +111,7 @@ pub struct ScriptEngine {
     scope: Scope<'static>,
     ast: Option<AST>,
     flags: Arc<Mutex<ScriptFlags>>,
+    pub buffer: Arc<Mutex<VecDeque<String>>>,
 }
 
 impl ScriptEngine {
@@ -125,6 +126,8 @@ impl ScriptEngine {
 
         let pkg = ScriptPackage::new();
         pkg.register_into_engine(&mut engine);
+        //let bsp = BasicStringPackage::new();
+        //bsp.register_into_engine(&mut engine);
         scope.push("context", Arc::clone(&flags));
         scope.push("static", PathMotionType::Static);
         scope.push("forward_once", PathMotionType::ForwardOnce);
@@ -135,23 +138,20 @@ impl ScriptEngine {
         for (name, path) in paths.iter() {
             scope.push(name, Arc::new(path.clone()));
         }
+        let buffer = Arc::new(Mutex::new(VecDeque::new()));
 
         #[cfg(debug_assertions)]
         {
-            engine.on_print(|msg| {
+            let buf = Arc::clone(&buffer);
+            engine.on_print(move |msg| {
                 println!("{}", msg);
-                CONSOLE
-                    .lock()
-                    .unwrap()
-                    .add(msg.to_owned(), ConsoleEntryType::ScriptOutput)
+                buf.lock().unwrap().push_back(msg.to_owned());
             });
-            engine.on_debug(|msg, src, pos| {
+            let buf = Arc::clone(&buffer);
+            engine.on_debug(move |msg, src, pos| {
                 let line = format!("{:?}@{:?}: {}", src, pos, msg);
                 println!("{}", &line);
-                CONSOLE
-                    .lock()
-                    .unwrap()
-                    .add(line, ConsoleEntryType::ScriptOutput)
+                buf.lock().unwrap().push_back(msg.to_owned());
             });
         }
 
@@ -160,6 +160,7 @@ impl ScriptEngine {
             scope,
             ast: None,
             flags,
+            buffer,
         }
     }
 
