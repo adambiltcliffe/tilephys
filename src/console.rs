@@ -10,10 +10,6 @@ use once_cell::sync::Lazy;
 use std::collections::VecDeque;
 use std::sync::Mutex;
 
-pub trait CommandExecutor {
-    fn exec(&mut self, command: &str) -> (ConsoleEntryType, String);
-}
-
 // when we show the console, we delay it by a frame so that we don't capture the keystroke that opened it
 enum ConsoleVisibility {
     Hidden,
@@ -68,14 +64,11 @@ impl Console {
         self.visibility = ConsoleVisibility::Hidden;
     }
 
-    pub fn execute(&mut self, eng: &mut impl CommandExecutor) {
+    pub fn take_input(&mut self) -> Option<String> {
         if self.current_input.is_empty() {
-            return;
+            return None;
         }
-        let (typ, res) = eng.exec(&self.current_input);
-        self.add(self.current_input.clone(), ConsoleEntryType::Input);
-        self.add(res, typ);
-        self.current_input = "".to_owned();
+        Some(std::mem::replace(&mut self.current_input, "".to_owned()))
     }
 
     pub fn add(&mut self, msg: String, typ: ConsoleEntryType) {

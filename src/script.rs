@@ -5,11 +5,13 @@ use macroquad::file::load_string;
 use rhai::packages::{Package, StandardPackage};
 use rhai::plugin::*;
 use rhai::{def_package, Engine, FnPtr, Scope, AST};
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 #[cfg(debug_assertions)]
-use crate::console::{CommandExecutor, ConsoleEntryType};
+use crate::console::{ConsoleEntryType, CONSOLE};
+#[cfg(debug_assertions)]
+use rhai::packages::BasicStringPackage;
 
 #[derive(Clone)]
 pub struct ScriptEntityProxy {
@@ -111,7 +113,6 @@ pub struct ScriptEngine {
     scope: Scope<'static>,
     ast: Option<AST>,
     flags: Arc<Mutex<ScriptFlags>>,
-    pub buffer: Arc<Mutex<VecDeque<String>>>,
 }
 
 impl ScriptEngine {
@@ -126,8 +127,6 @@ impl ScriptEngine {
 
         let pkg = ScriptPackage::new();
         pkg.register_into_engine(&mut engine);
-        //let bsp = BasicStringPackage::new();
-        //bsp.register_into_engine(&mut engine);
         scope.push("context", Arc::clone(&flags));
         scope.push("static", PathMotionType::Static);
         scope.push("forward_once", PathMotionType::ForwardOnce);
@@ -138,29 +137,15 @@ impl ScriptEngine {
         for (name, path) in paths.iter() {
             scope.push(name, Arc::new(path.clone()));
         }
-        let buffer = Arc::new(Mutex::new(VecDeque::new()));
 
         #[cfg(debug_assertions)]
-        {
-            let buf = Arc::clone(&buffer);
-            engine.on_print(move |msg| {
-                println!("{}", msg);
-                buf.lock().unwrap().push_back(msg.to_owned());
-            });
-            let buf = Arc::clone(&buffer);
-            engine.on_debug(move |msg, src, pos| {
-                let line = format!("{:?}@{:?}: {}", src, pos, msg);
-                println!("{}", &line);
-                buf.lock().unwrap().push_back(msg.to_owned());
-            });
-        }
+        register_print_funcs(&mut engine);
 
         Self {
             engine,
             scope,
             ast: None,
             flags,
-            buffer,
         }
     }
 
@@ -212,11 +197,9 @@ impl ScriptEngine {
     pub fn win_flag(&self) -> bool {
         self.flags.lock().unwrap().win
     }
-}
 
-#[cfg(debug_assertions)]
-impl CommandExecutor for ScriptEngine {
-    fn exec(&mut self, command: &str) -> (ConsoleEntryType, String) {
+    #[cfg(debug_assertions)]
+    pub fn exec(&mut self, command: &str) -> (ConsoleEntryType, String) {
         match self
             .engine
             .eval_with_scope::<Dynamic>(&mut self.scope, command)
@@ -235,18 +218,35 @@ pub struct BasicEngine {
 #[cfg(debug_assertions)]
 impl BasicEngine {
     pub(crate) fn new() -> Self {
-        Self {
-            engine: Engine::new_raw(),
-        }
+        let mut engine = Engine::new_raw();
+        BasicStringPackage::new().register_into_engine(&mut engine);
+        register_print_funcs(&mut engine);
+        Self { engine }
     }
-}
 
-#[cfg(debug_assertions)]
-impl CommandExecutor for BasicEngine {
-    fn exec(&mut self, command: &str) -> (ConsoleEntryType, String) {
+    pub fn exec(&mut self, command: &str) -> (ConsoleEntryType, String) {
         match self.engine.eval::<Dynamic>(command) {
             Ok(v) => (ConsoleEntryType::Output, format!("{}", v)),
             Err(e) => (ConsoleEntryType::InteractiveError, format!("{}", e)),
         }
     }
+}
+
+#[cfg(debug_assertions)]
+fn register_print_funcs(engine: &mut Engine) {
+    engine.on_print(move |msg| {
+        println!("{}", msg);
+        CONSOLE
+            .lock()
+            .unwrap()
+            .add(msg.to_owned(), ConsoleEntryType::ScriptOutput);
+    });
+    engine.on_debug(move |msg, src, pos| {
+        let line = format!("{:?}@{:?}: {}", src, pos, msg);
+        println!("{}", &line);
+        CONSOLE
+            .lock()
+            .unwrap()
+            .add(line.to_owned(), ConsoleEntryType::ScriptOutput);
+    });
 }

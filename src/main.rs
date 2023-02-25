@@ -1,7 +1,6 @@
 use std::num::NonZeroU8;
 
 use camera::PlayerCamera;
-use console::ConsoleEntryType;
 use enemy::update_enemies;
 use hecs::CommandBuffer;
 use input::Input;
@@ -15,17 +14,18 @@ use projectile::Projectile;
 use render::Renderer;
 use resources::{load_assets, Inventory};
 use scene::{new_prelevel, Scene};
-use script::BasicEngine;
 use timer::Timer;
 use transition::TransitionEffectType;
 use vfx::update_vfx;
 
 #[cfg(debug_assertions)]
-use console::CONSOLE;
+use console::{ConsoleEntryType, CONSOLE};
 #[cfg(debug_assertions)]
 use enum_iterator::all;
 #[cfg(debug_assertions)]
 use input::VirtualKey;
+#[cfg(debug_assertions)]
+use script::BasicEngine;
 #[cfg(debug_assertions)]
 use weapon::{add_ammo, AmmoType};
 
@@ -128,19 +128,24 @@ async fn main() {
                 con.toggle_visible();
             }
             if con.is_visible() {
-                if is_key_pressed(KeyCode::Enter) {
-                    if let Scene::PlayLevel(ref mut resources) = &mut scene {
-                        con.execute(&mut resources.script_engine);
-                        let mut buf = resources.script_engine.buffer.lock().unwrap();
-                        while let Some(m) = buf.pop_front() {
-                            con.add(m, ConsoleEntryType::ScriptOutput);
-                        }
-                    } else {
-                        con.execute(&mut basic_engine);
-                    }
-                }
                 if is_key_pressed(KeyCode::Escape) {
                     con.escape();
+                }
+                if is_key_pressed(KeyCode::Enter) {
+                    if let Some(cmd) = con.take_input() {
+                        con.add(cmd.clone(), ConsoleEntryType::Input);
+                        drop(con);
+                        let (out_typ, out) = match &mut scene {
+                            Scene::PlayLevel(ref mut resources) => {
+                                resources.script_engine.exec(&cmd)
+                            }
+                            _ => basic_engine.exec(&cmd),
+                        };
+                        if !out.is_empty() {
+                            let mut con = CONSOLE.lock().unwrap();
+                            con.add(out, out_typ);
+                        }
+                    }
                 }
                 input.reset(); // suppress all other input
             }
