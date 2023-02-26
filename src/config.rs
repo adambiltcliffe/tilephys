@@ -1,6 +1,8 @@
 #[cfg(debug_assertions)]
 mod dynamic_config {
     use once_cell::sync::Lazy;
+    use rhai::plugin::*;
+    use rhai::{def_package, export_module};
     use std::sync::{Mutex, MutexGuard};
 
     pub struct DynamicConfig {
@@ -9,7 +11,7 @@ mod dynamic_config {
 
     impl DynamicConfig {
         fn new() -> Self {
-            Self { gravity: 0.5 }
+            Self { gravity: 1.0 }
         }
 
         pub fn gravity(&self) -> f32 {
@@ -25,6 +27,27 @@ mod dynamic_config {
 
     #[derive(Clone)]
     pub struct ConfigProxy {}
+
+    #[export_module]
+    mod config_interface {
+        #[rhai_fn(get = "gravity")]
+        pub fn get_gravity(_this: &mut ConfigProxy) -> f32 {
+            config().gravity
+        }
+
+        #[rhai_fn(set = "gravity")]
+        pub fn set_gravity(_this: &mut ConfigProxy, val: f32) {
+            config().gravity = val;
+        }
+    }
+
+    def_package! {
+        pub ConfigPackage(module) {
+            combine_with_exported_module!(module, "config-mod", config_interface);
+        } |> |engine| {
+            engine.register_type_with_name::<ConfigProxy>("Config");
+        }
+    }
 }
 
 #[cfg(debug_assertions)]
@@ -37,7 +60,7 @@ mod fixed_config {
     impl FixedConfig {
         #[inline(always)]
         pub fn gravity(&self) -> f32 {
-            0.5
+            1.0
         }
     }
 

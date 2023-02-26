@@ -239,9 +239,10 @@ impl BasicEngine {
 
 #[cfg(debug_assertions)]
 fn register_debug_funcs(engine: &mut Engine, scope: &mut Scope) {
-    use crate::config::ConfigProxy;
+    use crate::config::{ConfigPackage, ConfigProxy};
 
-    engine.register_type_with_name::<ConfigProxy>("Config");
+    let pkg = ConfigPackage::new();
+    pkg.register_into_engine(engine);
 
     engine.on_print(move |msg| {
         println!("{}", msg);
