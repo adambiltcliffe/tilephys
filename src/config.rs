@@ -22,6 +22,9 @@ mod dynamic_config {
     pub fn config() -> MutexGuard<'static, DynamicConfig> {
         INSTANCE.try_lock().unwrap()
     }
+
+    #[derive(Clone)]
+    pub struct ConfigProxy {}
 }
 
 #[cfg(debug_assertions)]

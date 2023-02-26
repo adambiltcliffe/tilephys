@@ -139,7 +139,7 @@ impl ScriptEngine {
         }
 
         #[cfg(debug_assertions)]
-        register_print_funcs(&mut engine);
+        register_debug_funcs(&mut engine, &mut scope);
 
         Self {
             engine,
@@ -213,19 +213,24 @@ impl ScriptEngine {
 #[cfg(debug_assertions)]
 pub struct BasicEngine {
     engine: Engine,
+    scope: Scope<'static>,
 }
 
 #[cfg(debug_assertions)]
 impl BasicEngine {
     pub(crate) fn new() -> Self {
         let mut engine = Engine::new_raw();
+        let mut scope = Scope::new();
         BasicStringPackage::new().register_into_engine(&mut engine);
-        register_print_funcs(&mut engine);
-        Self { engine }
+        register_debug_funcs(&mut engine, &mut scope);
+        Self { engine, scope }
     }
 
     pub fn exec(&mut self, command: &str) -> (ConsoleEntryType, String) {
-        match self.engine.eval::<Dynamic>(command) {
+        match self
+            .engine
+            .eval_with_scope::<Dynamic>(&mut self.scope, command)
+        {
             Ok(v) => (ConsoleEntryType::Output, format!("{}", v)),
             Err(e) => (ConsoleEntryType::InteractiveError, format!("{}", e)),
         }
@@ -233,7 +238,11 @@ impl BasicEngine {
 }
 
 #[cfg(debug_assertions)]
-fn register_print_funcs(engine: &mut Engine) {
+fn register_debug_funcs(engine: &mut Engine, scope: &mut Scope) {
+    use crate::config::ConfigProxy;
+
+    engine.register_type_with_name::<ConfigProxy>("Config");
+
     engine.on_print(move |msg| {
         println!("{}", msg);
         CONSOLE
@@ -249,4 +258,6 @@ fn register_print_funcs(engine: &mut Engine) {
             .unwrap()
             .add(line.to_owned(), ConsoleEntryType::ScriptOutput);
     });
+
+    scope.push("config", ConfigProxy {});
 }
