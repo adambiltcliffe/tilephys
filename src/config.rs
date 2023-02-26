@@ -1,13 +1,6 @@
 #[cfg(debug_assertions)]
 use paste::paste;
 
-/*#[cfg(debug_assertions)]
-macro_rules! make_setter_getter {
-    ($name:ident, $str_name:tt, $typ:ty) => {
-
-    }
-}*/
-
 #[cfg(debug_assertions)]
 macro_rules! make_config {
     [$(($name:ident, $str_name:tt, $typ:ty, $val:tt)),*] => {
@@ -47,19 +40,17 @@ macro_rules! make_config {
 
             #[export_module]
             mod config_interface {
+                $(
+                    #[rhai_fn(get = $str_name)]
+                    pub fn [<get_ $name>](_this: &mut ConfigProxy) -> $typ {
+                        config().$name
+                    }
 
-                    $(
-                        #[rhai_fn(get = $str_name)]
-                        pub fn [<get_ $name>](_this: &mut ConfigProxy) -> $typ {
-                            config().$name
-                        }
-
-                        #[rhai_fn(set = $str_name)]
-                        pub fn [<set_ $name>](_this: &mut ConfigProxy, val: $typ) {
-                            config().$name = val;
-                        }
-                    )*
-
+                    #[rhai_fn(set = $str_name)]
+                    pub fn [<set_ $name>](_this: &mut ConfigProxy, val: $typ) {
+                        config().$name = val;
+                    }
+                )*
             }
 
             def_package! {
@@ -75,14 +66,16 @@ macro_rules! make_config {
 
 #[cfg(not(debug_assertions))]
 macro_rules! make_config {
-    () => {
+    [$(($name:ident, $str_name:tt, $typ:ty, $val:tt)),*] => {
         pub struct FixedConfig {}
 
         impl FixedConfig {
-            #[inline(always)]
-            pub fn gravity(&self) -> f32 {
-                1.0
-            }
+            $(
+                #[inline(always)]
+                pub fn $name(&self) -> $typ {
+                    $val
+                }
+            )*
         }
 
         pub fn config() -> FixedConfig {
