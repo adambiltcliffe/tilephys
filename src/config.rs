@@ -84,4 +84,7 @@ macro_rules! make_config {
     };
 }
 
-make_config![(gravity, "gravity", f32, 1.0)];
+make_config![
+    (gravity, "gravity", f32, 1.0),
+    (player_accel, "player_accel", f32, 3.0)
+];

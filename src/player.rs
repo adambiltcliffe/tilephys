@@ -1,3 +1,4 @@
+use crate::config::config;
 use crate::draw::PlayerSprite;
 use crate::input::{Input, KeyState, VirtualKey};
 use crate::physics::{Actor, IntRect, Secrecy, TriggerZone};
@@ -60,13 +61,14 @@ impl Controller {
                 }
             }
             controller.zones = new_zones;
+            let accel = config().player_accel();
             if input.is_down(VirtualKey::Left) {
-                player.vx -= 3.0;
+                player.vx -= accel;
                 controller.facing = -1;
                 sprite.flipped = false;
             }
             if input.is_down(VirtualKey::Right) {
-                player.vx += 3.0;
+                player.vx += accel;
                 controller.facing = 1;
                 sprite.flipped = true;
             }
