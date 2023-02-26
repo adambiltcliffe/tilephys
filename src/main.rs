@@ -30,6 +30,7 @@ use script::BasicEngine;
 use weapon::{add_ammo, AmmoType};
 
 mod camera;
+mod config;
 mod draw;
 mod enemy;
 mod index;

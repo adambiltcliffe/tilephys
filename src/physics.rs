@@ -1,3 +1,4 @@
+use crate::config::config;
 use crate::index::SpatialIndex;
 use crate::loader::TileFlags;
 use crate::resources::SceneResources;
@@ -268,9 +269,10 @@ impl Actor {
     }
 
     pub fn update(resources: &SceneResources) {
+        let gravity = config().gravity();
         let world = resources.world_ref.lock().unwrap();
         for (_, (actor, rect)) in world.query::<(&mut Actor, &mut IntRect)>().iter() {
-            actor.vy += 1.0;
+            actor.vy += gravity;
             actor.vx *= actor.drag;
             actor.vy = actor.vy.min(16.0);
             let vx = actor.vx;
