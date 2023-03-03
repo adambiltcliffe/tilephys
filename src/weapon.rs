@@ -4,8 +4,9 @@ use crate::physics::{Actor, IntRect};
 use crate::projectile::{make_player_projectile, DamageEnemies, Projectile, ProjectileDrag};
 use crate::vfx::{make_railgun_trail, FireballEffect, SmokeParticle};
 use enum_map::EnumMap;
-use hecs::CommandBuffer;
+use hecs::{CommandBuffer, World};
 use std::collections::VecDeque;
+use std::sync::MutexGuard;
 
 // eventually there will be variants whose names don't end in "...Laser"
 #[allow(clippy::enum_variant_names)]
@@ -123,6 +124,7 @@ pub trait Weapon {
     fn get_ammo_use(&self) -> AmmoQuantity;
     fn update(
         &mut self,
+        world_ref: &MutexGuard<World>,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -151,6 +153,7 @@ impl Weapon for BackupLaser {
     }
     fn update(
         &mut self,
+        _world: &MutexGuard<World>,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -223,6 +226,7 @@ impl Weapon for Shotgun {
     }
     fn update(
         &mut self,
+        _world: &MutexGuard<World>,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -264,6 +268,7 @@ impl Weapon for SuperShotgun {
     }
     fn update(
         &mut self,
+        _world: &MutexGuard<World>,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -306,6 +311,7 @@ impl Weapon for ReverseShotgun {
     }
     fn update(
         &mut self,
+        _world: &MutexGuard<World>,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -350,6 +356,7 @@ impl Weapon for AutoLaser {
     }
     fn update(
         &mut self,
+        _world: &MutexGuard<World>,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -394,6 +401,7 @@ impl Weapon for BurstLaser {
     }
     fn update(
         &mut self,
+        _world: &MutexGuard<World>,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -439,6 +447,7 @@ impl Weapon for DoubleLaser {
     }
     fn update(
         &mut self,
+        _world: &MutexGuard<World>,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -478,6 +487,7 @@ impl Weapon for Railgun {
     }
     fn update(
         &mut self,
+        _world: &MutexGuard<World>,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,

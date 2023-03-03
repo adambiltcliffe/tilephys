@@ -164,7 +164,7 @@ impl Controller {
             let n = w.get_ammo_use();
             if resources.ammo[t] >= n {
                 // can fire current weapon, up to the weapon to say if we should
-                if w.update(buffer, player, p_rect, controller.facing, fks) {
+                if w.update(&world, buffer, player, p_rect, controller.facing, fks) {
                     controller.fire_timer = 0;
                     sprite.firing = true;
                     resources.ammo[t] -= n;
