@@ -22,6 +22,7 @@ pub fn ray_collision(
         IntRect::new(min_x, min_y, max_x - min_x, max_y - min_y)
     };
     let blockers = body_index.entities(&bounds);
+    println!("{}", blockers.len());
     blockers
         .iter()
         .filter_map(|id| ray_collision_single(&*world.get::<&TileBody>(*id).unwrap(), orig, dest))
@@ -37,7 +38,9 @@ fn ray_collision_single(body: &TileBody, orig: &Vec2, dest: &Vec2) -> Option<(f3
         1,
         1,
     )) {
+        println!("within");
         return None;
     }
-    Some((0.5, CollisionType::Vertical))
+    println!("not within");
+    Some((0.1, CollisionType::Vertical))
 }

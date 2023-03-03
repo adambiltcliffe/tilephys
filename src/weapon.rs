@@ -1,10 +1,13 @@
 use crate::config::config;
+use crate::index::SpatialIndex;
 use crate::input::KeyState;
 use crate::physics::{Actor, IntRect};
 use crate::projectile::{make_player_projectile, DamageEnemies, Projectile, ProjectileDrag};
+use crate::ray::ray_collision;
 use crate::vfx::{make_railgun_trail, FireballEffect, SmokeParticle};
 use enum_map::EnumMap;
 use hecs::{CommandBuffer, World};
+use macroquad::math::Vec2;
 use std::collections::VecDeque;
 use std::sync::MutexGuard;
 
@@ -125,6 +128,7 @@ pub trait Weapon {
     fn update(
         &mut self,
         world_ref: &MutexGuard<World>,
+        body_index: &SpatialIndex,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -154,6 +158,7 @@ impl Weapon for BackupLaser {
     fn update(
         &mut self,
         _world: &MutexGuard<World>,
+        _body_index: &SpatialIndex,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -227,6 +232,7 @@ impl Weapon for Shotgun {
     fn update(
         &mut self,
         _world: &MutexGuard<World>,
+        _body_index: &SpatialIndex,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -269,6 +275,7 @@ impl Weapon for SuperShotgun {
     fn update(
         &mut self,
         _world: &MutexGuard<World>,
+        _body_index: &SpatialIndex,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -312,6 +319,7 @@ impl Weapon for ReverseShotgun {
     fn update(
         &mut self,
         _world: &MutexGuard<World>,
+        _body_index: &SpatialIndex,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -357,6 +365,7 @@ impl Weapon for AutoLaser {
     fn update(
         &mut self,
         _world: &MutexGuard<World>,
+        _body_index: &SpatialIndex,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -402,6 +411,7 @@ impl Weapon for BurstLaser {
     fn update(
         &mut self,
         _world: &MutexGuard<World>,
+        _body_index: &SpatialIndex,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -448,6 +458,7 @@ impl Weapon for DoubleLaser {
     fn update(
         &mut self,
         _world: &MutexGuard<World>,
+        _body_index: &SpatialIndex,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -487,7 +498,8 @@ impl Weapon for Railgun {
     }
     fn update(
         &mut self,
-        _world: &MutexGuard<World>,
+        world: &MutexGuard<World>,
+        body_index: &SpatialIndex,
         buffer: &mut CommandBuffer,
         player: &mut Actor,
         player_rect: &IntRect,
@@ -500,15 +512,15 @@ impl Weapon for Railgun {
             let yoff = config().rg_yoff();
             let new_x = player_rect.x + xoff1 + facing as i32 * xoff2;
             let y = (player_rect.y + yoff) as f32;
+            let orig = Vec2::new(new_x as f32, y);
             for ii in 0..8 {
                 let a = std::f32::consts::FRAC_PI_4 * ii as f32 + 0.2;
-                make_railgun_trail(
-                    buffer,
-                    new_x as f32,
-                    y,
-                    new_x as f32 + a.cos() * 200.0,
-                    y + a.sin() * 200.0,
-                );
+                let disp = Vec2::new(a.cos(), a.sin()) * 200.0;
+                let dest = match ray_collision(&*world, body_index, &orig, &(orig + disp)) {
+                    None => orig + disp,
+                    Some((v, _)) => v,
+                };
+                make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
             }
             let d = 200.0 * facing as f32;
             make_railgun_trail(buffer, new_x as f32, y, new_x as f32 + d, y);
