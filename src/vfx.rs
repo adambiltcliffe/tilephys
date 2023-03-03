@@ -158,7 +158,6 @@ pub fn make_railgun_trail(buffer: &mut CommandBuffer, x1: f32, y1: f32, x2: f32,
     let mut a = -std::f32::consts::PI / 2.0;
     for i in 0..(n.floor() as i32) {
         let p = orig + d * i as f32;
-        // check if hecs has a spawn_multi for this or something
         buffer.spawn((SmokeParticle::new_from_centre(p.x as i32, p.y as i32, a, r),));
         a += da;
     }

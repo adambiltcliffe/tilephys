@@ -46,6 +46,7 @@ mod pickup;
 mod player;
 mod profile;
 mod projectile;
+mod ray;
 mod render;
 mod resources;
 mod scene;

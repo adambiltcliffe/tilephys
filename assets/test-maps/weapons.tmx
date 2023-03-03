@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="89">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="27" nextobjectid="90">
  <tileset firstgid="1" source="../phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
+   <chunk x="-48" y="-16" width="16" height="16">
+   eJxjYKAd4CKAKdVPyIyhqp8YfaP6iUtDhMwcKvppBQDRbwST
+  </chunk>
    <chunk x="-32" y="-16" width="16" height="16">
-   eJxjYBgFo2DkAi46YAE62UMOBgBMtwKH
+   eJxjYBjagAsND7R+bHhUP2X68ZlDT/3kYgE62UMOBgA64QV1
   </chunk>
    <chunk x="-16" y="-16" width="16" height="16">
    eJxjYBgFo2DkAi46YDEgFseBidEvQ6H7lYBYGQcGAHqnA18=
@@ -23,7 +26,11 @@
   </chunk>
   </data>
  </layer>
- <objectgroup id="5" name="paths"/>
+ <objectgroup id="5" name="paths">
+  <object id="89" name="motion" x="-448" y="-144">
+   <polyline points="0,0 64,0 64,40"/>
+  </object>
+ </objectgroup>
  <objectgroup id="2" name="entities">
   <object id="1" name="start" type="player" x="-312" y="48">
    <point/>
@@ -80,10 +87,10 @@
  <layer id="1" name="main" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-48" y="-16" width="16" height="16">
-   eJxjYBgFo2BkAsZR/QwABpQABg==
+   eJxjYMAOGInEuAA+OWLU0EM/uWYT0kcobGhh76h+hH5S0im93ESpflr5CwBaiAAp
   </chunk>
    <chunk x="-32" y="-16" width="16" height="16">
-   eJxjYBgFo2DoAkYK8UgHABYgABE=
+   eJxjYBhYwIgFU2oetd0zGNw01PUPlnCkZrwOBwAAPjQAGg==
   </chunk>
    <chunk x="-16" y="-16" width="16" height="16">
    eJxjYBgFo2DoAkYK8UgHABYgABE=
@@ -102,6 +109,26 @@
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
    eJxjYIAARgbKwEDpZ0TCo2AUjALSAAAY3AAH
+  </chunk>
+  </data>
+ </layer>
+ <layer id="25" name="other" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-48" y="-16" width="16" height="16">
+   eJxjYBjcgJEAf6gAart7oMJhqIb/KMAOABFgAAY=
+  </chunk>
+   <chunk x="-32" y="-16" width="16" height="16">
+   eJxjYBgFjAPtACoAavuBFPMGU/gNJrcMBQAADggABg==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="26" name="movers" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-48" y="-16" width="16" height="16">
+   eJxjYBgZgAmKB0o/LjMHUv8oGAUAJUAADQ==
+  </chunk>
+   <chunk x="-32" y="-16" width="16" height="16">
+   eJxjYBgFlACmAdaPzTxKzKRU/ygYWgAAHvAADQ==
   </chunk>
   </data>
  </layer>
