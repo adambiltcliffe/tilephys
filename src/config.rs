@@ -3,7 +3,7 @@ use paste::paste;
 
 #[cfg(debug_assertions)]
 macro_rules! make_config {
-    [$(($name:ident, $str_name:tt, $typ:ty, $val:tt)),*] => {
+    [$(($name:ident, $str_name:tt, $typ:ty, $val:expr)),*] => {
         paste! {
             use once_cell::sync::Lazy;
             use rhai::plugin::*;
@@ -86,5 +86,13 @@ macro_rules! make_config {
 
 make_config![
     (gravity, "gravity", f32, 1.0),
-    (player_accel, "player_accel", f32, 3.0)
+    (player_accel, "player_accel", f32, 3.0),
+    (rg_thickness, "rg_thickness", f32, 1.0),
+    (rg_frames, "rg_frames", i32, 3),
+    (rg_xoff1, "rg_xoff1", i32, 7),
+    (rg_xoff2, "rg_xoff2", i32, 11),
+    (rg_yoff, "rg_yoff", i32, 14),
+    (rg_smoke_da, "rg_smoke_da", f32, 1.0),
+    (rg_smoke_sp, "rg_smoke_sp", i32, 5),
+    (rg_smoke_r, "rg_smoke_r", f32, 4.0)
 ];

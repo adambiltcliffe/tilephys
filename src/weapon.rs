@@ -1,7 +1,8 @@
+use crate::config::config;
 use crate::input::KeyState;
 use crate::physics::{Actor, IntRect};
 use crate::projectile::{make_player_projectile, DamageEnemies, Projectile, ProjectileDrag};
-use crate::vfx::{FireballEffect, SmokeParticle};
+use crate::vfx::{make_railgun_trail, FireballEffect, SmokeParticle};
 use enum_map::EnumMap;
 use hecs::CommandBuffer;
 use std::collections::VecDeque;
@@ -17,6 +18,7 @@ pub enum WeaponType {
     Shotgun,
     SuperShotgun,
     ReverseShotgun,
+    Railgun,
 }
 
 pub fn weapon_name(typ: WeaponType) -> &'static str {
@@ -28,6 +30,7 @@ pub fn weapon_name(typ: WeaponType) -> &'static str {
         WeaponType::Shotgun => "shotgun",
         WeaponType::SuperShotgun => "super shotgun",
         WeaponType::ReverseShotgun => "reverse shotgun",
+        WeaponType::Railgun => "railgun",
     }
 }
 
@@ -40,6 +43,7 @@ pub fn weapon_name_indef(typ: WeaponType) -> &'static str {
         WeaponType::Shotgun => "a shotgun",
         WeaponType::SuperShotgun => "a super shotgun",
         WeaponType::ReverseShotgun => "the reverse shotgun",
+        WeaponType::Railgun => "a railgun",
     }
 }
 
@@ -52,6 +56,7 @@ pub fn weapon_sprite_frame(typ: WeaponType) -> usize {
         WeaponType::Shotgun => 3,
         WeaponType::SuperShotgun => 4,
         WeaponType::ReverseShotgun => 5,
+        WeaponType::Railgun => 7,
     }
 }
 
@@ -64,6 +69,7 @@ pub fn weapon_v_offset(typ: WeaponType) -> f32 {
         WeaponType::Shotgun => 4.0,
         WeaponType::SuperShotgun => 3.0,
         WeaponType::ReverseShotgun => 1.0,
+        WeaponType::Railgun => 2.0,
     }
 }
 
@@ -72,6 +78,7 @@ pub enum AmmoType {
     Cell,
     Shell,
     Rocket,
+    Slug,
 }
 
 pub type AmmoQuantity = u8;
@@ -81,6 +88,7 @@ pub fn ammo_symbol(typ: AmmoType) -> &'static str {
         AmmoType::Cell => "CEL",
         AmmoType::Shell => "SHL",
         AmmoType::Rocket => "RKT",
+        AmmoType::Slug => "SLG",
     }
 }
 
@@ -96,6 +104,7 @@ pub fn ammo_name(typ: AmmoType, amt: AmmoQuantity) -> &'static str {
                 "rockets"
             }
         }
+        AmmoType::Slug => "railgun slugs",
     }
 }
 
@@ -104,6 +113,7 @@ pub fn ammo_max(typ: AmmoType) -> AmmoQuantity {
         AmmoType::Cell => 99,
         AmmoType::Shell => 40,
         AmmoType::Rocket => 20,
+        AmmoType::Slug => 50,
     }
 }
 
@@ -448,6 +458,46 @@ impl Weapon for DoubleLaser {
     }
 }
 
+struct Railgun {}
+
+impl Railgun {
+    fn new() -> Self {
+        Self {}
+    }
+}
+
+impl Weapon for Railgun {
+    fn get_type(&self) -> WeaponType {
+        WeaponType::Railgun
+    }
+    fn get_ammo_type(&self) -> AmmoType {
+        AmmoType::Slug
+    }
+    fn get_ammo_use(&self) -> AmmoQuantity {
+        1
+    }
+    fn update(
+        &mut self,
+        buffer: &mut CommandBuffer,
+        player: &mut Actor,
+        player_rect: &IntRect,
+        facing: i8,
+        key_state: KeyState,
+    ) -> bool {
+        if key_state == KeyState::Pressed {
+            let xoff1 = config().rg_xoff1();
+            let xoff2 = config().rg_xoff2();
+            let yoff = config().rg_yoff();
+            let new_x = player_rect.x + xoff1 + facing as i32 * xoff2;
+            let d = 200 * facing as i32;
+            make_railgun_trail(buffer, new_x, new_x + d, player_rect.y + yoff);
+            player.vx -= facing as f32 * 10.0;
+            return true;
+        }
+        false
+    }
+}
+
 pub fn new_weapon(typ: WeaponType) -> Box<dyn Weapon> {
     match typ {
         WeaponType::BackupLaser => Box::new(BackupLaser::new()),
@@ -457,6 +507,7 @@ pub fn new_weapon(typ: WeaponType) -> Box<dyn Weapon> {
         WeaponType::Shotgun => Box::new(Shotgun::new()),
         WeaponType::SuperShotgun => Box::new(SuperShotgun::new()),
         WeaponType::ReverseShotgun => Box::new(ReverseShotgun::new()),
+        WeaponType::Railgun => Box::new(Railgun::new()),
     }
 }
 

@@ -380,6 +380,14 @@ impl LoadingManager {
                                         WeaponType::DoubleLaser,
                                     );
                                     max_items += 1;
+                                } else if obj_type == "weapon_railgun" {
+                                    add_weapon(
+                                        &mut world,
+                                        *x as i32,
+                                        *y as i32,
+                                        WeaponType::Railgun,
+                                    );
+                                    max_items += 1;
                                 } else if obj_type == "switch" {
                                     let id =
                                         add_switch(&mut world, name.clone(), *x as i32, *y as i32);

@@ -1,9 +1,7 @@
-use std::cmp::Ordering;
-
+use crate::{config::config, physics::IntRect, resources::SceneResources};
 use hecs::{CommandBuffer, World};
 use macroquad::prelude::*;
-
-use crate::{physics::IntRect, resources::SceneResources};
+use std::cmp::Ordering;
 
 const EXPLOSION_OUTER_COLOR: Color = Color {
     r: 0.1333,
@@ -122,6 +120,35 @@ impl FireballEffect {
     }
 }
 
+pub struct RailgunTrail {
+    x1: f32,
+    x2: f32,
+    y: f32,
+    n: u8,
+}
+
+impl RailgunTrail {
+    pub fn new(x1: f32, x2: f32, y: f32) -> Self {
+        Self { x1, x2, y, n: 0 }
+    }
+}
+
+pub fn make_railgun_trail(buffer: &mut CommandBuffer, x1: i32, x2: i32, y: i32) {
+    let (sp, da, r) = {
+        let cfg = config();
+        (cfg.rg_smoke_sp(), cfg.rg_smoke_da(), cfg.rg_smoke_r())
+    };
+    buffer.spawn((RailgunTrail::new(x1 as f32, x2 as f32, y as f32),));
+    let n = (x2 - x1).abs() / sp;
+    let d = (x2 - x1).signum() * sp;
+    let mut a = -std::f32::consts::PI / 2.0;
+    for i in 0..n {
+        // check if hecs has a spawn_multi for this or something
+        buffer.spawn((SmokeParticle::new_from_centre(x1 + i * d, y, a, r),));
+        a += da;
+    }
+}
+
 pub fn update_vfx(resources: &SceneResources, buffer: &mut CommandBuffer) {
     let world = resources.world_ref.lock().unwrap();
     for (id, z) in world.query::<&mut ZapFlash>().iter() {
@@ -165,9 +192,20 @@ pub fn update_vfx(resources: &SceneResources, buffer: &mut CommandBuffer) {
             f.r * 0.75,
         ),));
     }
+    let rgf = config().rg_frames();
+    for (id, t) in world.query::<&mut RailgunTrail>().iter() {
+        t.n += 1;
+        if t.n as i32 > rgf {
+            buffer.despawn(id);
+        }
+    }
 }
 
 pub fn draw_vfx(world: &World) {
+    let thick = config().rg_thickness();
+    for (_, t) in world.query::<&RailgunTrail>().iter() {
+        draw_line(t.x1, t.y, t.x2, t.y, thick, EXPLOSION_INNER_COLOR);
+    }
     for (_, fp) in world.query::<&SmokeParticle>().iter() {
         draw_circle(fp.x, fp.y, fp.r, EXPLOSION_SMOKE_COLOR);
     }
@@ -183,7 +221,6 @@ pub fn draw_vfx(world: &World) {
     for (_, fp) in world.query::<&FireParticle>().iter() {
         draw_circle(fp.x, fp.y, fp.r * 0.75, EXPLOSION_INNER_COLOR);
     }
-
     for (_, ex) in world.query::<&Explosion>().iter() {
         match ex.n.cmp(&0) {
             Ordering::Less => (),

@@ -15,6 +15,7 @@ to catch at a minimum:
 
 MISC ENHANCEMENTS
 -----------------
+add minimum firing delay to weapons
 suppress laser muzzle flash on shotgun fire
 explosion debris (esp. for player)
 more tiles

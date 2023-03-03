@@ -1,3 +1,5 @@
+#![feature(trace_macros)]
+
 use std::num::NonZeroU8;
 
 use camera::PlayerCamera;
