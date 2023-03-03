@@ -122,29 +122,44 @@ impl FireballEffect {
 
 pub struct RailgunTrail {
     x1: f32,
+    y1: f32,
     x2: f32,
-    y: f32,
+    y2: f32,
     n: u8,
 }
 
 impl RailgunTrail {
-    pub fn new(x1: f32, x2: f32, y: f32) -> Self {
-        Self { x1, x2, y, n: 0 }
+    pub fn new(x1: f32, y1: f32, x2: f32, y2: f32) -> Self {
+        Self {
+            x1,
+            y1,
+            x2,
+            y2,
+            n: 0,
+        }
     }
 }
 
-pub fn make_railgun_trail(buffer: &mut CommandBuffer, x1: i32, x2: i32, y: i32) {
+pub fn make_railgun_trail(buffer: &mut CommandBuffer, x1: f32, y1: f32, x2: f32, y2: f32) {
     let (sp, da, r) = {
         let cfg = config();
-        (cfg.rg_smoke_sp(), cfg.rg_smoke_da(), cfg.rg_smoke_r())
+        (
+            cfg.rg_smoke_sp(),
+            cfg.rg_smoke_da() * if x2 < x1 { -1.0 } else { 1.0 },
+            cfg.rg_smoke_r(),
+        )
     };
-    buffer.spawn((RailgunTrail::new(x1 as f32, x2 as f32, y as f32),));
-    let n = (x2 - x1).abs() / sp;
-    let d = (x2 - x1).signum() * sp;
+    buffer.spawn((RailgunTrail::new(x1, y1, x2, y2),));
+    let orig = Vec2::new(x1, y1);
+    let dest = Vec2::new(x2, y2);
+    let path = dest - orig;
+    let n = path.length() / sp;
+    let d = path / n;
     let mut a = -std::f32::consts::PI / 2.0;
-    for i in 0..n {
+    for i in 0..(n.floor() as i32) {
+        let p = orig + d * i as f32;
         // check if hecs has a spawn_multi for this or something
-        buffer.spawn((SmokeParticle::new_from_centre(x1 + i * d, y, a, r),));
+        buffer.spawn((SmokeParticle::new_from_centre(p.x as i32, p.y as i32, a, r),));
         a += da;
     }
 }
@@ -204,7 +219,7 @@ pub fn update_vfx(resources: &SceneResources, buffer: &mut CommandBuffer) {
 pub fn draw_vfx(world: &World) {
     let thick = config().rg_thickness();
     for (_, t) in world.query::<&RailgunTrail>().iter() {
-        draw_line(t.x1, t.y, t.x2, t.y, thick, EXPLOSION_INNER_COLOR);
+        draw_line(t.x1, t.y1, t.x2, t.y2, thick, EXPLOSION_INNER_COLOR);
     }
     for (_, fp) in world.query::<&SmokeParticle>().iter() {
         draw_circle(fp.x, fp.y, fp.r, EXPLOSION_SMOKE_COLOR);

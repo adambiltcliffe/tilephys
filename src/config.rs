@@ -93,6 +93,6 @@ make_config![
     (rg_xoff2, "rg_xoff2", i32, 11),
     (rg_yoff, "rg_yoff", i32, 14),
     (rg_smoke_da, "rg_smoke_da", f32, 1.0),
-    (rg_smoke_sp, "rg_smoke_sp", i32, 5),
+    (rg_smoke_sp, "rg_smoke_sp", f32, 5.0),
     (rg_smoke_r, "rg_smoke_r", f32, 4.0)
 ];

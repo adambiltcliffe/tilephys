@@ -489,8 +489,19 @@ impl Weapon for Railgun {
             let xoff2 = config().rg_xoff2();
             let yoff = config().rg_yoff();
             let new_x = player_rect.x + xoff1 + facing as i32 * xoff2;
-            let d = 200 * facing as i32;
-            make_railgun_trail(buffer, new_x, new_x + d, player_rect.y + yoff);
+            let y = (player_rect.y + yoff) as f32;
+            for ii in 0..8 {
+                let a = std::f32::consts::FRAC_PI_4 * ii as f32 + 0.2;
+                make_railgun_trail(
+                    buffer,
+                    new_x as f32,
+                    y,
+                    new_x as f32 + a.cos() * 200.0,
+                    y + a.sin() * 200.0,
+                );
+            }
+            let d = 200.0 * facing as f32;
+            make_railgun_trail(buffer, new_x as f32, y, new_x as f32 + d, y);
             player.vx -= facing as f32 * 10.0;
             return true;
         }
