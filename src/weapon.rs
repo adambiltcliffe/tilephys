@@ -1,7 +1,7 @@
 use crate::config::config;
 use crate::index::SpatialIndex;
 use crate::input::KeyState;
-use crate::physics::{Actor, IntRect};
+use crate::physics::{collide_any, Actor, IntRect};
 use crate::projectile::{make_player_projectile, DamageEnemies, Projectile, ProjectileDrag};
 use crate::ray::ray_collision;
 use crate::vfx::{make_railgun_trail, FireballEffect, SmokeParticle};
@@ -511,14 +511,18 @@ impl Weapon for Railgun {
             let xoff2 = config().rg_xoff2();
             let yoff = config().rg_yoff();
             let new_x = player_rect.x + xoff1 + facing as i32 * xoff2;
-            let y = (player_rect.y + yoff) as f32;
-            let orig = Vec2::new(new_x as f32, y);
-            let disp = Vec2::new(300.0 * facing as f32, 0.0);
-            let dest = match ray_collision(&*world, body_index, &orig, &(orig + disp)) {
-                None => orig + disp,
-                Some((v, _)) => v,
-            };
-            make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
+            let y = player_rect.y + yoff;
+            // if the shot would originate inside a wall, don't create it, because the ray collision
+            // won't stop it from passing through a wall it's already inside
+            if !collide_any(&*world, body_index, &IntRect::new(new_x, y, 1, 1)) {
+                let orig = Vec2::new(new_x as f32, y as f32);
+                let disp = Vec2::new(300.0 * facing as f32, 0.0);
+                let dest = match ray_collision(&*world, body_index, &orig, &(orig + disp)) {
+                    None => orig + disp,
+                    Some((v, _)) => v,
+                };
+                make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
+            }
             player.vx -= facing as f32 * config().recoil();
             return true;
         }
