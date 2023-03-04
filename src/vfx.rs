@@ -121,15 +121,15 @@ impl FireballEffect {
 }
 
 pub struct RailgunTrail {
-    x1: i32,
-    y1: i32,
-    x2: i32,
-    y2: i32,
+    x1: f32,
+    y1: f32,
+    x2: f32,
+    y2: f32,
     n: u8,
 }
 
 impl RailgunTrail {
-    pub fn new(x1: i32, y1: i32, x2: i32, y2: i32) -> Self {
+    pub fn new(x1: f32, y1: f32, x2: f32, y2: f32) -> Self {
         Self {
             x1,
             y1,
@@ -141,7 +141,6 @@ impl RailgunTrail {
 }
 
 pub fn make_railgun_trail(buffer: &mut CommandBuffer, x1: f32, y1: f32, x2: f32, y2: f32) {
-    println!("x1={}, y1={}, x2={}, y2={}", x1, y1, x2, y2);
     let (sp, da, r) = {
         let cfg = config();
         (
@@ -150,9 +149,7 @@ pub fn make_railgun_trail(buffer: &mut CommandBuffer, x1: f32, y1: f32, x2: f32,
             cfg.rg_smoke_r(),
         )
     };
-    buffer.spawn((RailgunTrail::new(
-        x1 as i32, y1 as i32, x2 as i32, y2 as i32,
-    ),));
+    buffer.spawn((RailgunTrail::new(x1, y1, x2, y2),));
     let orig = Vec2::new(x1, y1);
     let dest = Vec2::new(x2, y2);
     let path = dest - orig;
@@ -221,14 +218,16 @@ pub fn update_vfx(resources: &SceneResources, buffer: &mut CommandBuffer) {
 pub fn draw_vfx(world: &World) {
     let thick = config().rg_thickness();
     for (_, t) in world.query::<&RailgunTrail>().iter() {
-        draw_line(
-            t.x1 as f32,
-            t.y1 as f32,
-            t.x2 as f32,
-            t.y2 as f32,
-            thick,
-            EXPLOSION_INNER_COLOR,
-        );
+        let c = EXPLOSION_INNER_COLOR;
+        if t.y1 == t.y2 {
+            let y = (t.y1 - thick / 2.0).floor();
+            draw_rectangle(t.x1.min(t.x2), y, (t.x1 - t.x2).abs(), thick, c);
+        } else if t.x1 == t.x2 {
+            let x = (t.x1 - thick / 2.0).floor();
+            draw_rectangle(x, t.y1.min(t.y2), thick, (t.y1 - t.y2).abs(), c);
+        } else {
+            draw_line(t.x1, t.y1, t.x2, t.y2, thick, c);
+        }
     }
     for (_, fp) in world.query::<&SmokeParticle>().iter() {
         draw_circle(fp.x, fp.y, fp.r, EXPLOSION_SMOKE_COLOR);
