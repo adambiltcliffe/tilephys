@@ -115,7 +115,7 @@
  <layer id="25" name="other" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-48" y="-16" width="16" height="16">
-   eJxjYBjcgJEAf6gAart7oMJhqIb/KMAOABFgAAY=
+   eJxjYBhagHGgHUAmoLa7Byochmr4jwLsAAAOAAAF
   </chunk>
    <chunk x="-32" y="-16" width="16" height="16">
    eJxjYBgFjAPtACoAavuBFPMGU/gNJrcMBQAADggABg==

@@ -8,15 +8,6 @@ pub enum CollisionType {
     Vertical,
 }
 
-// this function may be ultimately redundant
-fn body_contains_vec2(body: &TileBody, v: Vec2) -> bool {
-    let r = body.get_rect();
-    v.x as i32 >= r.x
-        && v.y as i32 >= r.y
-        && (v.x.ceil() as i32) < r.x + r.w
-        && (v.y.ceil() as i32) < r.y + r.h
-}
-
 pub fn ray_collision(
     world: &World,
     body_index: &SpatialIndex,
@@ -31,7 +22,6 @@ pub fn ray_collision(
         IntRect::new(min_x, min_y, max_x - min_x, max_y - min_y)
     };
     let blockers = body_index.entities(&bounds);
-    println!("{}", blockers.len());
     blockers
         .iter()
         .filter_map(|id| ray_collision_single(&*world.get::<&TileBody>(*id).unwrap(), orig, dest))
@@ -41,25 +31,98 @@ pub fn ray_collision(
 
 // Returns the fraction of the ray (i.e. [0,1]) before the collision
 fn ray_collision_single(body: &TileBody, orig: &Vec2, dest: &Vec2) -> Option<(f32, CollisionType)> {
-    if body_contains_vec2(body, *orig) {
+    let bx = body.x as f32;
+    let by = body.y as f32;
+    let b_height = body.data.len() as i32 / body.width;
+    let orig_fine_cell_x = (orig.x - bx) / body.size as f32;
+    let orig_fine_cell_y = (orig.y - by) / body.size as f32;
+    let dest_fine_cell_x = (dest.x - bx) / body.size as f32;
+    let dest_fine_cell_y = (dest.y - by) / body.size as f32;
+    let mut cells_entered = Vec::<(f32, CollisionType, usize)>::new();
+    let mut entry_t = 0.0f32;
+    let mut exit_t = 1.0f32;
+    if dest_fine_cell_x > orig_fine_cell_x {
+        // generate rightwards cell entries
+        let first = (orig_fine_cell_x.ceil() as i32).max(0);
+        let last = (dest_fine_cell_x.floor() as i32).min(body.width);
+        for ii in first..=last {
+            cells_entered.push((
+                ((ii as f32) - orig_fine_cell_x) / (dest_fine_cell_x - orig_fine_cell_x),
+                CollisionType::Vertical,
+                ii as usize,
+            ));
+        }
+        entry_t = entry_t.max((0.0 - orig_fine_cell_x) / (dest_fine_cell_x - orig_fine_cell_x));
+        exit_t = exit_t
+            .min((body.width as f32 - orig_fine_cell_x) / (dest_fine_cell_x - orig_fine_cell_x));
+    } else if dest_fine_cell_x < orig_fine_cell_x {
+        // generate leftwards cell entries
+        let first = (orig_fine_cell_x.floor() as i32 - 1).min(body.width);
+        let last = (dest_fine_cell_x.ceil() as i32 - 1).max(0);
+        for ii in last..=first {
+            cells_entered.push((
+                (((ii + 1) as f32) - orig_fine_cell_x) / (dest_fine_cell_x - orig_fine_cell_x),
+                CollisionType::Vertical,
+                ii as usize,
+            ));
+        }
+        entry_t = entry_t
+            .max((body.width as f32 - orig_fine_cell_x) / (dest_fine_cell_x - orig_fine_cell_x));
+        exit_t = exit_t.min((0.0 - orig_fine_cell_x) / (dest_fine_cell_x - orig_fine_cell_x));
+    }
+    if dest_fine_cell_y > orig_fine_cell_y {
+        // generate downwards cell entries
+        let first = (orig_fine_cell_y.ceil() as i32).max(0);
+        let last = (dest_fine_cell_y.floor() as i32).min(b_height);
+        for ii in first..=last {
+            cells_entered.push((
+                ((ii as f32) - orig_fine_cell_y) / (dest_fine_cell_y - orig_fine_cell_y),
+                CollisionType::Horizontal,
+                ii as usize,
+            ));
+        }
+        entry_t = entry_t.max((0.0 - orig_fine_cell_y) / (dest_fine_cell_y - orig_fine_cell_y));
+        exit_t = exit_t
+            .min((b_height as f32 - orig_fine_cell_y) / (dest_fine_cell_y - orig_fine_cell_y));
+    } else if dest_fine_cell_y < orig_fine_cell_y {
+        // generate upwards cell entries
+        let first = (orig_fine_cell_y.floor() as i32 - 1).min(b_height);
+        let last = (dest_fine_cell_y.ceil() as i32 - 1).max(0);
+        for ii in last..=first {
+            cells_entered.push((
+                (((ii + 1) as f32) - orig_fine_cell_y) / (dest_fine_cell_y - orig_fine_cell_y),
+                CollisionType::Horizontal,
+                ii as usize,
+            ));
+        }
+        entry_t = entry_t
+            .max((b_height as f32 - orig_fine_cell_y) / (dest_fine_cell_y - orig_fine_cell_y));
+        exit_t = exit_t.min((0.0 - orig_fine_cell_y) / (dest_fine_cell_y - orig_fine_cell_y));
+    }
+    cells_entered.retain(|(t, _, _)| t >= &entry_t && t <= &exit_t);
+    cells_entered.sort_by(|(t1, _, _), (t2, _, _)| f32::total_cmp(t1, t2));
+    if cells_entered.len() == 0 {
         return None;
     }
-    let rect = body.get_rect();
-    let l = rect.x as f32;
-    if orig.x < l && dest.x > l {
-        return Some(((l - orig.x) / (dest.x - orig.x), CollisionType::Vertical));
+    let mut cx =
+        (orig_fine_cell_x + entry_t * (dest_fine_cell_x - orig_fine_cell_x)).floor() as usize;
+    let mut cy =
+        (orig_fine_cell_y + entry_t * (dest_fine_cell_y - orig_fine_cell_y)).floor() as usize;
+    for (t, ct, n) in cells_entered {
+        match ct {
+            CollisionType::Horizontal => {
+                cy = n;
+            }
+            CollisionType::Vertical => {
+                cx = n;
+            }
+        }
+        if (cx as i32) < body.width && (cy as i32) <= b_height {
+            let idx = cy * body.width as usize + cx;
+            if idx < body.data.len() && body.data[idx].is_blocker() {
+                return Some((t, ct));
+            }
+        }
     }
-    let r = (rect.x + rect.w) as f32;
-    if orig.x > r && dest.x < r {
-        return Some(((orig.x - r) / (orig.x - dest.x), CollisionType::Vertical));
-    }
-    let t = rect.y as f32;
-    if orig.y < t && dest.y > t {
-        return Some(((t - orig.y) / (dest.y - orig.y), CollisionType::Horizontal));
-    }
-    let b = (rect.y + rect.h) as f32;
-    if orig.y > b && dest.y < b {
-        return Some(((orig.y - b) / (orig.y - dest.y), CollisionType::Horizontal));
-    }
-    return None;
+    None
 }

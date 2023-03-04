@@ -169,7 +169,7 @@ impl Weapon for BackupLaser {
             let new_x = player_rect.x + 3 + facing as i32 * 9;
             let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
             make_player_projectile(buffer, rect, facing as f32 * 10.0);
-            player.vx -= facing as f32 * 10.0;
+            player.vx -= facing as f32 * config().recoil();
             return true;
         }
         false
@@ -248,7 +248,7 @@ impl Weapon for Shotgun {
                 7,
                 5.0,
             );
-            player.vx -= facing as f32 * 10.0;
+            player.vx -= facing as f32 * config().recoil();
             return true;
         }
         false
@@ -291,7 +291,7 @@ impl Weapon for SuperShotgun {
                 15,
                 10.0,
             );
-            player.vx -= facing as f32 * 20.0;
+            player.vx -= facing as f32 * config().recoil() * 2.0;
             return true;
         }
         false
@@ -335,7 +335,7 @@ impl Weapon for ReverseShotgun {
                 7,
                 5.0,
             );
-            player.vx += facing as f32 * 10.0;
+            player.vx += facing as f32 * config().recoil();
             return true;
         }
         false
@@ -379,7 +379,7 @@ impl Weapon for AutoLaser {
             let new_x = player_rect.x + 3 + facing as i32 * 9;
             let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
             make_player_projectile(buffer, rect, facing as f32 * 10.0);
-            player.vx -= facing as f32 * 10.0;
+            player.vx -= facing as f32 * config().recoil();
             self.delay = 3;
             return true;
         }
@@ -425,7 +425,7 @@ impl Weapon for BurstLaser {
             let new_x = player_rect.x + 3 + facing as i32 * 9;
             let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
             make_player_projectile(buffer, rect, facing as f32 * 10.0);
-            player.vx -= facing as f32 * 10.0;
+            player.vx -= facing as f32 * config().recoil();
             self.delay = 2;
             self.shots += 1;
             return true;
@@ -471,7 +471,7 @@ impl Weapon for DoubleLaser {
             make_player_projectile(buffer, rect, facing as f32 * 10.0);
             let rect = IntRect::new(new_x, player_rect.y + 14, 8, 5);
             make_player_projectile(buffer, rect, facing as f32 * 10.0);
-            player.vx -= facing as f32 * 10.0;
+            player.vx -= facing as f32 * config().recoil();
             return true;
         }
         false
@@ -524,7 +524,7 @@ impl Weapon for Railgun {
             }
             let d = 200.0 * facing as f32;
             make_railgun_trail(buffer, new_x as f32, y, new_x as f32 + d, y);
-            player.vx -= facing as f32 * 10.0;
+            player.vx -= facing as f32 * config().recoil();
             return true;
         }
         false
