@@ -513,17 +513,12 @@ impl Weapon for Railgun {
             let new_x = player_rect.x + xoff1 + facing as i32 * xoff2;
             let y = (player_rect.y + yoff) as f32;
             let orig = Vec2::new(new_x as f32, y);
-            for ii in 0..8 {
-                let a = std::f32::consts::FRAC_PI_4 * ii as f32 + 0.2;
-                let disp = Vec2::new(a.cos(), a.sin()) * 200.0;
-                let dest = match ray_collision(&*world, body_index, &orig, &(orig + disp)) {
-                    None => orig + disp,
-                    Some((v, _)) => v,
-                };
-                make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
-            }
-            let d = 200.0 * facing as f32;
-            make_railgun_trail(buffer, new_x as f32, y, new_x as f32 + d, y);
+            let disp = Vec2::new(300.0 * facing as f32, 0.0);
+            let dest = match ray_collision(&*world, body_index, &orig, &(orig + disp)) {
+                None => orig + disp,
+                Some((v, _)) => v,
+            };
+            make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
             player.vx -= facing as f32 * config().recoil();
             return true;
         }
