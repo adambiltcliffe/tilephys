@@ -8,6 +8,15 @@ pub enum CollisionType {
     Vertical,
 }
 
+// this function may be ultimately redundant
+fn body_contains_vec2(body: &TileBody, v: Vec2) -> bool {
+    let r = body.get_rect();
+    v.x as i32 >= r.x
+        && v.y as i32 >= r.y
+        && (v.x.ceil() as i32) < r.x + r.w
+        && (v.y.ceil() as i32) < r.y + r.h
+}
+
 pub fn ray_collision(
     world: &World,
     body_index: &SpatialIndex,
@@ -32,15 +41,25 @@ pub fn ray_collision(
 
 // Returns the fraction of the ray (i.e. [0,1]) before the collision
 fn ray_collision_single(body: &TileBody, orig: &Vec2, dest: &Vec2) -> Option<(f32, CollisionType)> {
-    if body.get_rect().intersects(&IntRect::new(
-        orig.x.round() as i32,
-        orig.y.round() as i32,
-        1,
-        1,
-    )) {
-        println!("within");
+    if body_contains_vec2(body, *orig) {
         return None;
     }
-    println!("not within");
-    Some((0.1, CollisionType::Vertical))
+    let rect = body.get_rect();
+    let l = rect.x as f32;
+    if orig.x < l && dest.x > l {
+        return Some(((l - orig.x) / (dest.x - orig.x), CollisionType::Vertical));
+    }
+    let r = (rect.x + rect.w) as f32;
+    if orig.x > r && dest.x < r {
+        return Some(((orig.x - r) / (orig.x - dest.x), CollisionType::Vertical));
+    }
+    let t = rect.y as f32;
+    if orig.y < t && dest.y > t {
+        return Some(((t - orig.y) / (dest.y - orig.y), CollisionType::Horizontal));
+    }
+    let b = (rect.y + rect.h) as f32;
+    if orig.y > b && dest.y < b {
+        return Some(((orig.y - b) / (orig.y - dest.y), CollisionType::Horizontal));
+    }
+    return None;
 }
