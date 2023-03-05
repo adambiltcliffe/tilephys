@@ -2,6 +2,12 @@ BUGFIXES
 --------
 fix visuals when player crushed
 
+RAILGUN
+-------
+add weapon image
+add enemy that uses it
+minimum firing delay as per misc enhancements below
+
 ERROR HANDLING
 --------------
 to catch at a minimum:
@@ -16,7 +22,7 @@ to catch at a minimum:
 MISC ENHANCEMENTS
 -----------------
 add minimum firing delay to weapons
-suppress laser muzzle flash on shotgun fire
+suppress laser muzzle flash on shotgun fire (?)
 explosion debris (esp. for player)
 more tiles
 optimisations:

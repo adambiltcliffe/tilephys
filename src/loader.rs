@@ -329,6 +329,9 @@ impl LoadingManager {
                                 } else if obj_type == "ammo_shells_4" {
                                     add_ammo(&mut world, *x as i32, *y as i32, AmmoType::Shell, 4);
                                     max_items += 1;
+                                } else if obj_type == "ammo_slugs_5" {
+                                    add_ammo(&mut world, *x as i32, *y as i32, AmmoType::Slug, 5);
+                                    max_items += 1;
                                 } else if obj_type == "ammo_rocket" {
                                     add_ammo(&mut world, *x as i32, *y as i32, AmmoType::Rocket, 1);
                                     max_items += 1;

@@ -183,7 +183,7 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
                 PickupType::Ammo(AmmoType::Cell, _) => 16.0,
                 PickupType::Ammo(AmmoType::Shell, _) => 32.0,
                 PickupType::Ammo(AmmoType::Rocket, _) => 48.0,
-                PickupType::Ammo(AmmoType::Slug, _) => 24.0, // FIXME!
+                PickupType::Ammo(AmmoType::Slug, _) => 64.0,
             };
             draw_texture_ex(
                 assets.pickup_sprite,
