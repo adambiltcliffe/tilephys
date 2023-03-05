@@ -1,3 +1,4 @@
+use crate::config::config;
 use crate::draw::ZapSprite;
 use crate::enemy::EnemyHittable;
 use crate::physics::collide_any;
@@ -120,6 +121,17 @@ impl Projectile {
                 buffer.despawn(id);
             }
         }
+
+        // process railgun collisions with enemies
+        let damage = config().rg_damage();
+        for (id, hb) in world.query::<&RailgunHitbox>().iter() {
+            for (_, (en, e_rect)) in world.query::<(&mut EnemyHittable, &IntRect)>().iter() {
+                if en.hp > 0 && railgun_intersects(hb, e_rect) {
+                    en.hurt(damage as u16);
+                }
+            }
+            buffer.despawn(id);
+        }
     }
 }
 
@@ -208,4 +220,54 @@ pub fn make_enemy_fireball(
             ProjectileGravity {},
         ));
     }
+}
+
+struct RailgunHitbox {
+    x_min: f32,
+    y_min: f32,
+    x_max: f32,
+    y_max: f32,
+}
+
+impl RailgunHitbox {
+    pub fn new(x1: f32, y1: f32, x2: f32, y2: f32) -> Self {
+        let x_min = x1.min(x2);
+        let x_max = x1.max(x2);
+        let y_min = y1.min(y2);
+        let y_max = y1.max(y2);
+        Self {
+            x_min,
+            y_min,
+            x_max,
+            y_max,
+        }
+    }
+}
+
+pub fn make_railgun_hitbox(buffer: &mut CommandBuffer, x1: f32, y1: f32, x2: f32, y2: f32) {
+    buffer.spawn((RailgunHitbox::new(x1, y1, x2, y2),))
+}
+
+fn railgun_intersects(hb: &RailgunHitbox, rect: &IntRect) -> bool {
+    let mut t_min = 0.0f32;
+    let mut t_max = 1.0f32;
+    let w = hb.x_max - hb.x_min;
+    let h = hb.y_max - hb.y_min;
+    if w == 0.0 {
+        if hb.x_min < rect.x as f32 || hb.x_min > (rect.x + rect.w) as f32 {
+            return false;
+        }
+    } else {
+        t_min = t_min.max((rect.x as f32 - hb.x_min) / w);
+        t_max = t_max.min(((rect.x + rect.w) as f32 - hb.x_min) / w);
+    }
+    if h == 0.0 {
+        if hb.y_min < rect.y as f32 || hb.y_min > (rect.y + rect.h) as f32 {
+            return false;
+        }
+    } else {
+        t_min = t_min.max((rect.y as f32 - hb.y_min) / h);
+        t_max = t_max.min(((rect.y + rect.h) as f32 - hb.y_min) / h);
+    }
+    t_min <= t_max
 }

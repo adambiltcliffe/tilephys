@@ -88,6 +88,7 @@ make_config![
     (gravity, "gravity", f32, 1.0),
     (player_accel, "player_accel", f32, 3.0),
     (recoil, "recoil", f32, 10.0),
+    (rg_damage, "rg_damage", i32, 5),
     (rg_thickness, "rg_thickness", f32, 1.0),
     (rg_frames, "rg_frames", i32, 3),
     (rg_xoff1, "rg_xoff1", i32, 7),

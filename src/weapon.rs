@@ -2,7 +2,9 @@ use crate::config::config;
 use crate::index::SpatialIndex;
 use crate::input::KeyState;
 use crate::physics::{collide_any, Actor, IntRect};
-use crate::projectile::{make_player_projectile, DamageEnemies, Projectile, ProjectileDrag};
+use crate::projectile::{
+    make_player_projectile, make_railgun_hitbox, DamageEnemies, Projectile, ProjectileDrag,
+};
 use crate::ray::ray_collision;
 use crate::vfx::{make_railgun_trail, FireballEffect, SmokeParticle};
 use enum_map::EnumMap;
@@ -521,6 +523,7 @@ impl Weapon for Railgun {
                     None => orig + disp,
                     Some((v, _)) => v,
                 };
+                make_railgun_hitbox(buffer, orig.x, orig.y, dest.x, dest.y);
                 make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
             }
             player.vx -= facing as f32 * config().recoil();
