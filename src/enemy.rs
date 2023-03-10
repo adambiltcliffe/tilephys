@@ -1,11 +1,13 @@
 use std::cmp::Ordering;
 
+use crate::config::config;
 use crate::draw::{DogSprite, ParrotSprite};
 use crate::physics::{collide_any, Actor, IntRect};
 use crate::player::Controller;
-use crate::projectile::{make_enemy_fireball, make_enemy_laser};
+use crate::projectile::{make_enemy_fireball, make_enemy_laser, make_railgun_hitbox};
+use crate::ray::ray_collision;
 use crate::resources::SceneResources;
-use crate::vfx::create_explosion;
+use crate::vfx::{create_explosion, make_railgun_trail};
 use hecs::{CommandBuffer, Entity, World};
 use macroquad::prelude::*;
 
@@ -14,14 +16,16 @@ pub enum EnemyKind {
     Dog,
     JumpyDog,
     SpiderParrot(ParrotKind),
+    Drone,
 }
 
 pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
-    let h = match kind {
-        EnemyKind::SpiderParrot(_) => 24,
-        _ => 16,
+    let (w, h) = match kind {
+        EnemyKind::Drone => (16, 16),
+        EnemyKind::SpiderParrot(_) => (24, 24),
+        EnemyKind::Dog | EnemyKind::JumpyDog => (24, 16),
     };
-    let rect = IntRect::new(x - 12, y - h, 24, h);
+    let rect = IntRect::new(x - w / 2, y - h, w, h);
     let actor = Actor::new(&rect, 0.4);
     let hp = match kind {
         EnemyKind::SpiderParrot(_) => 7,
@@ -35,6 +39,16 @@ pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
             ParrotBehaviour::new(pk),
             rect,
             crate::draw::ParrotSprite::new(pk),
+            actor,
+            hittable,
+            dmg,
+        ));
+    } else if matches!(kind, EnemyKind::Drone) {
+        world.spawn((
+            kind,
+            DroneBehaviour::new(),
+            rect,
+            crate::draw::ColorRect::new(macroquad::color::BEIGE),
             actor,
             hittable,
             dmg,
@@ -357,10 +371,101 @@ fn parrot_off_edge(world: &World, resources: &SceneResources, rect: &IntRect, fa
     )
 }
 
+struct DroneBehaviour {
+    thrust_x: f32,
+    thrust_y: f32,
+    thrust_lock: u8,
+}
+
+impl DroneBehaviour {
+    pub fn new() -> Self {
+        Self {
+            thrust_x: 0.0,
+            thrust_y: 0.0,
+            thrust_lock: 0,
+        }
+    }
+
+    pub fn update(world: &World, resources: &SceneResources, buffer: &mut CommandBuffer) {
+        let antigravity;
+        let airbrake;
+        let thrust_mag;
+        let thrust_lock;
+        let x_factor;
+        let floor_sensor_w;
+        let floor_sensor_h;
+        let da;
+        {
+            let conf = config();
+            antigravity = conf.drone_antigravity();
+            airbrake = conf.drone_airbrake();
+            thrust_mag = conf.drone_thrust();
+            thrust_lock = conf.drone_thrust_lock() as u8;
+            x_factor = conf.drone_thrust_x_factor();
+            floor_sensor_w = conf.drone_sensor_w();
+            floor_sensor_h = conf.drone_sensor_h();
+            da = conf.drone_thrust_max_angle();
+        }
+        let player_x = player_x(world, resources.player_id);
+        let player_y = player_y(world, resources.player_id);
+        for (_, (actor, beh, rect)) in world
+            .query::<(&mut Actor, &mut DroneBehaviour, &IntRect)>()
+            .iter()
+        {
+            let below_rect = IntRect::new(
+                rect.x - (floor_sensor_w - rect.w) / 2,
+                rect.y + rect.h,
+                floor_sensor_w,
+                floor_sensor_h,
+            );
+            let too_low = collide_any(world, &resources.body_index, &below_rect);
+            if too_low && actor.vy > 0.0 {
+                actor.vy *= 1.0 - airbrake;
+            }
+            if beh.thrust_lock == 0 {
+                if too_low {
+                    let a = -std::f32::consts::FRAC_PI_2 + quad_rand::gen_range(-da, da);
+                    beh.thrust_x = a.cos() * thrust_mag * x_factor;
+                    beh.thrust_y = a.sin() * thrust_mag;
+                    beh.thrust_lock = thrust_lock;
+                } else {
+                    beh.thrust_x = 0.0;
+                    beh.thrust_y = 0.0;
+                    beh.thrust_lock = thrust_lock;
+                    if let (Some(px), Some(py)) = (player_x, player_y) {
+                        let orig =
+                            Vec2::new((rect.x + rect.w / 2) as f32, (rect.y + rect.h / 2) as f32);
+                        let intended_dest = Vec2::new(px as f32, py as f32);
+                        let max_d = (intended_dest - orig).length() + 300.0;
+                        let furthest_dest =
+                            orig + (intended_dest - orig).normalize_or_zero() * max_d;
+                        let dest = match ray_collision(
+                            &*world,
+                            &resources.body_index,
+                            &orig,
+                            &furthest_dest,
+                        ) {
+                            None => furthest_dest,
+                            Some((v, _)) => v,
+                        };
+                        //make_railgun_hitbox(buffer, orig.x, orig.y, dest.x, dest.y);
+                        make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
+                    }
+                }
+            } else {
+                beh.thrust_lock -= 1
+            };
+            actor.vx += beh.thrust_x;
+            actor.vy += beh.thrust_y - antigravity;
+        }
+    }
+}
+
 pub fn update_enemies(resources: &mut SceneResources, buffer: &mut CommandBuffer) {
     let world = resources.world_ref.lock().unwrap();
     DogBehaviour::update(&world, resources);
     ParrotBehaviour::update(&world, resources, buffer);
+    DroneBehaviour::update(&world, resources, buffer);
 
     for (id, (actor, rect, kind, hittable)) in world
         .query::<(&Actor, &IntRect, &EnemyKind, &mut EnemyHittable)>()
@@ -378,6 +483,7 @@ pub fn update_enemies(resources: &mut SceneResources, buffer: &mut CommandBuffer
                 EnemyKind::SpiderParrot(ParrotKind::Cannon) => resources
                     .messages
                     .add("Destroyed a green scuttler.".to_owned()),
+                EnemyKind::Drone => resources.messages.add("Destroyed a drone.".to_owned()),
             }
             buffer.despawn(id);
             let (ex, ey) = rect.centre_int();

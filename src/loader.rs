@@ -320,6 +320,9 @@ impl LoadingManager {
                                         *y as i32,
                                     );
                                     max_kills += 1;
+                                } else if obj_type == "railgun_drone_enemy" {
+                                    add_enemy(&mut world, EnemyKind::Drone, *x as i32, *y as i32);
+                                    max_kills += 1;
                                 } else if obj_type == "heart" {
                                     add_heart(&mut world, *x as i32, *y as i32);
                                     max_items += 1;

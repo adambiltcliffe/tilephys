@@ -96,5 +96,13 @@ make_config![
     (rg_yoff, "rg_yoff", i32, 14),
     (rg_smoke_da, "rg_smoke_da", f32, 1.0),
     (rg_smoke_sp, "rg_smoke_sp", f32, 5.0),
-    (rg_smoke_r, "rg_smoke_r", f32, 4.0)
+    (rg_smoke_r, "rg_smoke_r", f32, 4.0),
+    (drone_antigravity, "drone_antigravity", f32, 0.8),
+    (drone_airbrake, "drone_airbrake", f32, 0.2),
+    (drone_thrust, "drone_thrust", f32, 0.4),
+    (drone_thrust_lock, "drone_thrust_lock", i32, 2),
+    (drone_thrust_x_factor, "drone_thrust_x_factor", f32, 10.0),
+    (drone_thrust_max_angle, "drone_thrust_max_angle", f32, 0.2),
+    (drone_sensor_w, "drone_sensor_w", i32, 48),
+    (drone_sensor_h, "drone_sensor_h", i32, 64)
 ];
