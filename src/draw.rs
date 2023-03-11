@@ -1,4 +1,4 @@
-use crate::enemy::{EnemyHittable, ParrotKind};
+use crate::enemy::{EnemyHittable, ParrotKind, Reticule};
 use crate::physics::{IntRect, TileBody};
 use crate::pickup::{Pickup, PickupType, WeaponPickup};
 use crate::resources::{GlobalAssets, SceneResources};
@@ -339,5 +339,9 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
                 ..Default::default()
             },
         );
+    }
+
+    for (_, ret) in world.query::<&Reticule>().iter() {
+        draw_circle_lines(ret.pos.x, ret.pos.y, 8.0, 1.0, RED);
     }
 }

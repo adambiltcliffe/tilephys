@@ -377,9 +377,14 @@ enum DroneFiringState {
     Seeking(Entity),
 }
 
-struct Reticule {
-    x: i32,
-    y: i32,
+pub struct Reticule {
+    pub pos: Vec2,
+}
+
+impl Reticule {
+    pub fn new(pos: Vec2) -> Self {
+        Self { pos }
+    }
 }
 
 struct DroneBehaviour {
@@ -440,12 +445,28 @@ impl DroneBehaviour {
                 }
                 DroneFiringState::Ready => {
                     if let (Some(px), Some(py)) = (player_x, player_y) {
-                        let orig =
-                            Vec2::new((rect.x + rect.w / 2) as f32, (rect.y + rect.h / 2) as f32);
-                        let intended_dest = Vec2::new(px as f32, py as f32);
-                        if ray_collision(&*world, &resources.body_index, &orig, &intended_dest)
-                            .is_none()
-                        {
+                        let orig = rect.centre();
+                        let dest = Vec2::new(px as f32, py as f32);
+                        if ray_collision(&*world, &resources.body_index, &orig, &dest).is_none() {
+                            let ret_id = world.reserve_entity();
+                            let ret = Reticule::new(rect.centre());
+                            buffer.insert_one(ret_id, ret);
+                            DroneFiringState::Seeking(ret_id)
+                        } else {
+                            DroneFiringState::Delay(5)
+                        }
+                    } else {
+                        DroneFiringState::Ready
+                    }
+                }
+                DroneFiringState::Seeking(id) => {
+                    if let (Some(px), Some(py)) = (player_x, player_y) {
+                        let mut ret = world.get::<&mut Reticule>(id).unwrap();
+                        let p = Vec2::new(px as f32, py as f32);
+                        let d = p - ret.pos;
+                        if d.length() < 4.0 {
+                            let orig = rect.centre();
+                            let intended_dest = Vec2::new(px as f32, py as f32);
                             let max_d = (intended_dest - orig).length() + 300.0;
                             let furthest_dest =
                                 orig + (intended_dest - orig).normalize_or_zero() * max_d;
@@ -460,15 +481,17 @@ impl DroneBehaviour {
                             };
                             //make_railgun_hitbox(buffer, orig.x, orig.y, dest.x, dest.y);
                             make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
+                            buffer.despawn(id);
                             DroneFiringState::Delay(20)
                         } else {
-                            DroneFiringState::Delay(5)
+                            ret.pos = ret.pos + d.normalize_or_zero() * 0.8;
+                            DroneFiringState::Seeking(id)
                         }
                     } else {
+                        buffer.despawn(id);
                         DroneFiringState::Ready
                     }
                 }
-                DroneFiringState::Seeking(_) => DroneFiringState::Ready,
             }
         }
     }
