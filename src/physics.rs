@@ -279,22 +279,31 @@ impl Actor {
         let gravity;
         let player_drag;
         let actor_drag;
+        let flyer_drag;
         {
             let conf = config();
             gravity = conf.gravity();
             player_drag = conf.player_drag();
-            actor_drag = conf.actor_drag()
+            actor_drag = conf.actor_drag();
+            flyer_drag = conf.flyer_drag();
         }
         let world = resources.world_ref.lock().unwrap();
         for (_, (actor, rect)) in world.query::<(&mut Actor, &mut IntRect)>().iter() {
-            if matches!(actor.coeffs, PhysicsCoeffs::Player | PhysicsCoeffs::Actor) {
-                actor.vy += gravity;
-            }
             actor.vx *= match actor.coeffs {
                 PhysicsCoeffs::Player => player_drag,
-                _ => actor_drag,
+                PhysicsCoeffs::Actor => actor_drag,
+                PhysicsCoeffs::Flyer => flyer_drag,
+                PhysicsCoeffs::Static => 1.0,
             };
-            actor.vy = actor.vy.min(16.0);
+            // only flyers have vertical drag
+            if matches!(actor.coeffs, PhysicsCoeffs::Flyer) {
+                actor.vy *= flyer_drag
+            }
+            // then handle the types that do have gravity
+            if matches!(actor.coeffs, PhysicsCoeffs::Player | PhysicsCoeffs::Actor) {
+                actor.vy += gravity;
+                actor.vy = actor.vy.min(16.0);
+            }
             let vx = actor.vx;
             let vy = actor.vy;
             let (cx, cy) = move_actor(actor, rect, vx, vy, &world, &resources.body_index);

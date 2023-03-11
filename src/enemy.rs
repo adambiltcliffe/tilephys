@@ -20,13 +20,13 @@ pub enum EnemyKind {
 }
 
 pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
-    let (w, h) = match kind {
-        EnemyKind::Drone => (16, 16),
-        EnemyKind::SpiderParrot(_) => (24, 24),
-        EnemyKind::Dog | EnemyKind::JumpyDog => (24, 16),
+    let (w, h, c) = match kind {
+        EnemyKind::Drone => (16, 16, PhysicsCoeffs::Flyer),
+        EnemyKind::SpiderParrot(_) => (24, 24, PhysicsCoeffs::Actor),
+        EnemyKind::Dog | EnemyKind::JumpyDog => (24, 16, PhysicsCoeffs::Actor),
     };
     let rect = IntRect::new(x - w / 2, y - h, w, h);
-    let actor = Actor::new(&rect, PhysicsCoeffs::Actor);
+    let actor = Actor::new(&rect, c);
     let hp = match kind {
         EnemyKind::SpiderParrot(_) => 7,
         _ => 3,
@@ -46,7 +46,7 @@ pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
     } else if matches!(kind, EnemyKind::Drone) {
         world.spawn((
             kind,
-            DroneBehaviour::new(),
+            DroneBehaviour::new(rect.centre()),
             rect,
             crate::draw::ColorRect::new(macroquad::color::BEIGE),
             actor,
@@ -383,41 +383,27 @@ struct Reticule {
 }
 
 struct DroneBehaviour {
-    thrust_x: f32,
-    thrust_y: f32,
-    thrust_lock: u8,
+    target: Vec2,
     fs: DroneFiringState,
 }
 
 impl DroneBehaviour {
-    pub fn new() -> Self {
+    pub fn new(pos: Vec2) -> Self {
         Self {
-            thrust_x: 0.0,
-            thrust_y: 0.0,
-            thrust_lock: 0,
+            target: pos,
             fs: DroneFiringState::Ready,
         }
     }
 
     pub fn update(world: &World, resources: &SceneResources, buffer: &mut CommandBuffer) {
-        let antigravity;
-        let airbrake;
         let thrust_mag;
-        let thrust_lock;
-        let x_factor;
         let floor_sensor_w;
         let floor_sensor_h;
-        let da;
         {
             let conf = config();
-            antigravity = conf.drone_antigravity();
-            airbrake = conf.drone_airbrake();
             thrust_mag = conf.drone_thrust();
-            thrust_lock = conf.drone_thrust_lock() as u8;
-            x_factor = conf.drone_thrust_x_factor();
             floor_sensor_w = conf.drone_sensor_w();
             floor_sensor_h = conf.drone_sensor_h();
-            da = conf.drone_thrust_max_angle();
         }
         let player_x = player_x(world, resources.player_id);
         let player_y = player_y(world, resources.player_id);
@@ -432,25 +418,18 @@ impl DroneBehaviour {
                 floor_sensor_h,
             );
             let too_low = collide_any(world, &resources.body_index, &below_rect);
-            if too_low && actor.vy > 0.0 {
-                actor.vy *= 1.0 - airbrake;
+            let pos = rect.centre();
+            let thrust = beh.target - pos;
+            let should_retarget = too_low || thrust.length_squared() < 100.0;
+            let thrust = thrust.normalize_or_zero() * thrust_mag;
+            actor.vx += thrust.x;
+            actor.vy += thrust.y;
+            if should_retarget || quad_rand::gen_range(0.0, 1.0) < 0.01 {
+                let new_x = pos.x + quad_rand::gen_range(-24.0, 24.0);
+                let new_y =
+                    pos.y + quad_rand::gen_range(-24.0, 24.0) - if too_low { 64.0 } else { 0.0 };
+                beh.target = Vec2::new(new_x, new_y);
             }
-            if beh.thrust_lock == 0 {
-                if too_low {
-                    let a = -std::f32::consts::FRAC_PI_2 + quad_rand::gen_range(-da, da);
-                    beh.thrust_x = a.cos() * thrust_mag * x_factor;
-                    beh.thrust_y = a.sin() * thrust_mag;
-                    beh.thrust_lock = thrust_lock;
-                } else {
-                    beh.thrust_x = 0.0;
-                    beh.thrust_y = 0.0;
-                    beh.thrust_lock = thrust_lock;
-                }
-            } else {
-                beh.thrust_lock -= 1
-            };
-            actor.vx += beh.thrust_x;
-            actor.vy += beh.thrust_y - antigravity;
             beh.fs = match beh.fs {
                 DroneFiringState::Delay(n) => {
                     if n == 0 {
