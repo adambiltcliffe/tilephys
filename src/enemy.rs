@@ -4,7 +4,9 @@ use crate::config::config;
 use crate::draw::{DogSprite, ParrotSprite};
 use crate::physics::{collide_any, Actor, IntRect, PhysicsCoeffs};
 use crate::player::Controller;
-use crate::projectile::{make_enemy_fireball, make_enemy_laser, make_railgun_hitbox};
+use crate::projectile::{
+    make_enemy_fireball, make_enemy_laser, make_railgun_hitbox, railgun_intersects, RailgunHitbox,
+};
 use crate::ray::ray_collision;
 use crate::resources::SceneResources;
 use crate::vfx::{create_explosion, make_railgun_trail};
@@ -75,17 +77,15 @@ fn rand_sign() -> f32 {
 }
 
 fn player_x(world: &World, player_id: Entity) -> Option<f32> {
-    world
-        .get::<&IntRect>(player_id)
-        .map(|rect| rect.centre().x)
-        .ok()
+    let mut q = world.query_one::<(&Controller, &IntRect)>(player_id).ok()?;
+    let (_, rect) = q.get()?;
+    Some(rect.centre().x)
 }
 
 fn player_y(world: &World, player_id: Entity) -> Option<f32> {
-    world
-        .get::<&IntRect>(player_id)
-        .map(|rect| rect.centre().y)
-        .ok()
+    let mut q = world.query_one::<(&Controller, &IntRect)>(player_id).ok()?;
+    let (_, rect) = q.get()?;
+    Some(rect.centre().y)
 }
 
 pub struct EnemyHittable {
@@ -479,7 +479,18 @@ impl DroneBehaviour {
                                 None => furthest_dest,
                                 Some((v, _)) => v,
                             };
-                            //make_railgun_hitbox(buffer, orig.x, orig.y, dest.x, dest.y);
+                            if let Ok(mut q) =
+                                world.query_one::<(&mut Controller, &IntRect)>(resources.player_id)
+                            {
+                                if let Some((player, p_rect)) = q.get() {
+                                    if railgun_intersects(
+                                        &RailgunHitbox::new(orig.x, orig.y, dest.x, dest.y),
+                                        p_rect,
+                                    ) {
+                                        player.hurt()
+                                    }
+                                }
+                            }
                             make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
                             buffer.despawn(id);
                             DroneFiringState::Delay(20)

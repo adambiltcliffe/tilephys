@@ -222,7 +222,7 @@ pub fn make_enemy_fireball(
     }
 }
 
-struct RailgunHitbox {
+pub struct RailgunHitbox {
     x_min: f32,
     y_min: f32,
     x_max: f32,
@@ -248,7 +248,7 @@ pub fn make_railgun_hitbox(buffer: &mut CommandBuffer, x1: f32, y1: f32, x2: f32
     buffer.spawn((RailgunHitbox::new(x1, y1, x2, y2),))
 }
 
-fn railgun_intersects(hb: &RailgunHitbox, rect: &IntRect) -> bool {
+pub fn railgun_intersects(hb: &RailgunHitbox, rect: &IntRect) -> bool {
     let mut t_min = 0.0f32;
     let mut t_max = 1.0f32;
     let w = hb.x_max - hb.x_min;
