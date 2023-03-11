@@ -371,10 +371,22 @@ fn parrot_off_edge(world: &World, resources: &SceneResources, rect: &IntRect, fa
     )
 }
 
+enum DroneFiringState {
+    Delay(u8),
+    Ready,
+    Seeking(Entity),
+}
+
+struct Reticule {
+    x: i32,
+    y: i32,
+}
+
 struct DroneBehaviour {
     thrust_x: f32,
     thrust_y: f32,
     thrust_lock: u8,
+    fs: DroneFiringState,
 }
 
 impl DroneBehaviour {
@@ -383,6 +395,7 @@ impl DroneBehaviour {
             thrust_x: 0.0,
             thrust_y: 0.0,
             thrust_lock: 0,
+            fs: DroneFiringState::Ready,
         }
     }
 
@@ -432,31 +445,52 @@ impl DroneBehaviour {
                     beh.thrust_x = 0.0;
                     beh.thrust_y = 0.0;
                     beh.thrust_lock = thrust_lock;
-                    if let (Some(px), Some(py)) = (player_x, player_y) {
-                        let orig =
-                            Vec2::new((rect.x + rect.w / 2) as f32, (rect.y + rect.h / 2) as f32);
-                        let intended_dest = Vec2::new(px as f32, py as f32);
-                        let max_d = (intended_dest - orig).length() + 300.0;
-                        let furthest_dest =
-                            orig + (intended_dest - orig).normalize_or_zero() * max_d;
-                        let dest = match ray_collision(
-                            &*world,
-                            &resources.body_index,
-                            &orig,
-                            &furthest_dest,
-                        ) {
-                            None => furthest_dest,
-                            Some((v, _)) => v,
-                        };
-                        //make_railgun_hitbox(buffer, orig.x, orig.y, dest.x, dest.y);
-                        make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
-                    }
                 }
             } else {
                 beh.thrust_lock -= 1
             };
             actor.vx += beh.thrust_x;
             actor.vy += beh.thrust_y - antigravity;
+            beh.fs = match beh.fs {
+                DroneFiringState::Delay(n) => {
+                    if n == 0 {
+                        DroneFiringState::Ready
+                    } else {
+                        DroneFiringState::Delay(n - 1)
+                    }
+                }
+                DroneFiringState::Ready => {
+                    if let (Some(px), Some(py)) = (player_x, player_y) {
+                        let orig =
+                            Vec2::new((rect.x + rect.w / 2) as f32, (rect.y + rect.h / 2) as f32);
+                        let intended_dest = Vec2::new(px as f32, py as f32);
+                        if ray_collision(&*world, &resources.body_index, &orig, &intended_dest)
+                            .is_none()
+                        {
+                            let max_d = (intended_dest - orig).length() + 300.0;
+                            let furthest_dest =
+                                orig + (intended_dest - orig).normalize_or_zero() * max_d;
+                            let dest = match ray_collision(
+                                &*world,
+                                &resources.body_index,
+                                &orig,
+                                &furthest_dest,
+                            ) {
+                                None => furthest_dest,
+                                Some((v, _)) => v,
+                            };
+                            //make_railgun_hitbox(buffer, orig.x, orig.y, dest.x, dest.y);
+                            make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
+                            DroneFiringState::Delay(20)
+                        } else {
+                            DroneFiringState::Delay(5)
+                        }
+                    } else {
+                        DroneFiringState::Ready
+                    }
+                }
+                DroneFiringState::Seeking(_) => DroneFiringState::Ready,
+            }
         }
     }
 }
