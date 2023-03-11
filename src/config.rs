@@ -87,6 +87,8 @@ macro_rules! make_config {
 make_config![
     (gravity, "gravity", f32, 1.0),
     (player_accel, "player_accel", f32, 3.0),
+    (player_drag, "player_drag", f32, 0.6),
+    (actor_drag, "actor_drag", f32, 0.4),
     (recoil, "recoil", f32, 10.0),
     (rg_damage, "rg_damage", i32, 5),
     (rg_thickness, "rg_thickness", f32, 1.0),

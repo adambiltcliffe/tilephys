@@ -245,6 +245,13 @@ impl TileBody {
     }
 }
 
+pub enum PhysicsCoeffs {
+    Player,
+    Actor,
+    Static,
+    Flyer,
+}
+
 pub struct Actor {
     prec_x: f32,
     prec_y: f32,
@@ -252,11 +259,11 @@ pub struct Actor {
     pub vy: f32,
     pub grounded: bool,
     pub crushed: bool,
-    pub drag: f32,
+    pub coeffs: PhysicsCoeffs,
 }
 
 impl Actor {
-    pub fn new(rect: &IntRect, drag: f32) -> Self {
+    pub fn new(rect: &IntRect, coeffs: PhysicsCoeffs) -> Self {
         Self {
             prec_x: rect.x as f32,
             prec_y: rect.y as f32,
@@ -264,16 +271,29 @@ impl Actor {
             vy: 0.0,
             grounded: false,
             crushed: false,
-            drag,
+            coeffs,
         }
     }
 
     pub fn update(resources: &SceneResources) {
-        let gravity = config().gravity();
+        let gravity;
+        let player_drag;
+        let actor_drag;
+        {
+            let conf = config();
+            gravity = conf.gravity();
+            player_drag = conf.player_drag();
+            actor_drag = conf.actor_drag()
+        }
         let world = resources.world_ref.lock().unwrap();
         for (_, (actor, rect)) in world.query::<(&mut Actor, &mut IntRect)>().iter() {
-            actor.vy += gravity;
-            actor.vx *= actor.drag;
+            if matches!(actor.coeffs, PhysicsCoeffs::Player | PhysicsCoeffs::Actor) {
+                actor.vy += gravity;
+            }
+            actor.vx *= match actor.coeffs {
+                PhysicsCoeffs::Player => player_drag,
+                _ => actor_drag,
+            };
             actor.vy = actor.vy.min(16.0);
             let vx = actor.vx;
             let vy = actor.vy;

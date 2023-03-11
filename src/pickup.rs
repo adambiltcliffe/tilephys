@@ -1,4 +1,4 @@
-use crate::physics::{Actor, IntRect};
+use crate::physics::{Actor, IntRect, PhysicsCoeffs};
 use crate::player::Controller;
 use crate::resources::SceneResources;
 use crate::weapon::{ammo_max, ammo_name, weapon_name, AmmoQuantity, AmmoType, WeaponType};
@@ -18,7 +18,7 @@ pub struct Pickup {
 pub fn add_heart(world: &mut World, x: i32, y: i32) {
     let rect = IntRect::new(x - 8, y - 16, 16, 16);
     let draw = crate::draw::PickupSprite::new();
-    let actor = Actor::new(&rect, 0.4);
+    let actor = Actor::new(&rect, PhysicsCoeffs::Static);
     world.spawn((
         rect,
         draw,
@@ -33,7 +33,7 @@ pub fn add_heart(world: &mut World, x: i32, y: i32) {
 pub fn add_ammo(world: &mut World, x: i32, y: i32, typ: AmmoType, amt: AmmoQuantity) {
     let rect = IntRect::new(x - 8, y - 16, 16, 16);
     let draw = crate::draw::PickupSprite::new();
-    let actor = Actor::new(&rect, 0.4);
+    let actor = Actor::new(&rect, PhysicsCoeffs::Static);
     world.spawn((
         rect,
         draw,
@@ -95,7 +95,7 @@ pub struct WeaponPickup {
 
 pub fn add_weapon(world: &mut World, x: i32, y: i32, typ: WeaponType) {
     let rect = IntRect::new(x - 12, y - 16, 24, 16);
-    let actor = Actor::new(&rect, 0.4);
+    let actor = Actor::new(&rect, PhysicsCoeffs::Static);
     world.spawn((
         rect,
         actor,

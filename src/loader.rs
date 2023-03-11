@@ -5,7 +5,7 @@ use crate::index::SpatialIndex;
 use crate::level::LevelInfo;
 use crate::log::{info as log_info, warn};
 use crate::messages::Messages;
-use crate::physics::{Actor, IntRect, TileBody, TriggerZone};
+use crate::physics::{Actor, IntRect, PhysicsCoeffs, TileBody, TriggerZone};
 use crate::pickup::{add_ammo, add_heart, add_weapon};
 use crate::player::Controller;
 use crate::resources::TilesetInfo;
@@ -436,7 +436,7 @@ impl LoadingManager {
             let player_rect = IntRect::new(player_start.0 - 8, player_start.1 - 24, 14, 24);
             let player_eye = player_rect.centre();
             let camera_pos = add_camera(&mut world, player_rect.centre());
-            let player = Actor::new(&player_rect, 0.6);
+            let player = Actor::new(&player_rect, PhysicsCoeffs::Player);
             let controller = Controller::new();
             let sprite = PlayerSprite::new();
             let player_id = world.spawn((player_rect, player, controller, sprite));

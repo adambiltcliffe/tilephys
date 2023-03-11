@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use crate::config::config;
 use crate::draw::{DogSprite, ParrotSprite};
-use crate::physics::{collide_any, Actor, IntRect};
+use crate::physics::{collide_any, Actor, IntRect, PhysicsCoeffs};
 use crate::player::Controller;
 use crate::projectile::{make_enemy_fireball, make_enemy_laser, make_railgun_hitbox};
 use crate::ray::ray_collision;
@@ -26,7 +26,7 @@ pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
         EnemyKind::Dog | EnemyKind::JumpyDog => (24, 16),
     };
     let rect = IntRect::new(x - w / 2, y - h, w, h);
-    let actor = Actor::new(&rect, 0.4);
+    let actor = Actor::new(&rect, PhysicsCoeffs::Actor);
     let hp = match kind {
         EnemyKind::SpiderParrot(_) => 7,
         _ => 3,
