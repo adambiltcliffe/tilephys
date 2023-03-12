@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="27" nextobjectid="79">
+ <tileset firstgid="1" source="phtiles16.tsx"/>
+ <layer id="14" name="background" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-32" y="-16" width="16" height="16">
+   eJxjYBgFo2B4AS4S8EjXDwBKnwIn
+  </chunk>
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo4B2gIsAplT/KKYMAwDlngPB
+  </chunk>
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFo4B8wIUHE1IPAgIU6sdnPzFuI6QOl/uI1U+p/ZT6n5B+APuGA1U=
+  </chunk>
+   <chunk x="-32" y="0" width="16" height="16">
+   eJxjYMAEXCRgbGCw6CfGrOGuHx8Y1U8ZoFT/YAAA3e8Dew==
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJzjYmBg4BpBWGAQuIHaGB8gpHa46ycEKNU/1AEAQcEFQw==
+  </chunk>
+   <chunk x="0" y="0" width="16" height="16">
+   eJzjYmBg4MKD0QG6HCl6SdVPjNmDSb8Alf1PjP5RMAooAQBUjgNF
+  </chunk>
+  </data>
+ </layer>
+ <objectgroup id="5" name="paths">
+  <object id="77" name="first_block_path" x="-240" y="112">
+   <polyline points="0,0 0,-64 112,-64"/>
+  </object>
+  <object id="78" name="up2" x="-272" y="208">
+   <polyline points="0,0 0,-32"/>
+  </object>
+ </objectgroup>
+ <objectgroup id="2" name="entities">
+  <object id="1" name="start" type="player" x="-408" y="48">
+   <point/>
+  </object>
+  <object id="70" name="first_switch" type="switch" x="-360" y="112">
+   <point/>
+  </object>
+  <object id="76" type="railgun_drone_enemy" x="-256" y="208">
+   <point/>
+  </object>
+ </objectgroup>
+ <layer id="1" name="main" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-32" y="-16" width="16" height="16">
+   eJxjYBgFo2DwAEYSMTb9lNo/kvQDABeoABI=
+  </chunk>
+   <chunk x="-16" y="-16" width="16" height="16">
+   eJxjYBgFo2DgACMJeBSQDgiFHwAT+AAP
+  </chunk>
+   <chunk x="-32" y="0" width="16" height="16">
+   eJxjYEAFjAyUgcGgnxmIWck0ixEHe6jqx4cpsX+46icWDLR+agEAZMwAKw==
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjYMAPGAnIEwKj+mmvn5EApoYdo/ppp38gAQAzeAAW
+  </chunk>
+  </data>
+ </layer>
+ <layer id="25" name="first_block" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-32" y="0" width="16" height="16">
+   eJxjYBgFIxUwjnD9o4CBAQAKkAAF
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjYBgFQxkwjnD9o4AyAAALgAAF
+  </chunk>
+  </data>
+ </layer>
+ <layer id="26" name="extra_floor" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-32" y="0" width="16" height="16">
+   eJxjYBgFo2AUDARgHGD9IAAABMgAAw==
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjYBgFo2AUkAsYB1g/pQAABUAAAw==
+  </chunk>
+  </data>
+ </layer>
+</map>

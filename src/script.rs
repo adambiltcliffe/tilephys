@@ -1,3 +1,4 @@
+use crate::log::warn;
 use crate::physics::{PathMotion, PathMotionType, TileBody};
 use crate::switch::Switch;
 use hecs::{Entity, World};
@@ -98,6 +99,14 @@ mod script_interface {
     pub fn win(this: &mut Flags) {
         this.lock().unwrap().win = true;
     }
+
+    // Make it possible to print paths in the console for debugging
+    pub fn to_string(path: Path) -> String {
+        path.iter()
+            .map(|pt| format!("({},{})", pt.0, pt.1).to_owned())
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
 }
 
 def_package! {
@@ -159,15 +168,16 @@ impl ScriptEngine {
 
     pub fn call_entry_point(&mut self, name: &str) {
         match &self.ast {
-            None => panic!("no script loaded"),
+            None => warn(&format!("calling entry point {} failed: no script", name)),
             Some(ast) => self
                 .engine
                 .call_fn::<()>(&mut self.scope, ast, name, ())
                 .unwrap_or_else(|err| match *err {
                     // if the entry point itself didn't exist, that's not an error
                     EvalAltResult::ErrorFunctionNotFound(fname, _) if name == fname => (),
+                    // anything else should be brought to our attention though
                     _ => {
-                        println!("calling entry point {} failed: {:?}", name, err)
+                        warn(&format!("calling entry point {} failed: {:?}", name, err));
                     }
                 }),
         }

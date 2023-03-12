@@ -1,0 +1,9 @@
+fn init() {
+    extra_floor.set_path(up2);
+    first_block.set_path(first_block_path);
+}
+
+fn first_switch_interact() {
+    first_block.go_to(2, 2.0);
+    extra_floor.go_to(1, 2.0);
+}

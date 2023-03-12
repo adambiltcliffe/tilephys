@@ -257,6 +257,12 @@ impl LoadingManager {
                                 shape: tiled::ObjectShape::Polygon { points },
                                 ..
                             } => {
+                                if points[0] != (0.0, 0.0) {
+                                    warn(&format!(
+                                        "path {} has an initial position which is not (0,0)",
+                                        name
+                                    ));
+                                }
                                 paths.insert(name.clone(), points.clone());
                             }
                             tiled::ObjectData {
