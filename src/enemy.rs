@@ -4,9 +4,7 @@ use crate::config::config;
 use crate::draw::{DogSprite, ParrotSprite};
 use crate::physics::{collide_any, Actor, IntRect, PhysicsCoeffs};
 use crate::player::Controller;
-use crate::projectile::{
-    make_enemy_fireball, make_enemy_laser, make_railgun_hitbox, railgun_intersects, RailgunHitbox,
-};
+use crate::projectile::{make_enemy_fireball, make_enemy_laser, railgun_intersects, RailgunHitbox};
 use crate::ray::ray_collision;
 use crate::resources::SceneResources;
 use crate::vfx::{create_explosion, make_railgun_trail};
@@ -378,12 +376,13 @@ enum DroneFiringState {
 }
 
 pub struct Reticule {
+    parent: Entity,
     pub pos: Vec2,
 }
 
 impl Reticule {
-    pub fn new(pos: Vec2) -> Self {
-        Self { pos }
+    pub fn new(parent: Entity, pos: Vec2) -> Self {
+        Self { parent, pos }
     }
 }
 
@@ -412,7 +411,7 @@ impl DroneBehaviour {
         }
         let player_x = player_x(world, resources.player_id);
         let player_y = player_y(world, resources.player_id);
-        for (_, (actor, beh, rect)) in world
+        for (id, (actor, beh, rect)) in world
             .query::<(&mut Actor, &mut DroneBehaviour, &IntRect)>()
             .iter()
         {
@@ -449,7 +448,7 @@ impl DroneBehaviour {
                         let dest = Vec2::new(px as f32, py as f32);
                         if ray_collision(&*world, &resources.body_index, &orig, &dest).is_none() {
                             let ret_id = world.reserve_entity();
-                            let ret = Reticule::new(rect.centre());
+                            let ret = Reticule::new(id, rect.centre());
                             buffer.insert_one(ret_id, ret);
                             DroneFiringState::Seeking(ret_id)
                         } else {
@@ -503,6 +502,12 @@ impl DroneBehaviour {
                         DroneFiringState::Ready
                     }
                 }
+            }
+        }
+
+        for (id, ret) in world.query::<&Reticule>().iter() {
+            if !world.contains(ret.parent) {
+                buffer.despawn(id)
             }
         }
     }
