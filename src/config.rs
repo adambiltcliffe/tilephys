@@ -102,5 +102,6 @@ make_config![
     (rg_smoke_r, "rg_smoke_r", f32, 4.0),
     (drone_thrust, "drone_thrust", f32, 0.2),
     (drone_sensor_w, "drone_sensor_w", i32, 48),
-    (drone_sensor_h, "drone_sensor_h", i32, 64)
+    (drone_sensor_h, "drone_sensor_h", i32, 64),
+    (drone_lock_frames, "drone_lock_frames", i32, 20)
 ];

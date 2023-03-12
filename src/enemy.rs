@@ -1,4 +1,6 @@
 use std::cmp::Ordering;
+use std::convert::TryInto;
+use std::num::NonZeroU8;
 
 use crate::config::config;
 use crate::draw::{DogSprite, ParrotSprite};
@@ -378,11 +380,16 @@ enum DroneFiringState {
 pub struct Reticule {
     parent: Entity,
     pub pos: Vec2,
+    pub lock_timer: Option<NonZeroU8>,
 }
 
 impl Reticule {
     pub fn new(parent: Entity, pos: Vec2) -> Self {
-        Self { parent, pos }
+        Self {
+            parent,
+            pos,
+            lock_timer: None,
+        }
     }
 }
 
@@ -403,11 +410,13 @@ impl DroneBehaviour {
         let thrust_mag;
         let floor_sensor_w;
         let floor_sensor_h;
+        let lock_frames: u8;
         {
             let conf = config();
             thrust_mag = conf.drone_thrust();
             floor_sensor_w = conf.drone_sensor_w();
             floor_sensor_h = conf.drone_sensor_h();
+            lock_frames = conf.drone_lock_frames().try_into().unwrap();
         }
         let player_x = player_x(world, resources.player_id);
         let player_y = player_y(world, resources.player_id);
@@ -461,41 +470,55 @@ impl DroneBehaviour {
                 DroneFiringState::Seeking(id) => {
                     if let (Some(px), Some(py)) = (player_x, player_y) {
                         let mut ret = world.get::<&mut Reticule>(id).unwrap();
-                        let p = Vec2::new(px as f32, py as f32);
-                        let d = p - ret.pos;
-                        if d.length() < 4.0 {
-                            let orig = rect.centre();
-                            let intended_dest = Vec2::new(px as f32, py as f32);
-                            let max_d = (intended_dest - orig).length() + 300.0;
-                            let furthest_dest =
-                                orig + (intended_dest - orig).normalize_or_zero() * max_d;
-                            let dest = match ray_collision(
-                                &*world,
-                                &resources.body_index,
-                                &orig,
-                                &furthest_dest,
-                            ) {
-                                None => furthest_dest,
-                                Some((v, _)) => v,
-                            };
-                            if let Ok(mut q) =
-                                world.query_one::<(&mut Controller, &IntRect)>(resources.player_id)
-                            {
-                                if let Some((player, p_rect)) = q.get() {
-                                    if railgun_intersects(
-                                        &RailgunHitbox::new(orig.x, orig.y, dest.x, dest.y),
-                                        p_rect,
+                        match &ret.lock_timer {
+                            Some(t) => {
+                                if t.get() > lock_frames {
+                                    let orig = rect.centre();
+                                    let intended_dest = ret.pos;
+                                    let max_d = (intended_dest - orig).length() + 300.0;
+                                    let furthest_dest =
+                                        orig + (intended_dest - orig).normalize_or_zero() * max_d;
+                                    let dest = match ray_collision(
+                                        &*world,
+                                        &resources.body_index,
+                                        &orig,
+                                        &furthest_dest,
                                     ) {
-                                        player.hurt()
+                                        None => furthest_dest,
+                                        Some((v, _)) => v,
+                                    };
+                                    if let Ok(mut q) = world
+                                        .query_one::<(&mut Controller, &IntRect)>(
+                                            resources.player_id,
+                                        )
+                                    {
+                                        if let Some((player, p_rect)) = q.get() {
+                                            if railgun_intersects(
+                                                &RailgunHitbox::new(orig.x, orig.y, dest.x, dest.y),
+                                                p_rect,
+                                            ) {
+                                                player.hurt()
+                                            }
+                                        }
                                     }
+                                    make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
+                                    buffer.despawn(id);
+                                    DroneFiringState::Delay(20)
+                                } else {
+                                    ret.lock_timer = t.checked_add(1);
+                                    DroneFiringState::Seeking(id)
                                 }
                             }
-                            make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
-                            buffer.despawn(id);
-                            DroneFiringState::Delay(20)
-                        } else {
-                            ret.pos = ret.pos + d.normalize_or_zero() * 0.8;
-                            DroneFiringState::Seeking(id)
+                            None => {
+                                let p = Vec2::new(px as f32, py as f32);
+                                let d = p - ret.pos;
+                                if d.length() < 8.0 {
+                                    ret.lock_timer = NonZeroU8::new(1);
+                                } else {
+                                    ret.pos = ret.pos + d.normalize_or_zero() * 3.0;
+                                }
+                                DroneFiringState::Seeking(id)
+                            }
                         }
                     } else {
                         buffer.despawn(id);

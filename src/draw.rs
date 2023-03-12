@@ -1,3 +1,4 @@
+use crate::config::config;
 use crate::enemy::{EnemyHittable, ParrotKind, Reticule};
 use crate::physics::{IntRect, TileBody};
 use crate::pickup::{Pickup, PickupType, WeaponPickup};
@@ -341,7 +342,12 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
         );
     }
 
+    let lock_frames = { config().drone_lock_frames() as f32 };
     for (_, ret) in world.query::<&Reticule>().iter() {
-        draw_circle_lines(ret.pos.x, ret.pos.y, 8.0, 1.0, RED);
+        let r = match &ret.lock_timer {
+            None => 8.0,
+            Some(t) => 8.0 * (1.0 - (t.get() as f32 / lock_frames)),
+        };
+        draw_circle_lines(ret.pos.x, ret.pos.y, r, 1.0, RED);
     }
 }
