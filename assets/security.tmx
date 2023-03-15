@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="27" nextobjectid="79">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="28" nextobjectid="89">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-32" y="-16" width="16" height="16">
-   eJxjYBgFo2B4AS4S8EjXDwBKnwIn
+   eJxjYBgFo2DoAy4yMaVmDTb9pPofAHCXAk8=
   </chunk>
    <chunk x="-16" y="-16" width="16" height="16">
    eJxjYBgFo4B2gIsAplT/KKYMAwDlngPB
@@ -30,6 +30,10 @@
   <object id="78" name="up2" x="-272" y="208">
    <polyline points="0,0 0,-32"/>
   </object>
+  <object id="84" name="right3" x="-480" y="-80">
+   <polyline points="0,0 48,0"/>
+  </object>
+  <object id="85" name="slider_trigger" type="secret" x="-432" y="-64" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="2" name="entities">
   <object id="1" name="start" type="player" x="-408" y="48">
@@ -41,11 +45,29 @@
   <object id="76" type="railgun_drone_enemy" x="-256" y="208">
    <point/>
   </object>
+  <object id="79" type="weapon_burst_laser" x="-464" y="-64">
+   <properties>
+    <property name="gravity" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="83" type="ammo_cells_6" x="-296" y="112">
+   <point/>
+  </object>
+  <object id="86" type="ammo_cells_6" x="-280" y="112">
+   <point/>
+  </object>
+  <object id="87" type="ammo_cells_6" x="-264" y="112">
+   <point/>
+  </object>
+  <object id="88" type="ammo_cells_6" x="-248" y="112">
+   <point/>
+  </object>
  </objectgroup>
  <layer id="1" name="main" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-32" y="-16" width="16" height="16">
-   eJxjYBgFo2DwAEYSMTb9lNo/kvQDABeoABI=
+   eJxjYBgFo2DgASOZmBb2U2rOUNIPABtQABU=
   </chunk>
    <chunk x="-16" y="-16" width="16" height="16">
    eJxjYBgFo2DgACMJeBSQDgiFHwAT+AAP
@@ -55,6 +77,13 @@
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
    eJxjYMAPGAnIEwKj+mmvn5EApoYdo/ppp38gAQAzeAAW
+  </chunk>
+  </data>
+ </layer>
+ <layer id="27" name="secret_slider" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-32" y="-16" width="16" height="16">
+   eJxjYBgFo2BoA0Yc7FFAGAAABmwAAw==
   </chunk>
   </data>
  </layer>

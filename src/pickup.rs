@@ -93,9 +93,13 @@ pub struct WeaponPickup {
     pub typ: WeaponType,
 }
 
-pub fn add_weapon(world: &mut World, x: i32, y: i32, typ: WeaponType) {
+pub fn add_weapon(world: &mut World, x: i32, y: i32, typ: WeaponType, gravity: bool) {
     let rect = IntRect::new(x - 12, y - 16, 24, 16);
-    let actor = Actor::new(&rect, PhysicsCoeffs::Static);
+    let coeffs = match gravity {
+        false => PhysicsCoeffs::Static,
+        true => PhysicsCoeffs::Actor,
+    };
+    let actor = Actor::new(&rect, coeffs);
     world.spawn((
         rect,
         actor,

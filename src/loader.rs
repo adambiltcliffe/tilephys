@@ -350,6 +350,7 @@ impl LoadingManager {
                                         *x as i32,
                                         *y as i32,
                                         WeaponType::Shotgun,
+                                        properties.contains_key("gravity"),
                                     );
                                     max_items += 1;
                                 } else if obj_type == "weapon_super_shotgun" {
@@ -358,6 +359,7 @@ impl LoadingManager {
                                         *x as i32,
                                         *y as i32,
                                         WeaponType::SuperShotgun,
+                                        properties.contains_key("gravity"),
                                     );
                                     max_items += 1;
                                 } else if obj_type == "weapon_reverse_shotgun" {
@@ -366,6 +368,7 @@ impl LoadingManager {
                                         *x as i32,
                                         *y as i32,
                                         WeaponType::ReverseShotgun,
+                                        properties.contains_key("gravity"),
                                     );
                                     max_items += 1;
                                 } else if obj_type == "weapon_auto_laser" {
@@ -374,6 +377,7 @@ impl LoadingManager {
                                         *x as i32,
                                         *y as i32,
                                         WeaponType::AutoLaser,
+                                        properties.contains_key("gravity"),
                                     );
                                     max_items += 1;
                                 } else if obj_type == "weapon_burst_laser" {
@@ -382,6 +386,7 @@ impl LoadingManager {
                                         *x as i32,
                                         *y as i32,
                                         WeaponType::BurstLaser,
+                                        properties.contains_key("gravity"),
                                     );
                                     max_items += 1;
                                 } else if obj_type == "weapon_double_laser" {
@@ -390,6 +395,7 @@ impl LoadingManager {
                                         *x as i32,
                                         *y as i32,
                                         WeaponType::DoubleLaser,
+                                        properties.contains_key("gravity"),
                                     );
                                     max_items += 1;
                                 } else if obj_type == "weapon_railgun" {
@@ -398,6 +404,7 @@ impl LoadingManager {
                                         *x as i32,
                                         *y as i32,
                                         WeaponType::Railgun,
+                                        properties.contains_key("gravity"),
                                     );
                                     max_items += 1;
                                 } else if obj_type == "switch" {

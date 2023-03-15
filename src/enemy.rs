@@ -9,7 +9,7 @@ use crate::player::Controller;
 use crate::projectile::{make_enemy_fireball, make_enemy_laser, railgun_intersects, RailgunHitbox};
 use crate::ray::ray_collision;
 use crate::resources::SceneResources;
-use crate::vfx::{create_explosion, make_railgun_trail};
+use crate::vfx::{create_explosion, create_smoke_cloud, make_railgun_trail};
 use hecs::{CommandBuffer, Entity, World};
 use macroquad::prelude::*;
 
@@ -503,6 +503,7 @@ impl DroneBehaviour {
                                             }
                                         }
                                     }
+                                    create_smoke_cloud(buffer, orig.x as i32, orig.y as i32, 8.0);
                                     make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
                                     buffer.despawn(id);
                                     DroneFiringState::Delay(20)

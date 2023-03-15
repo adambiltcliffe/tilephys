@@ -6,7 +6,7 @@ use macroquad::file::load_string;
 use rhai::packages::{Package, StandardPackage};
 use rhai::plugin::*;
 use rhai::{def_package, Engine, FnPtr, Scope, AST};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
 
 #[cfg(debug_assertions)]
@@ -30,6 +30,7 @@ pub struct ScriptFlags {
     win: bool,
     queued_funcs: Vec<(rhai::INT, FnPtr)>,
     new_popups: Vec<String>,
+    flags: HashSet<ImmutableString>,
 }
 
 impl ScriptFlags {
@@ -38,6 +39,7 @@ impl ScriptFlags {
             win: false,
             queued_funcs: Vec::new(),
             new_popups: Vec::new(),
+            flags: HashSet::new(),
         }
     }
 }
@@ -96,6 +98,10 @@ mod script_interface {
         this.lock().unwrap().queued_funcs.push((n, func));
     }
 
+    pub fn first(this: &mut Flags, key: ImmutableString) -> bool {
+        this.lock().unwrap().flags.insert(key)
+    }
+
     pub fn win(this: &mut Flags) {
         this.lock().unwrap().win = true;
     }
@@ -136,6 +142,8 @@ impl ScriptEngine {
 
         let pkg = ScriptPackage::new();
         pkg.register_into_engine(&mut engine);
+        engine.set_max_expr_depths(32, 32);
+
         scope.push("context", Arc::clone(&flags));
         scope.push("static", PathMotionType::Static);
         scope.push("forward_once", PathMotionType::ForwardOnce);

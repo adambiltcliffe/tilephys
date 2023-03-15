@@ -109,6 +109,14 @@ pub fn create_explosion(buffer: &mut CommandBuffer, x: i32, y: i32) {
     }
 }
 
+pub fn create_smoke_cloud(buffer: &mut CommandBuffer, x: i32, y: i32, r: f32) {
+    let mut a = quad_rand::gen_range(0.0, std::f32::consts::TAU);
+    for _ in 0..6 {
+        buffer.spawn((SmokeParticle::new_from_centre(x, y, a, r),));
+        a += std::f32::consts::TAU / std::f32::consts::E;
+    }
+}
+
 pub struct FireballEffect {
     pub r: f32,
     pub t: f32,
