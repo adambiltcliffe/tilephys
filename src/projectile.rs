@@ -9,6 +9,7 @@ use crate::vfx::Explosion;
 use crate::vfx::FireballEffect;
 use crate::vfx::ZapFlash;
 use hecs::{CommandBuffer, World};
+use std::cmp::Ordering;
 
 pub struct DamageEnemies {}
 pub struct DamagePlayer {}
@@ -223,24 +224,15 @@ pub fn make_enemy_fireball(
 }
 
 pub struct RailgunHitbox {
-    x_min: f32,
-    y_min: f32,
-    x_max: f32,
-    y_max: f32,
+    x1: f32,
+    y1: f32,
+    x2: f32,
+    y2: f32,
 }
 
 impl RailgunHitbox {
     pub fn new(x1: f32, y1: f32, x2: f32, y2: f32) -> Self {
-        let x_min = x1.min(x2);
-        let x_max = x1.max(x2);
-        let y_min = y1.min(y2);
-        let y_max = y1.max(y2);
-        Self {
-            x_min,
-            y_min,
-            x_max,
-            y_max,
-        }
+        Self { x1, y1, x2, y2 }
     }
 }
 
@@ -251,23 +243,37 @@ pub fn make_railgun_hitbox(buffer: &mut CommandBuffer, x1: f32, y1: f32, x2: f32
 pub fn railgun_intersects(hb: &RailgunHitbox, rect: &IntRect) -> bool {
     let mut t_min = 0.0f32;
     let mut t_max = 1.0f32;
-    let w = hb.x_max - hb.x_min;
-    let h = hb.y_max - hb.y_min;
-    if w == 0.0 {
-        if hb.x_min < rect.x as f32 || hb.x_min > (rect.x + rect.w) as f32 {
-            return false;
+    let w = hb.x2 - hb.x1;
+    let h = hb.y2 - hb.y1;
+    match w.total_cmp(&0.0) {
+        Ordering::Greater => {
+            t_min = t_min.max((rect.x as f32 - hb.x1) / w);
+            t_max = t_max.min(((rect.x + rect.w) as f32 - hb.x1) / w);
         }
-    } else {
-        t_min = t_min.max((rect.x as f32 - hb.x_min) / w);
-        t_max = t_max.min(((rect.x + rect.w) as f32 - hb.x_min) / w);
+        Ordering::Equal => {
+            if hb.x1 < rect.x as f32 || hb.x1 > (rect.x + rect.w) as f32 {
+                return false;
+            }
+        }
+        Ordering::Less => {
+            t_min = t_min.max(((rect.x + rect.w) as f32 - hb.x1) / w);
+            t_max = t_max.min((rect.x as f32 - hb.x1) / w);
+        }
     }
-    if h == 0.0 {
-        if hb.y_min < rect.y as f32 || hb.y_min > (rect.y + rect.h) as f32 {
-            return false;
+    match h.total_cmp(&0.0) {
+        Ordering::Greater => {
+            t_min = t_min.max((rect.y as f32 - hb.y1) / h);
+            t_max = t_max.min(((rect.y + rect.h) as f32 - hb.y1) / h);
         }
-    } else {
-        t_min = t_min.max((rect.y as f32 - hb.y_min) / h);
-        t_max = t_max.min(((rect.y + rect.h) as f32 - hb.y_min) / h);
+        Ordering::Equal => {
+            if hb.y1 < rect.y as f32 || hb.y1 > (rect.y + rect.h) as f32 {
+                return false;
+            }
+        }
+        Ordering::Less => {
+            t_min = t_min.max(((rect.y + rect.h) as f32 - hb.y1) / h);
+            t_max = t_max.min((rect.y as f32 - hb.y1) / h);
+        }
     }
     t_min <= t_max
 }

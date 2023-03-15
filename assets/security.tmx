@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="28" nextobjectid="89">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="28" nextobjectid="90">
  <tileset firstgid="1" source="phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -61,6 +61,9 @@
    <point/>
   </object>
   <object id="88" type="ammo_cells_6" x="-248" y="112">
+   <point/>
+  </object>
+  <object id="89" type="railgun_drone_enemy" x="-248" y="208">
    <point/>
   </object>
  </objectgroup>
