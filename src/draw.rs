@@ -72,6 +72,22 @@ impl ParrotSprite {
     }
 }
 
+pub(crate) struct DroneSprite {
+    pub frame: u8,
+    pub flipped_v: bool,
+    pub flipped_h: bool,
+}
+
+impl DroneSprite {
+    pub fn new() -> Self {
+        Self {
+            frame: 0,
+            flipped_h: false,
+            flipped_v: false,
+        }
+    }
+}
+
 pub(crate) struct PickupSprite {}
 
 impl PickupSprite {
@@ -325,6 +341,42 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
                 },
             );
             gl_use_default_material();
+        }
+    }
+
+    for (_, (rect, spr, hittable)) in world
+        .query::<(&IntRect, &DroneSprite, &EnemyHittable)>()
+        .iter()
+    {
+        if rect.intersects(&camera_rect) {
+            if hittable.was_hit {
+                gl_use_material(assets.flash_material);
+            }
+            draw_texture_ex(
+                assets.drone_sprite,
+                rect.x as f32,
+                rect.y as f32,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(16.0, 16.0)),
+                    source: Some(Rect::new(0.0, 16.0 * spr.frame as f32, 16.0, 16.0)),
+                    ..Default::default()
+                },
+            );
+            gl_use_default_material();
+            draw_texture_ex(
+                assets.drone_sprite,
+                (rect.x + 4) as f32,
+                (rect.y + 4) as f32,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(8.0, 8.0)),
+                    source: Some(Rect::new(0.0, 64.0, 8.0, 8.0)),
+                    flip_x: spr.flipped_h,
+                    flip_y: spr.flipped_v,
+                    ..Default::default()
+                },
+            );
         }
     }
 

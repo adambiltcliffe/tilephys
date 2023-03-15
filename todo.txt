@@ -4,6 +4,7 @@ fix visuals when player crushed
 
 RAILGUN
 -------
+fix completely broken intersection test
 add weapon image
 add enemy that uses it
 minimum firing delay as per misc enhancements below

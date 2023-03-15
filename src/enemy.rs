@@ -3,7 +3,7 @@ use std::convert::TryInto;
 use std::num::NonZeroU8;
 
 use crate::config::config;
-use crate::draw::{DogSprite, ParrotSprite};
+use crate::draw::{DogSprite, DroneSprite, ParrotSprite};
 use crate::physics::{collide_any, Actor, IntRect, PhysicsCoeffs};
 use crate::player::Controller;
 use crate::projectile::{make_enemy_fireball, make_enemy_laser, railgun_intersects, RailgunHitbox};
@@ -50,7 +50,7 @@ pub fn add_enemy(world: &mut World, kind: EnemyKind, x: i32, y: i32) {
             kind,
             DroneBehaviour::new(rect.centre()),
             rect,
-            crate::draw::ColorRect::new(macroquad::color::BEIGE),
+            crate::draw::DroneSprite::new(),
             actor,
             hittable,
             dmg,
@@ -420,8 +420,8 @@ impl DroneBehaviour {
         }
         let player_x = player_x(world, resources.player_id);
         let player_y = player_y(world, resources.player_id);
-        for (id, (actor, beh, rect)) in world
-            .query::<(&mut Actor, &mut DroneBehaviour, &IntRect)>()
+        for (id, (actor, beh, rect, spr)) in world
+            .query::<(&mut Actor, &mut DroneBehaviour, &IntRect, &mut DroneSprite)>()
             .iter()
         {
             let below_rect = IntRect::new(
@@ -453,6 +453,8 @@ impl DroneBehaviour {
                 }
                 DroneFiringState::Ready => {
                     if let (Some(px), Some(py)) = (player_x, player_y) {
+                        spr.flipped_h = px < pos.x;
+                        spr.flipped_v = py < pos.y;
                         let orig = rect.centre();
                         let dest = Vec2::new(px as f32, py as f32);
                         if ray_collision(&*world, &resources.body_index, &orig, &dest).is_none() {
@@ -525,7 +527,8 @@ impl DroneBehaviour {
                         DroneFiringState::Ready
                     }
                 }
-            }
+            };
+            spr.frame = (spr.frame + 1) % 4;
         }
 
         for (id, ret) in world.query::<&Reticule>().iter() {
