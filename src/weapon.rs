@@ -62,7 +62,7 @@ pub fn weapon_sprite_frame(typ: WeaponType) -> usize {
         WeaponType::Shotgun => 3,
         WeaponType::SuperShotgun => 4,
         WeaponType::ReverseShotgun => 5,
-        WeaponType::Railgun => 7,
+        WeaponType::Railgun => 6,
     }
 }
 
@@ -75,7 +75,7 @@ pub fn weapon_v_offset(typ: WeaponType) -> f32 {
         WeaponType::Shotgun => 4.0,
         WeaponType::SuperShotgun => 3.0,
         WeaponType::ReverseShotgun => 1.0,
-        WeaponType::Railgun => 2.0,
+        WeaponType::Railgun => 3.0,
     }
 }
 
