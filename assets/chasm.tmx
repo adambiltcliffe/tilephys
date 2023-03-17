@@ -99,7 +99,7 @@
   <object id="106" name="dogpile_path" x="640" y="336">
    <polyline points="0,0 16,0 16,64"/>
   </object>
-  <object id="111" type="weapon_burst_laser" x="488" y="704">
+  <object id="111" type="weapon_burst_laser" x="480" y="704">
    <point/>
   </object>
   <object id="126" name="up2" x="320" y="416">
