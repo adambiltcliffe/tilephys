@@ -167,11 +167,13 @@ impl ScriptEngine {
     }
 
     pub async fn load_file(&mut self, path: &str) {
-        self.ast = Some(
-            self.engine
-                .compile(load_string(path).await.unwrap())
-                .unwrap(),
-        );
+        match load_string(path).await {
+            Ok(s) => match self.engine.compile(s) {
+                Ok(a) => self.ast = Some(a),
+                Err(e) => warn(&format!("compiling level script failed: {}", e)),
+            },
+            Err(e) => warn(&format!("loading level script failed: {}", e)),
+        }
     }
 
     pub fn call_entry_point(&mut self, name: &str) {

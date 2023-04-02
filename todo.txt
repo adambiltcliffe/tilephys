@@ -10,13 +10,13 @@ minimum firing delay as per misc enhancements below
 
 ERROR HANDLING
 --------------
-to catch at a minimum:
+to catch at a minimum (hard failures):
 * missing resources
 * missing levels.txt
 * missing map file
 * missing tileset
-* missing script file
-* unparseable script file
+* missing script file (currently warning)
+soft failure:
 * script functions called on wrong entity type
 
 MISC ENHANCEMENTS
