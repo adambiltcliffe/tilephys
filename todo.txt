@@ -10,8 +10,6 @@ minimum firing delay as per misc enhancements below
 
 ERROR HANDLING
 --------------
-to catch at a minimum (hard failures):
-* missing script file (currently warning)
 soft failure:
 * script functions called on wrong entity type
 
@@ -27,6 +25,4 @@ optimisations:
 * remove some cloning in PathMotion creation (trivial)
 * resize some render targets and remove some of the +WVDC stuff (???)
 nicer text rendering
-nice script debug output
-better error handling in general
 more general sprite handling?

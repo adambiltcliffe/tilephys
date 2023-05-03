@@ -451,7 +451,7 @@ impl LoadingManager {
             ScriptEngine::new(Arc::clone(&world_ref), Arc::new(ids), Arc::new(paths));
         script_engine
             .load_file(&format!("{}.rhai", info.path))
-            .await;
+            .await?;
         script_engine.call_entry_point("init");
 
         let player_start = (psx, psy);

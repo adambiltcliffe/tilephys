@@ -1,6 +1,7 @@
 use crate::log::warn;
 use crate::physics::{PathMotion, PathMotionType, TileBody};
 use crate::switch::Switch;
+use anyhow::Context;
 use hecs::{Entity, World};
 use macroquad::file::load_string;
 use rhai::packages::{Package, StandardPackage};
@@ -166,14 +167,16 @@ impl ScriptEngine {
         }
     }
 
-    pub async fn load_file(&mut self, path: &str) {
-        match load_string(path).await {
-            Ok(s) => match self.engine.compile(s) {
-                Ok(a) => self.ast = Some(a),
-                Err(e) => warn(&format!("compiling level script failed: {}", e)),
-            },
-            Err(e) => warn(&format!("loading level script failed: {}", e)),
-        }
+    pub async fn load_file(&mut self, path: &str) -> anyhow::Result<()> {
+        let script = load_string(path)
+            .await
+            .with_context(|| format!("Couldn't load script '{}'", path))?;
+        let ast = self
+            .engine
+            .compile(script)
+            .with_context(|| format!("Couldn't compile script '{}'", path))?;
+        self.ast = Some(ast);
+        Ok(())
     }
 
     pub fn call_entry_point(&mut self, name: &str) {
