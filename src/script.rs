@@ -56,37 +56,50 @@ mod script_interface {
     pub fn set_path(this: &mut EntityProxy, path: Path) {
         let mut world = this.world_ref.lock().unwrap();
         let (x, y) = {
-            let body = world.get::<&TileBody>(this.id).unwrap();
-            (body.x as f32, body.y as f32)
+            if let Ok(body) = world.get::<&TileBody>(this.id) {
+                (body.x as f32, body.y as f32)
+            } else {
+                warn("Called set_path on wrong entity type");
+                return;
+            }
         };
         world
             .insert_one(
                 this.id,
                 PathMotion::new(x, y, &path, 0.0, PathMotionType::Static),
             )
-            .unwrap();
+            .unwrap(); // can't error unless we created the entity proxy wrong ourselves
     }
 
     pub fn set_motion(this: &mut EntityProxy, motion_type: PathMotionType, speed: f32) {
         let world = this.world_ref.lock().unwrap();
-        let mut pm = world.get::<&mut PathMotion>(this.id).unwrap(); // fails if no path set
-        pm.motion_type = motion_type;
-        pm.speed = speed;
+        if let Ok(mut pm) = world.get::<&mut PathMotion>(this.id) {
+            pm.motion_type = motion_type;
+            pm.speed = speed;
+        } else {
+            warn("Called set_motion on entity without a path");
+        };
     }
 
     pub fn go_to(this: &mut EntityProxy, index: i32, speed: f32) {
         let world = this.world_ref.lock().unwrap();
-        let mut pm = world.get::<&mut PathMotion>(this.id).unwrap();
-        pm.set_dest_node(index as usize);
-        pm.speed = speed;
+        if let Ok(mut pm) = world.get::<&mut PathMotion>(this.id) {
+            pm.set_dest_node(index as usize);
+            pm.speed = speed;
+        } else {
+            warn("Called go_to on entity without a path");
+        };
     }
 
     // Switch methods
 
     pub fn set_enabled(this: &mut EntityProxy, on: bool) {
         let world = this.world_ref.lock().unwrap();
-        let mut s = world.get::<&mut Switch>(this.id).unwrap(); // fails if not switch
-        s.enabled = on;
+        if let Ok(mut s) = world.get::<&mut Switch>(this.id) {
+            s.enabled = on;
+        } else {
+            warn("Called set_enabled on wrong entity type");
+        };
     }
 
     // Context methods

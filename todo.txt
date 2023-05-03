@@ -8,11 +8,6 @@ add weapon image
 fix drone flight behaviour
 minimum firing delay as per misc enhancements below
 
-ERROR HANDLING
---------------
-soft failure:
-* script functions called on wrong entity type
-
 MISC ENHANCEMENTS
 -----------------
 add minimum firing delay to weapons

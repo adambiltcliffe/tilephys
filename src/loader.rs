@@ -16,7 +16,7 @@ use crate::stats::LevelStats;
 use crate::switch::add_switch;
 use crate::visibility::compute_obscurers;
 use crate::weapon::{new_weapon, AmmoType, WeaponSelectorUI, WeaponType};
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context};
 use bitflags::bitflags;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
