@@ -97,6 +97,7 @@ impl Input {
     pub fn reset(&mut self) {
         self.down.clear();
         self.pressed.clear();
+        self.any_pressed = false;
         while get_char_pressed().is_some() {}
     }
 }

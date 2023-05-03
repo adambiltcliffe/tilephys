@@ -12,7 +12,9 @@ pub fn info(msg: &str) {
 #[cfg(debug_assertions)]
 pub fn warn(msg: &str) {
     let mut c = CONSOLE.lock().unwrap();
-    c.add(msg.to_string(), ConsoleEntryType::Warning);
+    for line in msg.to_string().lines() {
+        c.add(line.to_owned(), ConsoleEntryType::Warning);
+    }
     c.force_visible();
     println!("{}", msg);
 }

@@ -16,6 +16,7 @@ use crate::stats::LevelStats;
 use crate::switch::add_switch;
 use crate::visibility::compute_obscurers;
 use crate::weapon::{new_weapon, AmmoType, WeaponSelectorUI, WeaponType};
+use anyhow::{anyhow, Context, Result};
 use bitflags::bitflags;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
@@ -67,9 +68,10 @@ impl AsyncPreloadReader {
         }
     }
 
-    pub(crate) async fn preload(&mut self, path: &str) {
-        let data = load_file(path).await.unwrap();
+    pub(crate) async fn preload(&mut self, path: &str) -> anyhow::Result<()> {
+        let data = load_file(path).await?;
         self.cache.insert(path.into(), Arc::from(data));
+        Ok(())
     }
 }
 
@@ -96,28 +98,40 @@ impl LoadingManager {
         Self { loader }
     }
 
-    // eventually this should probably not use String as its error type
     pub(crate) async fn load_level(
         &mut self,
         info: &LevelInfo,
         inv: Inventory,
-    ) -> Result<Scene, String> {
+    ) -> anyhow::Result<Scene> {
         let map_name = format!("{}.tmx", info.path).to_owned();
-        self.loader.reader_mut().preload(&map_name).await;
+        self.loader
+            .reader_mut()
+            .preload(&map_name)
+            .await
+            .with_context(|| format!("Couldn't load map '{}'", info.path))?;
 
         let map = loop {
             match self.loader.load_tmx_map(&map_name) {
                 Ok(map) => break map,
-                Err(tiled::Error::ResourceLoadingError { path, err: _ }) => {
-                    if path.as_os_str().to_str().unwrap() == map_name {
-                        return Err("Resource loading error".to_owned());
+                Err(tiled::Error::ResourceLoadingError { path, err }) => {
+                    let p = path.clone();
+                    let decoded_path = p.as_os_str().to_str().context("Couldn't decode path")?;
+                    if decoded_path == map_name {
+                        let e: anyhow::Error =
+                            tiled::Error::ResourceLoadingError { path, err }.into();
+                        return Err(e)
+                            .with_context(|| format!("Couldn't load map '{}'", decoded_path));
                     }
                     self.loader
                         .reader_mut()
-                        .preload(path.as_os_str().to_str().unwrap())
-                        .await;
+                        .preload(decoded_path)
+                        .await
+                        .with_context(|| format!("Couldn't load resource '{}'", decoded_path))?;
                 }
-                Err(other_err) => return Err(other_err.to_string()),
+                Err(other_err) => {
+                    let res: anyhow::Result<Scene> = anyhow::Result::Err(other_err.into());
+                    return res.context("Unknown loading error");
+                }
             }
         };
 
@@ -133,20 +147,19 @@ impl LoadingManager {
         let mut max_secrets = 0;
 
         if map.tilesets().len() != 1 {
-            return Err("map should contain only one tileset".to_owned());
+            return Err(anyhow!("Map should contain only one tileset"));
         }
         let ts = &map.tilesets()[0];
         let texture = load_texture(
             ts.image
                 .as_ref()
-                .ok_or("tileset needs to contain a source filename")?
+                .ok_or(anyhow!("Tileset needs to contain a source filename"))?
                 .source
                 .as_path()
                 .to_str()
-                .unwrap(),
+                .ok_or(anyhow!("Could not decode tileset source path"))?,
         )
-        .await
-        .unwrap();
+        .await?;
         let tiled::Tileset {
             tile_width,
             tile_height,
@@ -486,6 +499,6 @@ impl LoadingManager {
     }
 }
 
-pub async fn load_level(info: LevelInfo, inv: Inventory) -> Result<Scene, String> {
+pub async fn load_level(info: LevelInfo, inv: Inventory) -> anyhow::Result<Scene> {
     LoadingManager::new().load_level(&info, inv).await
 }

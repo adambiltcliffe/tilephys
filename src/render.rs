@@ -138,6 +138,9 @@ impl Renderer {
             Scene::PostLevel(stats, _) => {
                 self.draw_postlevel(stats);
             }
+            Scene::Error(msg) => {
+                self.draw_error(msg);
+            }
         }
 
         profiler.start(Phase::Render);
@@ -291,6 +294,18 @@ impl Renderer {
             16,
             176.0,
         );
+    }
+
+    pub(crate) fn draw_error(&self, msg: &str) {
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            vec2(self.width / 2., self.height / 2.),
+            Origin::TopLeft,
+        ));
+        clear_background(BLACK);
+        self.draw_centred_text("Sorry, princess!", 32, 100.0);
+        self.draw_centred_text(msg, 16, 128.0);
     }
 
     pub fn draw_centred_text(&self, text: &str, size: u16, y: f32) {

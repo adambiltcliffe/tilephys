@@ -13,7 +13,6 @@ ERROR HANDLING
 to catch at a minimum (hard failures):
 * missing resources
 * missing levels.txt
-* missing map file
 * missing tileset
 * missing script file (currently warning)
 soft failure:

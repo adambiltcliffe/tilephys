@@ -6,6 +6,7 @@ use camera::PlayerCamera;
 use enemy::update_enemies;
 use hecs::CommandBuffer;
 use input::Input;
+use log::warn;
 use macroquad::experimental::coroutines::{start_coroutine, stop_all_coroutines};
 use macroquad::prelude::*;
 use physics::{Actor, PathMotion};
@@ -161,10 +162,14 @@ async fn main() {
                     renderer.tick();
                 }
                 if (*fast || renderer.transition_finished()) && coro.is_done() {
-                    assets.next_scene = Some((
-                        coro.retrieve().unwrap().unwrap(),
-                        TransitionEffectType::Open,
-                    ))
+                    let res = coro.retrieve().unwrap();
+                    assets.next_scene = Some(match res {
+                        Ok(scene) => (scene, TransitionEffectType::Open),
+                        Err(e) => {
+                            warn(&format!("{:?}", e));
+                            (Scene::Error(e.to_string()), TransitionEffectType::Shatter)
+                        }
+                    });
                 }
             }
             Scene::PlayLevel(ref mut resources) => {
@@ -293,6 +298,18 @@ async fn main() {
                     let info = assets.get_next_level(&stats.info);
                     assets.next_scene = Some((
                         new_prelevel(info, inv.clone(), false).await,
+                        TransitionEffectType::Shatter,
+                    ));
+                }
+            }
+            Scene::Error(_) => {
+                for _ in 0..clock.get_num_updates() {
+                    renderer.tick();
+                }
+                if input.is_any_pressed() {
+                    // restart the game (will eventually go to title instead of first level)
+                    assets.next_scene = Some((
+                        new_prelevel(assets.get_first_level(), Inventory::new(), false).await,
                         TransitionEffectType::Shatter,
                     ));
                 }
