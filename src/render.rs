@@ -161,6 +161,24 @@ impl Renderer {
         profiler.stop();
     }
 
+    pub(crate) fn render_hard_error(&self, msg: &str) {
+        self.draw_error(msg);
+        // draw the outgoing scene if there is one
+        if let Some((ff, effect)) = &self.transition {
+            gl_use_default_material();
+            set_camera(&get_camera_for_target(
+                &self.draw_target,
+                vec2(self.width / 2., self.height / 2.),
+                Origin::TopLeft,
+            ));
+            effect.draw(&ff.texture);
+        }
+
+        // finally draw to the screen
+        self.render_to_screen();
+        set_default_camera();
+    }
+
     fn render_to_screen(&self) {
         gl_use_default_material();
         let sw = screen_width();

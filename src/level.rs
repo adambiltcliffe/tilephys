@@ -1,3 +1,4 @@
+use anyhow::Context;
 use macroquad::prelude::load_string;
 use std::num::NonZeroUsize;
 
@@ -10,18 +11,20 @@ pub struct LevelInfo {
     pub name: String,
 }
 
-pub async fn load_level_info() -> Vec<LevelInfo> {
-    let raw_level_info = load_string("levels.txt").await.unwrap();
+pub async fn load_level_info() -> anyhow::Result<Vec<LevelInfo>> {
+    let raw_level_info = load_string("levels.txt")
+        .await
+        .context("Couldn't load level index file")?;
     raw_level_info
         .lines()
         .enumerate()
         .map(|(idx, line)| {
             let mut parts = line.splitn(2, ' ');
-            LevelInfo {
+            Ok(LevelInfo {
                 number: NonZeroUsize::new(idx + 1),
-                path: parts.next().unwrap().to_string(),
-                name: parts.next().unwrap().to_string(),
-            }
+                path: parts.next().context("Malformed level index")?.to_string(),
+                name: parts.next().context("Malformed level index")?.to_string(),
+            })
         })
         .collect()
 }

@@ -92,17 +92,29 @@ async fn main() {
     let mut basic_engine = BasicEngine::new();
 
     let coro = start_coroutine(load_assets());
-    let mut result = None;
     let mut loading_frames = 0;
-    while result.is_none() {
+    let assets_result = loop {
         loading_frames += 1;
         if loading_frames > 2 {
             renderer.render_loading();
         }
         next_frame().await;
-        result = coro.retrieve();
-    }
-    let mut assets = result.unwrap();
+        if let Some(res) = coro.retrieve() {
+            break res;
+        }
+    };
+    let mut assets = match assets_result {
+        Err(e) => {
+            // we literally can't do anything if we couldn't load the global assets
+            // apart from display this one screen
+            warn(&format!("{:?}", e));
+            loop {
+                renderer.render_hard_error(&e.to_string());
+                next_frame().await
+            }
+        }
+        Ok(res) => res,
+    };
 
     let info = if argv.len() > 1 {
         assets.get_level_with_path(&argv[1])

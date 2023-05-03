@@ -7,6 +7,7 @@ use crate::script::ScriptEngine;
 use crate::stats::LevelStats;
 use crate::transition::TransitionEffectType;
 use crate::weapon::{AmmoQuantity, AmmoType, Weapon, WeaponSelectorUI, WeaponType};
+use anyhow::Context;
 use enum_map::EnumMap;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
@@ -33,9 +34,9 @@ pub struct GlobalAssets {
     pub next_scene: Option<(Scene, TransitionEffectType)>,
 }
 
-pub async fn load_assets() -> GlobalAssets {
-    let levels = load_level_info().await;
-    GlobalAssets {
+pub async fn load_assets() -> anyhow::Result<GlobalAssets> {
+    let levels = load_level_info().await?;
+    Ok(GlobalAssets {
         sky: load_texture("sky.png").await.unwrap(),
         player_sprite: load_texture("princess.png").await.unwrap(),
         dog_sprite: load_texture("robodog.png").await.unwrap(),
@@ -51,7 +52,7 @@ pub async fn load_assets() -> GlobalAssets {
         flash_material: load_flash_material(),
         levels,
         next_scene: None,
-    }
+    })
 }
 
 pub struct SceneResources {

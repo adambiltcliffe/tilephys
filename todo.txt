@@ -12,8 +12,6 @@ ERROR HANDLING
 --------------
 to catch at a minimum (hard failures):
 * missing resources
-* missing levels.txt
-* missing tileset
 * missing script file (currently warning)
 soft failure:
 * script functions called on wrong entity type
