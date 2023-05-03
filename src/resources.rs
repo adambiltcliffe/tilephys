@@ -34,21 +34,27 @@ pub struct GlobalAssets {
     pub next_scene: Option<(Scene, TransitionEffectType)>,
 }
 
+async fn load_texture(name: &str) -> anyhow::Result<macroquad::texture::Texture2D> {
+    macroquad::texture::load_texture(name)
+        .await
+        .with_context(|| format!("Couldn't load texture '{}'", name))
+}
+
 pub async fn load_assets() -> anyhow::Result<GlobalAssets> {
     let levels = load_level_info().await?;
     Ok(GlobalAssets {
-        sky: load_texture("sky.png").await.unwrap(),
-        player_sprite: load_texture("princess.png").await.unwrap(),
-        dog_sprite: load_texture("robodog.png").await.unwrap(),
-        parrot_sprite: load_texture("spiderparrot.png").await.unwrap(),
-        parrot_sprite2: load_texture("greenparrot.png").await.unwrap(),
-        drone_sprite: load_texture("drone.png").await.unwrap(),
-        pickup_sprite: load_texture("pickup.png").await.unwrap(),
-        switch_sprite: load_texture("switch.png").await.unwrap(),
-        ui_sprite: load_texture("ui-heart.png").await.unwrap(),
-        weapon_sprite: load_texture("weapons.png").await.unwrap(),
-        zap_sprite: load_texture("zap.png").await.unwrap(),
-        interstitial: load_texture("interstitial.png").await.unwrap(),
+        sky: load_texture("sky.png").await?,
+        player_sprite: load_texture("princess.png").await?,
+        dog_sprite: load_texture("robodog.png").await?,
+        parrot_sprite: load_texture("spiderparrot.png").await?,
+        parrot_sprite2: load_texture("greenparrot.png").await?,
+        drone_sprite: load_texture("drone.png").await?,
+        pickup_sprite: load_texture("pickup.png").await?,
+        switch_sprite: load_texture("switch.png").await?,
+        ui_sprite: load_texture("ui-heart.png").await?,
+        weapon_sprite: load_texture("weapons.png").await?,
+        zap_sprite: load_texture("zap.png").await?,
+        interstitial: load_texture("interstitial.png").await?,
         flash_material: load_flash_material(),
         levels,
         next_scene: None,
