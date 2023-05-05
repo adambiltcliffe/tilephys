@@ -1,3 +1,4 @@
+use crate::camera::EyeballState;
 use crate::config::config;
 use crate::draw::PlayerSprite;
 use crate::input::{Input, KeyState, VirtualKey};
@@ -201,6 +202,9 @@ impl Controller {
             if controller.hp == 0 || (player.crushed && !controller.god_mode) {
                 buffer.remove_one::<PlayerSprite>(id);
                 buffer.remove_one::<Controller>(id);
+                if let EyeballState::Tracking(eye_pos) = resources.eye {
+                    resources.eye = EyeballState::Free(eye_pos);
+                }
                 let (px, py) = p_rect.centre_int();
                 create_explosion(buffer, px, py);
                 resources.messages.add("You have died.".to_owned());

@@ -541,6 +541,11 @@ fn move_actor(
     (collided_x, collided_y)
 }
 
+pub fn teleport_actor_unchecked(actor: &mut Actor, dest: &Vec2) {
+    actor.prec_x = dest.x;
+    actor.prec_y = dest.y;
+}
+
 fn move_body(
     world: &World,
     spatial_index: &mut SpatialIndex,

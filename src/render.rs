@@ -1,3 +1,4 @@
+use crate::camera::EyeballState;
 use crate::draw::{draw_sprites, draw_tiles};
 use crate::level::LevelInfo;
 use crate::messages::Messages;
@@ -344,14 +345,6 @@ impl Renderer {
         assets: &GlobalAssets,
         profiler: &mut Profiler,
     ) {
-        profiler.start(Phase::DrawTiles);
-        gl_use_default_material();
-        set_camera(&get_camera_for_target(
-            &self.draw_target,
-            vec2(self.width / 2., self.height / 2.),
-            Origin::TopLeft,
-        ));
-
         let mut world = resources.world_ref.lock().unwrap();
         let (flash, hp) = match world.get::<&Controller>(resources.player_id) {
             Ok(c) => (c.was_hurt(), c.hp),
@@ -361,84 +354,123 @@ impl Renderer {
             clear_background(RED);
             return;
         }
-
-        // draw the sky
-        let wvdc = WALL_VISION_DEPTH.ceil();
-        for x in -1..4 {
-            for y in -1..3 {
-                draw_texture(
-                    assets.sky,
-                    wvdc - (resources.camera_pos.x / PARALLAX_FACTOR) % 128.0 + x as f32 * 128.0,
-                    wvdc - (resources.camera_pos.y / PARALLAX_FACTOR) % 128.0 + y as f32 * 128.0,
-                    WHITE,
-                );
-            }
-        }
-
-        // draw the basic graphics
-        gl_use_default_material();
-        let c = get_camera_for_target(&self.draw_target, resources.camera_pos, Origin::TopLeft);
-        set_camera(&c);
-        draw_tiles(&mut world, resources);
-        set_camera(&c); // complete rendering now so profiling is accurate
-        profiler.start(Phase::DrawSprites);
-        draw_sprites(&mut world, resources, assets);
-        set_default_camera(); // complete rendering now so profiling is accurate
-
-        profiler.start(Phase::DrawEffects);
-        // draw explosions onto an offscreen texture
-        set_camera(&get_camera_for_target(
-            &self.vis_targets[0],
-            resources.camera_pos,
-            Origin::TopLeft,
-        ));
-        clear_background(Color::new(0.0, 0.0, 0.0, 0.0));
-        draw_vfx(&world);
-        // now draw the explosion texture back to the draw target
-        gl_use_material(self.outline_material);
-        set_camera(&get_camera_for_target(
-            &self.draw_target,
-            vec2(self.width / 2., self.height / 2.),
-            Origin::BottomLeft,
-        ));
-        draw_texture(self.vis_targets[0].texture, 0., 0., WHITE);
-        set_default_camera(); // complete rendering now so profiling is accurate
-
-        profiler.start(Phase::DrawVis);
-        // initialise the offscreen texture for jump flood algorithm
-        gl_use_material(self.jfa_init_material);
-        set_camera(&get_camera_for_target(
-            &self.vis_targets[0],
-            resources.camera_pos,
-            Origin::TopLeft,
-        ));
-        draw_rectangle(
-            resources.camera_pos.x - self.width / 2.,
-            resources.camera_pos.y - self.height / 2.,
-            self.width,
-            self.height,
-            WHITE,
-        );
-
-        // draw black shapes from each obscurer into an offscreen texture
-        gl_use_default_material();
-        let e = resources.eye_pos - resources.camera_pos;
-        let r = e.x.max(self.width - e.x).max(e.y).max(self.height - e.y) + 1.;
-        draw_visibility(&world, resources.eye_pos, r);
-
-        let mut current_rt = 1;
-        let mut step_size = 2_u32.pow(WALL_VISION_DEPTH.log2().ceil() as u32);
-        loop {
-            // do the shader pass to process the visibility texture
-            gl_use_material(self.jfa_step_material);
+        if let Some(eye_pos) = match resources.eye {
+            EyeballState::Tracking(p) => Some(p),
+            EyeballState::Free(p) => Some(p),
+            EyeballState::Crushed => None,
+        } {
+            profiler.start(Phase::DrawTiles);
+            gl_use_default_material();
             set_camera(&get_camera_for_target(
-                &self.vis_targets[current_rt],
+                &self.draw_target,
+                vec2(self.width / 2., self.height / 2.),
+                Origin::TopLeft,
+            ));
+
+            // draw the sky
+            let wvdc = WALL_VISION_DEPTH.ceil();
+            for x in -1..4 {
+                for y in -1..3 {
+                    draw_texture(
+                        assets.sky,
+                        wvdc - (resources.camera_pos.x / PARALLAX_FACTOR) % 128.0
+                            + x as f32 * 128.0,
+                        wvdc - (resources.camera_pos.y / PARALLAX_FACTOR) % 128.0
+                            + y as f32 * 128.0,
+                        WHITE,
+                    );
+                }
+            }
+
+            // draw the basic graphics
+            gl_use_default_material();
+            let c = get_camera_for_target(&self.draw_target, resources.camera_pos, Origin::TopLeft);
+            set_camera(&c);
+            draw_tiles(&mut world, resources);
+            set_camera(&c); // complete rendering now so profiling is accurate
+            profiler.start(Phase::DrawSprites);
+            draw_sprites(&mut world, resources, assets);
+            set_default_camera(); // complete rendering now so profiling is accurate
+
+            profiler.start(Phase::DrawEffects);
+            // draw explosions onto an offscreen texture
+            set_camera(&get_camera_for_target(
+                &self.vis_targets[0],
+                resources.camera_pos,
+                Origin::TopLeft,
+            ));
+            clear_background(Color::new(0.0, 0.0, 0.0, 0.0));
+            draw_vfx(&world);
+            // now draw the explosion texture back to the draw target
+            gl_use_material(self.outline_material);
+            set_camera(&get_camera_for_target(
+                &self.draw_target,
                 vec2(self.width / 2., self.height / 2.),
                 Origin::BottomLeft,
             ));
-            // we don't use the actual colour but we use it to encode some other info
-            // easier than setting up custom shader inputs!
-            let c = Color::new(step_size as f32 / 256.0, 0.0, 0.0, 0.0);
+            draw_texture(self.vis_targets[0].texture, 0., 0., WHITE);
+            set_default_camera(); // complete rendering now so profiling is accurate
+
+            profiler.start(Phase::DrawVis);
+            // initialise the offscreen texture for jump flood algorithm
+            gl_use_material(self.jfa_init_material);
+            set_camera(&get_camera_for_target(
+                &self.vis_targets[0],
+                resources.camera_pos,
+                Origin::TopLeft,
+            ));
+            draw_rectangle(
+                resources.camera_pos.x - self.width / 2.,
+                resources.camera_pos.y - self.height / 2.,
+                self.width,
+                self.height,
+                WHITE,
+            );
+
+            // draw black shapes from each obscurer into an offscreen texture
+            gl_use_default_material();
+            let e = eye_pos - resources.camera_pos;
+            let r = e.x.max(self.width - e.x).max(e.y).max(self.height - e.y) + 1.;
+            draw_visibility(&world, eye_pos, r);
+
+            let mut current_rt = 1;
+            let mut step_size = 2_u32.pow(WALL_VISION_DEPTH.log2().ceil() as u32);
+            loop {
+                // do the shader pass to process the visibility texture
+                gl_use_material(self.jfa_step_material);
+                set_camera(&get_camera_for_target(
+                    &self.vis_targets[current_rt],
+                    vec2(self.width / 2., self.height / 2.),
+                    Origin::BottomLeft,
+                ));
+                // we don't use the actual colour but we use it to encode some other info
+                // easier than setting up custom shader inputs!
+                let c = Color::new(step_size as f32 / 256.0, 0.0, 0.0, 0.0);
+                draw_texture_ex(
+                    self.vis_targets[1 - current_rt].texture,
+                    0.,
+                    0.,
+                    c,
+                    DrawTextureParams {
+                        dest_size: Some(vec2(self.width, self.height)),
+                        ..Default::default()
+                    },
+                );
+                if step_size == 1 {
+                    break;
+                }
+                step_size /= 2;
+                current_rt = 1 - current_rt;
+            }
+
+            // draw the visibility texture over the main texture
+            gl_use_material(self.jfa_final_material);
+            set_camera(&get_camera_for_target(
+                &self.draw_target,
+                vec2(self.width / 2., self.height / 2.),
+                Origin::BottomLeft,
+            ));
+            let c = Color::new(WALL_VISION_DEPTH / 128.0, 0.0, 0.0, 0.0);
             draw_texture_ex(
                 self.vis_targets[1 - current_rt].texture,
                 0.,
@@ -449,32 +481,16 @@ impl Renderer {
                     ..Default::default()
                 },
             );
-            if step_size == 1 {
-                break;
-            }
-            step_size /= 2;
-            current_rt = 1 - current_rt;
+            set_default_camera(); // complete rendering now so profiling is accurate
+        } else {
+            // player was crushed to the point where we can't see anything any more
+            set_camera(&get_camera_for_target(
+                &self.draw_target,
+                vec2(self.width / 2., self.height / 2.),
+                Origin::BottomLeft,
+            ));
+            clear_background(BLACK);
         }
-
-        // draw the visibility texture over the main texture
-        gl_use_material(self.jfa_final_material);
-        set_camera(&get_camera_for_target(
-            &self.draw_target,
-            vec2(self.width / 2., self.height / 2.),
-            Origin::BottomLeft,
-        ));
-        let c = Color::new(WALL_VISION_DEPTH / 128.0, 0.0, 0.0, 0.0);
-        draw_texture_ex(
-            self.vis_targets[1 - current_rt].texture,
-            0.,
-            0.,
-            c,
-            DrawTextureParams {
-                dest_size: Some(vec2(self.width, self.height)),
-                ..Default::default()
-            },
-        );
-        set_default_camera(); // complete rendering now so profiling is accurate
 
         profiler.start(Phase::DrawUI);
         // draw text and ui here

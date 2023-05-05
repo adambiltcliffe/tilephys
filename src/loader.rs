@@ -1,4 +1,4 @@
-use crate::camera::add_camera;
+use crate::camera::{add_camera, EyeballState};
 use crate::draw::PlayerSprite;
 use crate::enemy::{add_enemy, EnemyKind, ParrotKind};
 use crate::index::SpatialIndex;
@@ -469,6 +469,7 @@ impl LoadingManager {
 
             (player_id, player_eye, camera_pos)
         };
+        let eye = EyeballState::Tracking(eye_pos);
 
         compute_obscurers(&mut world_ref.lock().unwrap());
 
@@ -482,7 +483,7 @@ impl LoadingManager {
             world_ref,
             script_engine,
             player_id,
-            eye_pos,
+            eye,
             camera_pos,
             draw_order,
             body_index,

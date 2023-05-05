@@ -1,3 +1,4 @@
+use crate::camera::EyeballState;
 use crate::index::SpatialIndex;
 use crate::level::{load_level_info, LevelInfo};
 use crate::messages::Messages;
@@ -65,7 +66,7 @@ pub struct SceneResources {
     pub world_ref: Arc<Mutex<World>>,
     pub script_engine: ScriptEngine,
     pub player_id: Entity,
-    pub eye_pos: Vec2,
+    pub eye: EyeballState,
     pub camera_pos: Vec2,
     pub death_timer: Option<NonZeroU8>,
     pub draw_order: Vec<Entity>,

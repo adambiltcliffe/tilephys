@@ -1,10 +1,5 @@
-BUGFIXES
---------
-fix visuals when player crushed
-
 RAILGUN
 -------
-add weapon image
 fix drone flight behaviour
 minimum firing delay as per misc enhancements below
 
