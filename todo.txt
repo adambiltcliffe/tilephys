@@ -6,7 +6,6 @@ tweak fx (gap between gun and trail)
 
 MISC ENHANCEMENTS
 -----------------
-add minimum firing delay to weapons
 explosion debris (esp. for player)
 more tiles
 

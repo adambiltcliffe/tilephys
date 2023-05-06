@@ -174,6 +174,7 @@ impl Controller {
                     player,
                     p_rect,
                     controller.facing,
+                    controller.fire_timer,
                     fks,
                 ) {
                     controller.fire_timer = 0;

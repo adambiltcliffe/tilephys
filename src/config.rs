@@ -103,5 +103,8 @@ make_config![
     (drone_thrust, "drone_thrust", f32, 0.2),
     (drone_sensor_w, "drone_sensor_w", i32, 48),
     (drone_sensor_h, "drone_sensor_h", i32, 64),
-    (drone_lock_frames, "drone_lock_frames", i32, 20)
+    (drone_lock_frames, "drone_lock_frames", i32, 20),
+    (ft_shotgun, "ft_shotgun", i32, 15),
+    (ft_super_shotgun, "ft_super_shotgun", i32, 20),
+    (ft_railgun, "ft_railgun", i32, 20)
 ];

@@ -140,6 +140,7 @@ pub trait Weapon {
         player: &mut Actor,
         player_rect: &IntRect,
         facing: i8,
+        fire_timer: u32,
         key_state: KeyState,
     ) -> FiringResult;
 }
@@ -170,6 +171,7 @@ impl Weapon for BackupLaser {
         player: &mut Actor,
         player_rect: &IntRect,
         facing: i8,
+        _fire_timer: u32,
         key_state: KeyState,
     ) -> FiringResult {
         if key_state == KeyState::Pressed {
@@ -244,8 +246,12 @@ impl Weapon for Shotgun {
         player: &mut Actor,
         player_rect: &IntRect,
         facing: i8,
+        fire_timer: u32,
         key_state: KeyState,
     ) -> FiringResult {
+        if fire_timer < config().ft_shotgun() as u32 {
+            return FiringResult::No;
+        }
         if key_state == KeyState::Pressed {
             make_shotgun_spray(
                 buffer,
@@ -287,8 +293,12 @@ impl Weapon for SuperShotgun {
         player: &mut Actor,
         player_rect: &IntRect,
         facing: i8,
+        fire_timer: u32,
         key_state: KeyState,
     ) -> FiringResult {
+        if fire_timer < config().ft_super_shotgun() as u32 {
+            return FiringResult::No;
+        }
         if key_state == KeyState::Pressed {
             make_shotgun_spray(
                 buffer,
@@ -331,8 +341,12 @@ impl Weapon for ReverseShotgun {
         player: &mut Actor,
         player_rect: &IntRect,
         facing: i8,
+        fire_timer: u32,
         key_state: KeyState,
     ) -> FiringResult {
+        if fire_timer < config().ft_shotgun() as u32 {
+            return FiringResult::No;
+        }
         if key_state == KeyState::Pressed {
             make_shotgun_spray(
                 buffer,
@@ -377,6 +391,7 @@ impl Weapon for AutoLaser {
         player: &mut Actor,
         player_rect: &IntRect,
         facing: i8,
+        _fire_timer: u32,
         key_state: KeyState,
     ) -> FiringResult {
         if self.delay > 0 {
@@ -423,6 +438,7 @@ impl Weapon for BurstLaser {
         player: &mut Actor,
         player_rect: &IntRect,
         facing: i8,
+        _fire_timer: u32,
         key_state: KeyState,
     ) -> FiringResult {
         if self.delay > 0 {
@@ -470,6 +486,7 @@ impl Weapon for DoubleLaser {
         player: &mut Actor,
         player_rect: &IntRect,
         facing: i8,
+        _fire_timer: u32,
         key_state: KeyState,
     ) -> FiringResult {
         if key_state == KeyState::Pressed {
@@ -511,8 +528,12 @@ impl Weapon for Railgun {
         player: &mut Actor,
         player_rect: &IntRect,
         facing: i8,
+        fire_timer: u32,
         key_state: KeyState,
     ) -> FiringResult {
+        if fire_timer < config().ft_railgun() as u32 {
+            return FiringResult::No;
+        }
         if key_state == KeyState::Pressed {
             let xoff1 = config().rg_xoff1();
             let xoff2 = config().rg_xoff2();
