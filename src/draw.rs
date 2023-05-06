@@ -35,7 +35,7 @@ impl PlayerSprite {
             firing: false,
             flipped: true,
             blink: false,
-            muzzle_flash: 0,
+            muzzle_flash: 100,
         }
     }
 }

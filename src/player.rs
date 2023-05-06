@@ -7,7 +7,9 @@ use crate::pickup::WeaponPickup;
 use crate::resources::SceneResources;
 use crate::switch::Switch;
 use crate::vfx::create_explosion;
-use crate::weapon::{new_weapon, select_fireable_weapon, weapon_name_indef, WeaponType};
+use crate::weapon::{
+    new_weapon, select_fireable_weapon, weapon_name_indef, FiringResult, WeaponType,
+};
 use hecs::{CommandBuffer, Entity};
 use std::collections::{HashMap, HashSet};
 
@@ -165,7 +167,7 @@ impl Controller {
             let n = w.get_ammo_use();
             if resources.ammo[t] >= n {
                 // can fire current weapon, up to the weapon to say if we should
-                if w.update(
+                if let FiringResult::Yes(flash) = w.update(
                     &world,
                     &resources.body_index,
                     buffer,
@@ -175,6 +177,9 @@ impl Controller {
                     fks,
                 ) {
                     controller.fire_timer = 0;
+                    if flash {
+                        sprite.muzzle_flash = 0;
+                    }
                     sprite.firing = true;
                     resources.ammo[t] -= n;
                 }
@@ -189,7 +194,7 @@ impl Controller {
                 }
             }
             controller.fire_timer += 1;
-            sprite.muzzle_flash = controller.fire_timer.min(100) as u8;
+            sprite.muzzle_flash = (sprite.muzzle_flash + 1).min(100);
             if controller.fire_timer > 5 {
                 sprite.firing = false;
             }

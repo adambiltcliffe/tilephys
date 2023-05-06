@@ -13,6 +13,11 @@ use macroquad::math::Vec2;
 use std::collections::VecDeque;
 use std::sync::MutexGuard;
 
+pub enum FiringResult {
+    No,
+    Yes(bool),
+}
+
 // eventually there will be variants whose names don't end in "...Laser"
 #[allow(clippy::enum_variant_names)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
@@ -136,7 +141,7 @@ pub trait Weapon {
         player_rect: &IntRect,
         facing: i8,
         key_state: KeyState,
-    ) -> bool;
+    ) -> FiringResult;
 }
 
 struct BackupLaser {}
@@ -166,15 +171,15 @@ impl Weapon for BackupLaser {
         player_rect: &IntRect,
         facing: i8,
         key_state: KeyState,
-    ) -> bool {
+    ) -> FiringResult {
         if key_state == KeyState::Pressed {
             let new_x = player_rect.x + 3 + facing as i32 * 9;
             let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
             make_player_projectile(buffer, rect, facing as f32 * 10.0);
             player.vx -= facing as f32 * config().recoil();
-            return true;
+            return FiringResult::Yes(true);
         }
-        false
+        FiringResult::No
     }
 }
 
@@ -240,7 +245,7 @@ impl Weapon for Shotgun {
         player_rect: &IntRect,
         facing: i8,
         key_state: KeyState,
-    ) -> bool {
+    ) -> FiringResult {
         if key_state == KeyState::Pressed {
             make_shotgun_spray(
                 buffer,
@@ -251,9 +256,9 @@ impl Weapon for Shotgun {
                 5.0,
             );
             player.vx -= facing as f32 * config().recoil();
-            return true;
+            return FiringResult::Yes(false);
         }
-        false
+        FiringResult::No
     }
 }
 struct SuperShotgun {}
@@ -283,7 +288,7 @@ impl Weapon for SuperShotgun {
         player_rect: &IntRect,
         facing: i8,
         key_state: KeyState,
-    ) -> bool {
+    ) -> FiringResult {
         if key_state == KeyState::Pressed {
             make_shotgun_spray(
                 buffer,
@@ -294,9 +299,9 @@ impl Weapon for SuperShotgun {
                 10.0,
             );
             player.vx -= facing as f32 * config().recoil() * 2.0;
-            return true;
+            return FiringResult::Yes(false);
         }
-        false
+        FiringResult::No
     }
 }
 
@@ -327,7 +332,7 @@ impl Weapon for ReverseShotgun {
         player_rect: &IntRect,
         facing: i8,
         key_state: KeyState,
-    ) -> bool {
+    ) -> FiringResult {
         if key_state == KeyState::Pressed {
             make_shotgun_spray(
                 buffer,
@@ -338,9 +343,9 @@ impl Weapon for ReverseShotgun {
                 5.0,
             );
             player.vx += facing as f32 * config().recoil();
-            return true;
+            return FiringResult::Yes(false);
         }
-        false
+        FiringResult::No
     }
 }
 
@@ -373,7 +378,7 @@ impl Weapon for AutoLaser {
         player_rect: &IntRect,
         facing: i8,
         key_state: KeyState,
-    ) -> bool {
+    ) -> FiringResult {
         if self.delay > 0 {
             self.delay -= 1
         }
@@ -383,9 +388,9 @@ impl Weapon for AutoLaser {
             make_player_projectile(buffer, rect, facing as f32 * 10.0);
             player.vx -= facing as f32 * config().recoil();
             self.delay = 3;
-            return true;
+            return FiringResult::Yes(true);
         }
-        false
+        FiringResult::No
     }
 }
 
@@ -419,7 +424,7 @@ impl Weapon for BurstLaser {
         player_rect: &IntRect,
         facing: i8,
         key_state: KeyState,
-    ) -> bool {
+    ) -> FiringResult {
         if self.delay > 0 {
             self.delay -= 1
         }
@@ -430,12 +435,12 @@ impl Weapon for BurstLaser {
             player.vx -= facing as f32 * config().recoil();
             self.delay = 2;
             self.shots += 1;
-            return true;
+            return FiringResult::Yes(true);
         }
         if key_state == KeyState::NotPressed {
             self.shots = 0;
         }
-        false
+        FiringResult::No
     }
 }
 
@@ -466,7 +471,7 @@ impl Weapon for DoubleLaser {
         player_rect: &IntRect,
         facing: i8,
         key_state: KeyState,
-    ) -> bool {
+    ) -> FiringResult {
         if key_state == KeyState::Pressed {
             let new_x = player_rect.x + 3 + facing as i32 * 9;
             let rect = IntRect::new(new_x, player_rect.y + 8, 8, 5);
@@ -474,9 +479,9 @@ impl Weapon for DoubleLaser {
             let rect = IntRect::new(new_x, player_rect.y + 14, 8, 5);
             make_player_projectile(buffer, rect, facing as f32 * 10.0);
             player.vx -= facing as f32 * config().recoil();
-            return true;
+            return FiringResult::Yes(true);
         }
-        false
+        FiringResult::No
     }
 }
 
@@ -507,7 +512,7 @@ impl Weapon for Railgun {
         player_rect: &IntRect,
         facing: i8,
         key_state: KeyState,
-    ) -> bool {
+    ) -> FiringResult {
         if key_state == KeyState::Pressed {
             let xoff1 = config().rg_xoff1();
             let xoff2 = config().rg_xoff2();
@@ -527,9 +532,9 @@ impl Weapon for Railgun {
                 make_railgun_trail(buffer, orig.x, orig.y, dest.x, dest.y);
             }
             player.vx -= facing as f32 * config().recoil();
-            return true;
+            return FiringResult::Yes(true);
         }
-        false
+        FiringResult::No
     }
 }
 
