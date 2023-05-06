@@ -1,7 +1,6 @@
 RAILGUN
 -------
 fix drone flight behaviour
-minimum firing delay as per misc enhancements below
 tweak fx (gap between gun and trail)
 
 MISC ENHANCEMENTS
