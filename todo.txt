@@ -12,7 +12,6 @@ INVISIBLE ENHANCEMENTS
 ----------------------
 optimisations:
 * investigate speeding up move_body (not currently high impact)
-* trivial optimisation of projectile::find_collision_pos (low impact)
 * remove some cloning in PathMotion creation (trivial)
 * resize some render targets and remove some of the +WVDC stuff (???)
 more general sprite handling?

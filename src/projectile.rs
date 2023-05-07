@@ -1,14 +1,13 @@
 use crate::config::config;
 use crate::draw::ZapSprite;
 use crate::enemy::EnemyHittable;
-use crate::physics::collide_any;
-use crate::physics::IntRect;
+use crate::physics::{collide_any, find_collision_pos, IntRect};
 use crate::player::Controller;
 use crate::resources::SceneResources;
 use crate::vfx::Explosion;
 use crate::vfx::FireballEffect;
 use crate::vfx::ZapFlash;
-use hecs::{CommandBuffer, World};
+use hecs::CommandBuffer;
 use std::cmp::Ordering;
 
 pub struct DamageEnemies {}
@@ -47,12 +46,12 @@ impl Projectile {
             if collide_any(&world, &resources.body_index, rect) {
                 buffer.despawn(e);
                 if world.satisfies::<&LaserImpact>(e).unwrap_or(false) {
-                    let (x, y) = find_collision_pos(&world, resources, ox, oy, rect);
+                    let (x, y) = find_collision_pos(rect, ox, oy, &world, &resources.body_index);
                     let sx = if proj.vx > 0.0 { x + rect.w - 1 } else { x };
                     buffer.spawn((ZapFlash::new_from_centre(sx, y + 2),));
                 }
                 if world.satisfies::<&FireballSplit>(e).unwrap_or(false) {
-                    let (x, y) = find_collision_pos(&world, resources, ox, oy, rect);
+                    let (x, y) = find_collision_pos(rect, ox, oy, &world, &resources.body_index);
                     spawn_mini_fireballs(buffer, x + 8, y + 8);
                 }
             }
@@ -145,33 +144,6 @@ fn spawn_mini_fireballs(buffer: &mut CommandBuffer, x: i32, y: i32) {
         make_enemy_fireball(buffer, rect.clone(), a.cos() * 2.0, a.sin() * 2.0, false);
         a += std::f32::consts::TAU / std::f32::consts::E;
     }
-}
-
-fn find_collision_pos(
-    world: &World,
-    resources: &SceneResources,
-    ox: i32,
-    oy: i32,
-    rect: &IntRect,
-) -> (i32, i32) {
-    // this function can be slow as it's only called to generate the vfx when a projectile hits a wall
-    // but it should be better than this because there is already code to do this more efficiently elsewhere!
-    let mut r = rect.clone();
-    let dx = (ox - r.x).signum();
-    while r.x != ox {
-        r.x += dx;
-        if !collide_any(world, &resources.body_index, &r) {
-            return (r.x, r.y);
-        }
-    }
-    let dy = (oy - r.y).signum();
-    while r.y != oy {
-        r.y += dy;
-        if !collide_any(world, &resources.body_index, &r) {
-            return (r.x, r.y);
-        }
-    }
-    (r.x, r.y)
 }
 
 pub fn make_player_laser(buffer: &mut CommandBuffer, rect: IntRect, vx: f32, vy: f32) {

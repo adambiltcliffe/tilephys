@@ -457,6 +457,84 @@ pub fn collide_any(world: &World, body_index: &SpatialIndex, rect: &IntRect) -> 
     })
 }
 
+// this duplicates move_actor somewhat, could maybe be refactored
+pub fn find_collision_pos(
+    rect: &IntRect,
+    ox: i32,
+    oy: i32,
+    world: &World,
+    body_index: &SpatialIndex,
+) -> (i32, i32) {
+    let blockers = body_index.entities(&motion_rect(rect, ox, oy));
+    println!("{}", blockers.len());
+    let mut col_rect = IntRect::new(ox, oy, rect.w, rect.h);
+    let mut collided = false;
+    match rect.x.cmp(&col_rect.x) {
+        Ordering::Less => {
+            // handle moving left
+            let mut d = col_rect.x - rect.x;
+            for id in blockers.iter() {
+                d = d.min(
+                    world
+                        .get::<&TileBody>(*id)
+                        .unwrap()
+                        .collide_dist_left(&col_rect, d),
+                );
+            }
+            col_rect.x -= d;
+            collided = true;
+        }
+        Ordering::Equal => (),
+        Ordering::Greater => {
+            // handle moving right
+            let mut d = rect.x - col_rect.x;
+            for id in blockers.iter() {
+                d = d.min(
+                    world
+                        .get::<&TileBody>(*id)
+                        .unwrap()
+                        .collide_dist_right(&col_rect, d),
+                );
+            }
+            col_rect.x += d;
+            collided = true;
+        }
+    }
+    if collided {
+        return (col_rect.x, col_rect.y);
+    }
+    match rect.y.cmp(&col_rect.y) {
+        Ordering::Less => {
+            // handle moving up
+            let mut d = col_rect.y - rect.y;
+            for id in blockers.iter() {
+                d = d.min(
+                    world
+                        .get::<&TileBody>(*id)
+                        .unwrap()
+                        .collide_dist_up(&col_rect, d),
+                );
+            }
+            col_rect.y -= d;
+        }
+        Ordering::Equal => (),
+        Ordering::Greater => {
+            // handle moving down
+            let mut d = rect.y - col_rect.y;
+            for id in blockers.iter() {
+                d = d.min(
+                    world
+                        .get::<&TileBody>(*id)
+                        .unwrap()
+                        .collide_dist_down(&col_rect, d),
+                );
+            }
+            col_rect.y += d;
+        }
+    }
+    return (col_rect.x, col_rect.y);
+}
+
 fn move_actor(
     actor: &mut Actor,
     rect: &mut IntRect,
