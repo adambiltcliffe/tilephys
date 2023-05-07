@@ -3,7 +3,7 @@ use crate::index::SpatialIndex;
 use crate::input::KeyState;
 use crate::physics::{collide_any, Actor, IntRect};
 use crate::projectile::{
-    make_player_projectile, make_railgun_hitbox, DamageEnemies, Projectile, ProjectileDrag,
+    make_player_laser, make_railgun_hitbox, DamageEnemies, Projectile, ProjectileDrag,
 };
 use crate::ray::ray_collision;
 use crate::vfx::{make_railgun_trail, FireballEffect, SmokeParticle};
@@ -177,7 +177,7 @@ impl Weapon for BackupLaser {
         if key_state == KeyState::Pressed {
             let new_x = player_rect.x + 3 + facing as i32 * 9;
             let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
-            make_player_projectile(buffer, rect, facing as f32 * 10.0);
+            make_player_laser(buffer, rect, facing as f32 * 10.0, 0.0);
             player.vx -= facing as f32 * config().recoil();
             return FiringResult::Yes(true);
         }
@@ -400,7 +400,7 @@ impl Weapon for AutoLaser {
         if key_state != KeyState::NotPressed && self.delay == 0 {
             let new_x = player_rect.x + 3 + facing as i32 * 9;
             let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
-            make_player_projectile(buffer, rect, facing as f32 * 10.0);
+            make_player_laser(buffer, rect, facing as f32 * 10.0, 0.0);
             player.vx -= facing as f32 * config().recoil();
             self.delay = 3;
             return FiringResult::Yes(true);
@@ -447,7 +447,7 @@ impl Weapon for BurstLaser {
         if key_state != KeyState::NotPressed && self.delay == 0 && self.shots < 3 {
             let new_x = player_rect.x + 3 + facing as i32 * 9;
             let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
-            make_player_projectile(buffer, rect, facing as f32 * 10.0);
+            make_player_laser(buffer, rect, facing as f32 * 10.0, 0.0);
             player.vx -= facing as f32 * config().recoil();
             self.delay = 2;
             self.shots += 1;
@@ -492,9 +492,9 @@ impl Weapon for DoubleLaser {
         if key_state == KeyState::Pressed {
             let new_x = player_rect.x + 3 + facing as i32 * 9;
             let rect = IntRect::new(new_x, player_rect.y + 8, 8, 5);
-            make_player_projectile(buffer, rect, facing as f32 * 10.0);
+            make_player_laser(buffer, rect, facing as f32 * 99.0_f32.sqrt(), -1.0);
             let rect = IntRect::new(new_x, player_rect.y + 14, 8, 5);
-            make_player_projectile(buffer, rect, facing as f32 * 10.0);
+            make_player_laser(buffer, rect, facing as f32 * 99.0_f32.sqrt(), 1.0);
             player.vx -= facing as f32 * config().recoil();
             return FiringResult::Yes(true);
         }

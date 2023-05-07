@@ -174,8 +174,8 @@ fn find_collision_pos(
     (r.x, r.y)
 }
 
-pub fn make_player_projectile(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
-    let proj = Projectile::new(&rect, vx, 0.0);
+pub fn make_player_laser(buffer: &mut CommandBuffer, rect: IntRect, vx: f32, vy: f32) {
+    let proj = Projectile::new(&rect, vx, vy);
     buffer.spawn((
         rect,
         ZapSprite::new(),
