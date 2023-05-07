@@ -3,7 +3,8 @@ use crate::index::SpatialIndex;
 use crate::input::KeyState;
 use crate::physics::{collide_any, Actor, IntRect};
 use crate::projectile::{
-    make_player_laser, make_railgun_hitbox, DamageEnemies, Projectile, ProjectileDrag,
+    make_player_fireball, make_player_laser, make_railgun_hitbox, DamageEnemies, Projectile,
+    ProjectileDrag,
 };
 use crate::ray::ray_collision;
 use crate::vfx::{make_railgun_trail, FireballEffect, SmokeParticle};
@@ -509,11 +510,12 @@ impl Weapon for DoubleLaser {
 
 struct ValkyrieLaser {
     delay: u8,
+    count: u8,
 }
 
 impl ValkyrieLaser {
     fn new() -> Self {
-        Self { delay: 0 }
+        Self { delay: 0, count: 0 }
     }
 }
 
@@ -547,12 +549,20 @@ impl Weapon for ValkyrieLaser {
             let max_vy = config().valkyrie_max_vy();
             let vy = quad_rand::gen_range::<f32>(0.0, max_vy);
             let vx = (100.0_f32 - vy.powf(2.0)).sqrt();
-            make_player_laser(buffer, rect, facing as f32 * vx, vy);
-            let recoil = config().recoil() / 10.0;
+            if self.count % 3 == 1 {
+                make_player_fireball(buffer, rect, facing as f32 * vx * 0.5, vy);
+            } else {
+                make_player_laser(buffer, rect, facing as f32 * vx, vy);
+            }
+            let recoil = config().recoil() / 15.0;
             player.vx -= facing as f32 * recoil * vx;
-            player.vy -= recoil * (vy / max_vy) + 2.5;
-            self.delay = 3;
+            player.vy -= recoil * (vy / max_vy) + config().valkyrie_lift();
+            self.delay = 2;
+            self.count += 1;
             return FiringResult::Yes(true);
+        }
+        if key_state == KeyState::NotPressed {
+            self.count = 0;
         }
         FiringResult::No
     }

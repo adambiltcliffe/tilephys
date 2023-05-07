@@ -168,6 +168,11 @@ pub fn make_enemy_laser(buffer: &mut CommandBuffer, rect: IntRect, vx: f32) {
     ));
 }
 
+pub fn make_player_fireball(buffer: &mut CommandBuffer, rect: IntRect, vx: f32, vy: f32) {
+    let proj = Projectile::new(&rect, vx, vy);
+    buffer.spawn((rect, FireballEffect::new(4.0), proj, DamageEnemies {}));
+}
+
 pub fn make_enemy_fireball(
     buffer: &mut CommandBuffer,
     rect: IntRect,

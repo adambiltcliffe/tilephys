@@ -107,5 +107,6 @@ make_config![
     (ft_shotgun, "ft_shotgun", i32, 15),
     (ft_super_shotgun, "ft_super_shotgun", i32, 20),
     (ft_railgun, "ft_railgun", i32, 20),
-    (valkyrie_max_vy, "valkyrie_max_vy", f32, 6.0)
+    (valkyrie_max_vy, "valkyrie_max_vy", f32, 6.0),
+    (valkyrie_lift, "valkyrie_lift", f32, 1.75)
 ];
