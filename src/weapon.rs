@@ -26,6 +26,7 @@ pub enum WeaponType {
     BurstLaser,
     AutoLaser,
     DoubleLaser,
+    ValkyrieLaser,
     Shotgun,
     SuperShotgun,
     ReverseShotgun,
@@ -38,6 +39,7 @@ pub fn weapon_name(typ: WeaponType) -> &'static str {
         WeaponType::AutoLaser => "auto-laser",
         WeaponType::BurstLaser => "burst laser",
         WeaponType::DoubleLaser => "double laser",
+        WeaponType::ValkyrieLaser => "Valkyrie laser",
         WeaponType::Shotgun => "shotgun",
         WeaponType::SuperShotgun => "super shotgun",
         WeaponType::ReverseShotgun => "reverse shotgun",
@@ -51,6 +53,7 @@ pub fn weapon_name_indef(typ: WeaponType) -> &'static str {
         WeaponType::AutoLaser => "an auto-laser",
         WeaponType::BurstLaser => "a burst laser",
         WeaponType::DoubleLaser => "a double laser",
+        WeaponType::ValkyrieLaser => "a Valkyrie laser",
         WeaponType::Shotgun => "a shotgun",
         WeaponType::SuperShotgun => "a super shotgun",
         WeaponType::ReverseShotgun => "the reverse shotgun",
@@ -64,6 +67,7 @@ pub fn weapon_sprite_frame(typ: WeaponType) -> usize {
         WeaponType::AutoLaser => 2,
         WeaponType::BurstLaser => 1,
         WeaponType::DoubleLaser => 7,
+        WeaponType::ValkyrieLaser => 7,
         WeaponType::Shotgun => 3,
         WeaponType::SuperShotgun => 4,
         WeaponType::ReverseShotgun => 5,
@@ -77,6 +81,7 @@ pub fn weapon_v_offset(typ: WeaponType) -> f32 {
         WeaponType::AutoLaser => 3.0,
         WeaponType::BurstLaser => 3.0,
         WeaponType::DoubleLaser => 2.0,
+        WeaponType::ValkyrieLaser => 2.0,
         WeaponType::Shotgun => 4.0,
         WeaponType::SuperShotgun => 3.0,
         WeaponType::ReverseShotgun => 1.0,
@@ -502,6 +507,57 @@ impl Weapon for DoubleLaser {
     }
 }
 
+struct ValkyrieLaser {
+    delay: u8,
+}
+
+impl ValkyrieLaser {
+    fn new() -> Self {
+        Self { delay: 0 }
+    }
+}
+
+impl Weapon for ValkyrieLaser {
+    fn get_type(&self) -> WeaponType {
+        WeaponType::ValkyrieLaser
+    }
+    fn get_ammo_type(&self) -> AmmoType {
+        AmmoType::Cell
+    }
+    fn get_ammo_use(&self) -> AmmoQuantity {
+        1
+    }
+    fn update(
+        &mut self,
+        _world: &MutexGuard<World>,
+        _body_index: &SpatialIndex,
+        buffer: &mut CommandBuffer,
+        player: &mut Actor,
+        player_rect: &IntRect,
+        facing: i8,
+        _fire_timer: u32,
+        key_state: KeyState,
+    ) -> FiringResult {
+        if self.delay > 0 {
+            self.delay -= 1
+        }
+        if key_state != KeyState::NotPressed && self.delay == 0 {
+            let new_x = player_rect.x + 3 + facing as i32 * 9;
+            let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
+            let max_vy = config().valkyrie_max_vy();
+            let vy = quad_rand::gen_range::<f32>(0.0, max_vy);
+            let vx = (100.0_f32 - vy.powf(2.0)).sqrt();
+            make_player_laser(buffer, rect, facing as f32 * vx, vy);
+            let recoil = config().recoil() / 10.0;
+            player.vx -= facing as f32 * recoil * vx;
+            player.vy -= recoil * (vy / max_vy) + 2.5;
+            self.delay = 3;
+            return FiringResult::Yes(true);
+        }
+        FiringResult::No
+    }
+}
+
 struct Railgun {}
 
 impl Railgun {
@@ -565,6 +621,7 @@ pub fn new_weapon(typ: WeaponType) -> Box<dyn Weapon> {
         WeaponType::AutoLaser => Box::new(AutoLaser::new()),
         WeaponType::BurstLaser => Box::new(BurstLaser::new()),
         WeaponType::DoubleLaser => Box::new(DoubleLaser::new()),
+        WeaponType::ValkyrieLaser => Box::new(ValkyrieLaser::new()),
         WeaponType::Shotgun => Box::new(Shotgun::new()),
         WeaponType::SuperShotgun => Box::new(SuperShotgun::new()),
         WeaponType::ReverseShotgun => Box::new(ReverseShotgun::new()),

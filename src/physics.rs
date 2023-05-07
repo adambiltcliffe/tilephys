@@ -466,7 +466,6 @@ pub fn find_collision_pos(
     body_index: &SpatialIndex,
 ) -> (i32, i32) {
     let blockers = body_index.entities(&motion_rect(rect, ox, oy));
-    println!("{}", blockers.len());
     let mut col_rect = IntRect::new(ox, oy, rect.w, rect.h);
     let mut collided = false;
     match rect.x.cmp(&col_rect.x) {

@@ -44,7 +44,7 @@
   <object id="79" type="weapon_super_shotgun" x="-88" y="48">
    <point/>
   </object>
-  <object id="75" type="weapon_auto_laser" x="-184" y="48">
+  <object id="75" type="weapon_valkyrie_laser" x="-184" y="48">
    <point/>
   </object>
   <object id="76" type="weapon_double_laser" x="-152" y="48">

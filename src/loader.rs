@@ -384,6 +384,15 @@ impl LoadingManager {
                                         properties.contains_key("gravity"),
                                     );
                                     max_items += 1;
+                                } else if obj_type == "weapon_valkyrie_laser" {
+                                    add_weapon(
+                                        &mut world,
+                                        *x as i32,
+                                        *y as i32,
+                                        WeaponType::ValkyrieLaser,
+                                        properties.contains_key("gravity"),
+                                    );
+                                    max_items += 1;
                                 } else if obj_type == "weapon_auto_laser" {
                                     add_weapon(
                                         &mut world,
