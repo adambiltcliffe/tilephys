@@ -116,13 +116,12 @@ async fn main() {
         Ok(res) => res,
     };
 
-    let info = if argv.len() > 1 {
-        assets.get_level_with_path(&argv[1])
+    let mut scene: Scene = if argv.len() > 1 {
+        let info = assets.get_level_with_path(&argv[1]);
+        new_prelevel(info, Inventory::new(), false).await
     } else {
-        assets.get_first_level()
+        Scene::Title(0)
     };
-
-    let mut scene: Scene = new_prelevel(info, Inventory::new(), false).await;
 
     loop {
         match assets.next_scene {
@@ -169,6 +168,19 @@ async fn main() {
         }
 
         match &mut scene {
+            Scene::Title(ref mut frames) => {
+                for _ in 0..clock.get_num_updates() {
+                    renderer.tick();
+                }
+                *frames = (*frames + 1) % 128;
+                if input.is_any_pressed() {
+                    let info = assets.get_first_level();
+                    assets.next_scene = Some((
+                        new_prelevel(info, Inventory::new(), false).await,
+                        TransitionEffectType::Shatter,
+                    ));
+                }
+            }
             Scene::PreLevel(_n, coro, fast) => {
                 for _ in 0..clock.get_num_updates() {
                     renderer.tick();

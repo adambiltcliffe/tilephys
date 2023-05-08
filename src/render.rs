@@ -130,6 +130,9 @@ impl Renderer {
     ) {
         // draw the current scene
         match scene {
+            Scene::Title(frames) => {
+                self.draw_title(*frames, assets);
+            }
             Scene::PreLevel(n, _, _) => {
                 self.draw_prelevel(n, assets);
             }
@@ -231,6 +234,28 @@ impl Renderer {
             WHITE,
         );
         self.render_to_screen();
+    }
+
+    pub(crate) fn draw_title(&self, frames: u8, assets: &GlobalAssets) {
+        gl_use_default_material();
+        set_camera(&get_camera_for_target(
+            &self.draw_target,
+            vec2(self.width / 2., self.height / 2.),
+            Origin::TopLeft,
+        ));
+        let wvdc = WALL_VISION_DEPTH.ceil();
+        for x in 0..3 {
+            for y in 0..3 {
+                draw_texture(
+                    assets.sky,
+                    wvdc + x as f32 * 128.0,
+                    wvdc + y as f32 * 128.0 - frames as f32,
+                    WHITE,
+                );
+            }
+        }
+        draw_texture(assets.title, wvdc, wvdc, WHITE);
+        self.draw_centred_text("Press any key", 16, 166.0 + wvdc);
     }
 
     pub(crate) fn draw_prelevel(&self, level_info: &LevelInfo, assets: &GlobalAssets) {

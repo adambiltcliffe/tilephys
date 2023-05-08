@@ -17,6 +17,7 @@ use std::num::NonZeroU8;
 use std::sync::{Arc, Mutex};
 
 pub struct GlobalAssets {
+    pub title: Texture2D,
     pub sky: Texture2D,
     pub player_sprite: Texture2D,
     pub dog_sprite: Texture2D,
@@ -44,6 +45,7 @@ async fn load_texture(name: &str) -> anyhow::Result<macroquad::texture::Texture2
 pub async fn load_assets() -> anyhow::Result<GlobalAssets> {
     let levels = load_level_info().await?;
     Ok(GlobalAssets {
+        title: load_texture("title.png").await?,
         sky: load_texture("sky.png").await?,
         player_sprite: load_texture("princess.png").await?,
         dog_sprite: load_texture("robodog.png").await?,

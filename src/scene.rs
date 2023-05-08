@@ -4,8 +4,8 @@ use crate::resources::Inventory;
 use crate::{resources::SceneResources, stats::LevelStats};
 use macroquad::experimental::coroutines::{start_coroutine, Coroutine};
 
-// eventually there will be variants whose names don't end in "...Level"
 pub enum Scene {
+    Title(u8),
     PreLevel(LevelInfo, Coroutine<anyhow::Result<Scene>>, bool),
     PlayLevel(SceneResources),
     PostLevel(LevelStats, Inventory),
