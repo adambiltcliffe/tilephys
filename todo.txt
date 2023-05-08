@@ -1,3 +1,14 @@
+THREE-LEVEL DEMO
+----------------
+Title screen
+Level map for level 3 (with big moving geometry)
+Finish railgun
+Omnifuel
+Omnifuel weapons x2
+Sound
+Music
+Boss
+
 RAILGUN
 -------
 fix drone flight behaviour
