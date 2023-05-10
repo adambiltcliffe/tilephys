@@ -244,17 +244,32 @@ impl Renderer {
             Origin::TopLeft,
         ));
         let wvdc = WALL_VISION_DEPTH.ceil();
-        for x in 0..3 {
-            for y in 0..3 {
+        for x in 0..4 {
+            for y in 0..2 {
                 draw_texture(
                     assets.sky,
-                    wvdc + x as f32 * 128.0,
-                    wvdc + y as f32 * 128.0 - frames as f32,
+                    wvdc + x as f32 * 128.0 - frames as f32,
+                    wvdc + y as f32 * 128.0,
                     WHITE,
                 );
             }
         }
-        draw_texture(assets.title, wvdc, wvdc, WHITE);
+        //draw_texture(assets.title, wvdc, wvdc, WHITE);
+        let frame_y = 24.0 * (frames % 2) as f32;
+        draw_texture_ex(
+            assets.player_sprite,
+            156.0 + wvdc,
+            128.0 + wvdc,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(16.0, 24.0)),
+                source: Some(Rect::new(0.0, frame_y, 16.0, 24.0)),
+                flip_x: true,
+                ..Default::default()
+            },
+        );
+        self.draw_centred_text("PRINCESS", 64, 36.0 + wvdc);
+        self.draw_centred_text("ROBOT", 64, 88.0 + wvdc);
         self.draw_centred_text("Press any key", 16, 166.0 + wvdc);
     }
 
