@@ -178,76 +178,8 @@ impl LoadingManager {
         for layer in map.layers() {
             match layer.layer_type() {
                 tiled::LayerType::Tiles(tiled::TileLayer::Infinite(layer_data)) => {
-                    let (xmin, xmax, ymin, ymax) = layer_data.chunks().fold(
-                        (i32::MAX, i32::MIN, i32::MAX, i32::MIN),
-                        |(x0, x1, y0, y1), ((x, y), _)| {
-                            (x0.min(x), x1.max(x), y0.min(y), y1.max(y))
-                        },
-                    );
-                    const W: i32 = tiled::ChunkData::WIDTH as i32;
-                    const H: i32 = tiled::ChunkData::HEIGHT as i32;
-                    let (mut x0, mut x1, mut y0, mut y1) = (i32::MAX, i32::MIN, i32::MAX, i32::MIN);
-                    for y in ymin * H..(ymax + 1) * H {
-                        for x in xmin * W..(xmax + 1) * W {
-                            if layer_data.get_tile(x, y).is_some() {
-                                x0 = x0.min(x);
-                                x1 = x1.max(x);
-                                y0 = y0.min(y);
-                                y1 = y1.max(y);
-                            }
-                        }
-                    }
-                    let mut data = Vec::new();
-                    let mut tiles = Vec::new();
-                    let mut solid = 0;
-                    let mut not_solid = 0;
-                    for y in y0..=y1 {
-                        for x in x0..=x1 {
-                            let t = layer_data.get_tile(x, y);
-                            let td = match t {
-                                None => TileFlags::empty(),
-                                Some(ltd) => {
-                                    // if map parsing is ever slow, we could cache this per tile
-                                    let t = ltd.get_tile().unwrap();
-                                    if t.properties.contains_key("background") {
-                                        not_solid += 1;
-                                        TileFlags::VISIBLE
-                                    } else if t.properties.contains_key("transparent") {
-                                        solid += 1;
-                                        TileFlags::BLOCKER | TileFlags::VISIBLE
-                                    } else if t.properties.contains_key("platform") {
-                                        solid += 1;
-                                        TileFlags::PLATFORM | TileFlags::VISIBLE
-                                    } else {
-                                        solid += 1;
-                                        TileFlags::BLOCKER
-                                            | TileFlags::VISIBLE
-                                            | TileFlags::OBSCURER
-                                    }
-                                }
-                            };
-                            data.push(td);
-                            tiles.push(t.map(|t| t.id() as u16).unwrap_or(0));
-                        }
-                    }
-                    let door = layer.properties.contains_key("door");
-                    let indexed = solid > 0;
-                    if solid > 0 && solid < not_solid {
-                        warn(&format!(
-                            "Warning: layer {} has {} solid tiles and {} background tiles so must be indexed",
-                            layer.name, solid, not_solid
-                        ));
-                    }
-                    let body = TileBody::new(
-                        x0 * map.tile_width as i32,
-                        y0 * map.tile_height as i32,
-                        tileset_info.tile_width as i32,
-                        (x1 - x0) + 1,
-                        data,
-                        tiles,
-                        door,
-                        indexed,
-                    );
+                    let body = body_from_layer_data(layer_data, &layer, &map, &tileset_info);
+                    let indexed = body.indexed;
                     let rect = body.get_rect();
                     let id = world.spawn((body,));
                     ids.insert(layer.name.clone(), id);
@@ -507,6 +439,80 @@ impl LoadingManager {
         };
         Ok(Scene::PlayLevel(resources))
     }
+}
+
+fn body_from_layer_data(
+    layer_data: tiled::InfiniteTileLayer,
+    layer: &tiled::Layer,
+    map: &tiled::Map,
+    tsi: &TilesetInfo,
+) -> TileBody {
+    let (xmin, xmax, ymin, ymax) = layer_data.chunks().fold(
+        (i32::MAX, i32::MIN, i32::MAX, i32::MIN),
+        |(x0, x1, y0, y1), ((x, y), _)| (x0.min(x), x1.max(x), y0.min(y), y1.max(y)),
+    );
+    const W: i32 = tiled::ChunkData::WIDTH as i32;
+    const H: i32 = tiled::ChunkData::HEIGHT as i32;
+    let (mut x0, mut x1, mut y0, mut y1) = (i32::MAX, i32::MIN, i32::MAX, i32::MIN);
+    for y in ymin * H..(ymax + 1) * H {
+        for x in xmin * W..(xmax + 1) * W {
+            if layer_data.get_tile(x, y).is_some() {
+                x0 = x0.min(x);
+                x1 = x1.max(x);
+                y0 = y0.min(y);
+                y1 = y1.max(y);
+            }
+        }
+    }
+    let mut data = Vec::new();
+    let mut tiles = Vec::new();
+    let mut solid = 0;
+    let mut not_solid = 0;
+    for y in y0..=y1 {
+        for x in x0..=x1 {
+            let t = layer_data.get_tile(x, y);
+            let td = match t {
+                None => TileFlags::empty(),
+                Some(ltd) => {
+                    // if map parsing is ever slow, we could cache this per tile
+                    let t = ltd.get_tile().unwrap();
+                    if t.properties.contains_key("background") {
+                        not_solid += 1;
+                        TileFlags::VISIBLE
+                    } else if t.properties.contains_key("transparent") {
+                        solid += 1;
+                        TileFlags::BLOCKER | TileFlags::VISIBLE
+                    } else if t.properties.contains_key("platform") {
+                        solid += 1;
+                        TileFlags::PLATFORM | TileFlags::VISIBLE
+                    } else {
+                        solid += 1;
+                        TileFlags::BLOCKER | TileFlags::VISIBLE | TileFlags::OBSCURER
+                    }
+                }
+            };
+            data.push(td);
+            tiles.push(t.map(|t| t.id() as u16).unwrap_or(0));
+        }
+    }
+    let door = layer.properties.contains_key("door");
+    let indexed = solid > 0;
+    if solid > 0 && solid < not_solid {
+        warn(&format!(
+            "Warning: layer {} has {} solid tiles and {} background tiles so must be indexed",
+            layer.name, solid, not_solid
+        ));
+    }
+    TileBody::new(
+        x0 * map.tile_width as i32,
+        y0 * map.tile_height as i32,
+        tsi.tile_width as i32,
+        (x1 - x0) + 1,
+        data,
+        tiles,
+        door,
+        indexed,
+    )
 }
 
 pub async fn load_level(info: LevelInfo, inv: Inventory) -> anyhow::Result<Scene> {
