@@ -258,8 +258,8 @@ impl Renderer {
         let frame_y = 24.0 * (frames % 2) as f32;
         draw_texture_ex(
             assets.player_sprite,
-            156.0 + wvdc,
-            128.0 + wvdc,
+            196.0 + wvdc,
+            138.0 + wvdc,
             WHITE,
             DrawTextureParams {
                 dest_size: Some(vec2(16.0, 24.0)),
@@ -268,9 +268,9 @@ impl Renderer {
                 ..Default::default()
             },
         );
-        self.draw_centred_text("PRINCESS", 64, 36.0 + wvdc);
-        self.draw_centred_text("ROBOT", 64, 88.0 + wvdc);
-        self.draw_centred_text("Press any key", 16, 166.0 + wvdc);
+        draw_text("PRINCESS", wvdc + 3.0, wvdc + 30.0, 48.0, WHITE);
+        draw_text("ROBOT", wvdc + 3.0, wvdc + 60.0, 48.0, WHITE);
+        draw_text("Press any key", wvdc + 5.0, 156.0 + wvdc, 16.0, WHITE);
     }
 
     pub(crate) fn draw_prelevel(&self, level_info: &LevelInfo, assets: &GlobalAssets) {
