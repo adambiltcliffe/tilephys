@@ -1,6 +1,6 @@
 use crate::camera::{add_camera, EyeballState};
 use crate::draw::PlayerSprite;
-use crate::enemy::{add_enemy, EnemyKind, ParrotKind};
+use crate::enemy::{add_boss, add_enemy, EnemyKind, ParrotKind};
 use crate::index::SpatialIndex;
 use crate::level::LevelInfo;
 use crate::log::{info as log_info, warn};
@@ -273,6 +273,9 @@ impl LoadingManager {
                                     max_kills += 1;
                                 } else if obj_type == "railgun_drone_enemy" {
                                     add_enemy(&mut world, EnemyKind::Drone, *x as i32, *y as i32);
+                                    max_kills += 1;
+                                } else if obj_type == "parrot_boss" {
+                                    add_boss(&mut world, *x as i32, *y as i32);
                                     max_kills += 1;
                                 } else if obj_type == "heart" {
                                     add_heart(&mut world, *x as i32, *y as i32);

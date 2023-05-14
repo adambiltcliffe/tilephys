@@ -540,11 +540,84 @@ impl DroneBehaviour {
     }
 }
 
+struct ParrotBossBehaviour {
+    feet: [Entity; 4],
+}
+
+pub fn add_boss(world: &mut World, x: i32, y: i32) {
+    let mut feet_vec = Vec::new();
+    for i in 0..4 {
+        let fx = x - 48 + i * 32;
+        let rect = IntRect::new(fx - 8, y - 16, 16, 16);
+        let actor = Actor::new(&rect, PhysicsCoeffs::Actor);
+        let hp = 20;
+        let hittable = EnemyHittable::new(hp);
+        let dmg = EnemyContactDamage::new();
+        feet_vec.push(world.spawn((
+            rect,
+            crate::draw::ColorRect::new(GREEN),
+            actor,
+            hittable,
+            dmg,
+        )));
+    }
+    let boss = ParrotBossBehaviour {
+        feet: [feet_vec[0], feet_vec[1], feet_vec[2], feet_vec[3]],
+    };
+    let rect = IntRect::new(x - 32, y - 32, 64, 32);
+    let actor = Actor::new(&rect, PhysicsCoeffs::Flyer);
+    let hp = 20;
+    let hittable = EnemyHittable::new(hp);
+    let dmg = EnemyContactDamage::new();
+    world.spawn((
+        boss,
+        rect,
+        crate::draw::ColorRect::new(RED),
+        actor,
+        hittable,
+        dmg,
+    ));
+}
+
+impl ParrotBossBehaviour {
+    fn update(world: &World) {
+        for (_, (actor, beh, rect)) in world
+            .query::<(&mut Actor, &mut ParrotBossBehaviour, &IntRect)>()
+            .iter()
+        {
+            let mut fx = 0.0;
+            let mut fy = 0.0;
+            for f_id in beh.feet {
+                let f_rect = world.get::<&IntRect>(f_id).unwrap();
+                let c = f_rect.centre();
+                fx += c.x;
+                fy += c.y;
+            }
+            let targ_x = fx / 4.0;
+            let targ_y = fy / 4.0 - 96.0;
+            let rc = rect.centre();
+            actor.vx = (actor.vx + ((targ_x - rc.x) / 3.0).max(-4.0).min(4.0));
+            actor.vy = (actor.vy + ((targ_y - rc.y) / 3.0).max(-4.0).min(4.0));
+            actor.vx = if actor.vx.abs() < 1.0 {
+                0.0
+            } else {
+                actor.vx * 0.9
+            };
+            actor.vy = if actor.vy.abs() < 1.0 {
+                0.0
+            } else {
+                actor.vy * 0.9
+            };
+        }
+    }
+}
+
 pub fn update_enemies(resources: &mut SceneResources, buffer: &mut CommandBuffer) {
     let world = resources.world_ref.lock().unwrap();
     DogBehaviour::update(&world, resources);
     ParrotBehaviour::update(&world, resources, buffer);
     DroneBehaviour::update(&world, resources, buffer);
+    ParrotBossBehaviour::update(&world);
 
     for (id, (actor, rect, kind, hittable)) in world
         .query::<(&Actor, &IntRect, &EnemyKind, &mut EnemyHittable)>()

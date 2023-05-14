@@ -168,7 +168,10 @@ impl TileBody {
             while possible_dist < max_dist {
                 for kx in min_kx..=max_kx {
                     let index = ky * self.width + kx;
-                    if index < self.data.len() as i32 && self.data[index as usize].is_blocker() {
+                    if index >= 0
+                        && index < self.data.len() as i32
+                        && self.data[index as usize].is_blocker()
+                    {
                         return possible_dist;
                     }
                 }
