@@ -540,14 +540,22 @@ impl DroneBehaviour {
     }
 }
 
-struct ParrotBossBehaviour {
-    feet: [Entity; 4],
+pub struct ParrotBossBehaviour {
+    pub feet: [Entity; 4], // pub so we can find the feet to draw them
+    foot_timer: u8,
+    current_foot: u8,
+    foot_dx: f32,
+    foot_dy: f32,
+}
+
+fn foot_offset(foot_index: u8) -> i32 {
+    foot_index as i32 * 32 - 48
 }
 
 pub fn add_boss(world: &mut World, x: i32, y: i32) {
     let mut feet_vec = Vec::new();
-    for i in 0..4 {
-        let fx = x - 48 + i * 32;
+    for i in 0u8..4 {
+        let fx = x + foot_offset(i);
         let rect = IntRect::new(fx - 8, y - 16, 16, 16);
         let actor = Actor::new(&rect, PhysicsCoeffs::Actor);
         let hp = 20;
@@ -563,6 +571,10 @@ pub fn add_boss(world: &mut World, x: i32, y: i32) {
     }
     let boss = ParrotBossBehaviour {
         feet: [feet_vec[0], feet_vec[1], feet_vec[2], feet_vec[3]],
+        foot_timer: 0,
+        current_foot: 0,
+        foot_dx: 0.0,
+        foot_dy: 0.0,
     };
     let rect = IntRect::new(x - 32, y - 32, 64, 32);
     let actor = Actor::new(&rect, PhysicsCoeffs::Flyer);
@@ -580,13 +592,51 @@ pub fn add_boss(world: &mut World, x: i32, y: i32) {
 }
 
 impl ParrotBossBehaviour {
-    fn update(world: &World) {
+    fn update(world: &World, resources: &SceneResources) {
         for (_, (actor, beh, rect)) in world
             .query::<(&mut Actor, &mut ParrotBossBehaviour, &IntRect)>()
             .iter()
         {
+            let c = rect.centre();
+            let target_x = match player_x(world, resources.player_id) {
+                Some(x) => x.min(c.x + 10.0).max(c.x - 10.0),
+                None => c.x,
+            };
             let mut fx = 0.0;
             let mut fy = 0.0;
+            beh.foot_timer += 1;
+            if beh.foot_timer > 30 {
+                let next_foot = (beh.current_foot + 1) % 4;
+                let ent = world.entity(beh.feet[next_foot as usize]).unwrap();
+                let mut nfa = ent.get::<&mut Actor>().unwrap();
+                let nfar = ent.get::<&IntRect>().unwrap();
+                if nfa.grounded {
+                    nfa.coeffs = PhysicsCoeffs::Static;
+                    let target_pos = target_x + foot_offset(next_foot) as f32;
+                    beh.foot_dx = (target_pos - nfar.centre().x) / std::f32::consts::PI / 4.0;
+                    beh.foot_dy = -2.0;
+                    if beh.foot_dx.abs() < 0.2 {
+                        beh.foot_dx = 0.0;
+                        beh.foot_dy = 0.0;
+                    }
+                    drop(nfa);
+                    drop(nfar);
+                    let mut cfa = world
+                        .get::<&mut Actor>(beh.feet[beh.current_foot as usize])
+                        .unwrap();
+                    cfa.coeffs = PhysicsCoeffs::Actor;
+                    beh.foot_timer = 0;
+                    beh.current_foot = next_foot;
+                }
+            }
+            {
+                let mut f_actor = world
+                    .get::<&mut Actor>(beh.feet[beh.current_foot as usize])
+                    .unwrap();
+                let a = beh.foot_timer as f32 / 30.0 * std::f32::consts::PI;
+                f_actor.vx = a.sin() * beh.foot_dx;
+                f_actor.vy = a.cos() * beh.foot_dy;
+            }
             for f_id in beh.feet {
                 let f_rect = world.get::<&IntRect>(f_id).unwrap();
                 let c = f_rect.centre();
@@ -596,9 +646,9 @@ impl ParrotBossBehaviour {
             let targ_x = fx / 4.0;
             let targ_y = fy / 4.0 - 96.0;
             let rc = rect.centre();
-            actor.vx = (actor.vx + ((targ_x - rc.x) / 3.0).max(-4.0).min(4.0));
-            actor.vy = (actor.vy + ((targ_y - rc.y) / 3.0).max(-4.0).min(4.0));
-            actor.vx = if actor.vx.abs() < 1.0 {
+            actor.vx = actor.vx + ((targ_x - rc.x) / 3.0).max(-4.0).min(4.0);
+            actor.vy = actor.vy + ((targ_y - rc.y) / 3.0).max(-4.0).min(4.0);
+            actor.vx = if actor.vx.abs() < 0.5 {
                 0.0
             } else {
                 actor.vx * 0.9
@@ -617,7 +667,7 @@ pub fn update_enemies(resources: &mut SceneResources, buffer: &mut CommandBuffer
     DogBehaviour::update(&world, resources);
     ParrotBehaviour::update(&world, resources, buffer);
     DroneBehaviour::update(&world, resources, buffer);
-    ParrotBossBehaviour::update(&world);
+    ParrotBossBehaviour::update(&world, resources);
 
     for (id, (actor, rect, kind, hittable)) in world
         .query::<(&Actor, &IntRect, &EnemyKind, &mut EnemyHittable)>()

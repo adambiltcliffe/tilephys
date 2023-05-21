@@ -1,5 +1,5 @@
 use crate::config::config;
-use crate::enemy::{EnemyHittable, ParrotKind, Reticule};
+use crate::enemy::{EnemyHittable, ParrotBossBehaviour, ParrotKind, Reticule};
 use crate::physics::{IntRect, TileBody};
 use crate::pickup::{Pickup, PickupType, WeaponPickup};
 use crate::resources::{GlobalAssets, SceneResources};
@@ -164,6 +164,28 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
         crate::RENDER_W as i32 + 128,
         crate::RENDER_H as i32 + 128,
     );
+
+    for (_, (rect, beh)) in world.query::<(&IntRect, &ParrotBossBehaviour)>().iter() {
+        let leg_squared = config().boss_leg_length().powf(2.0);
+        let c = rect.centre();
+        for i in 0..4 {
+            let foot_rect = world.get::<&IntRect>(beh.feet[i]).unwrap();
+            let f = foot_rect.centre();
+            let ct = Vec2::new(c.x + i as f32 * 8.0 - 12.0, c.y + 8.0);
+            let hv = (f - ct) / 2.0;
+            let mut perp = hv.perp().normalize();
+            if i > 1 {
+                perp *= -1.0
+            }
+            let pl = (leg_squared - hv.length_squared()).sqrt();
+            let mut knee = hv;
+            if !pl.is_nan() {
+                knee += perp * pl
+            }
+            draw_line(ct.x, ct.y, (ct + knee).x, (ct + knee).y, 4.0, GRAY);
+            draw_line(f.x, f.y, (ct + knee).x, (ct + knee).y, 4.0, GRAY);
+        }
+    }
 
     for (_, (rect, draw)) in world.query::<(&IntRect, &ColorRect)>().iter() {
         if rect.intersects(&camera_rect) {
