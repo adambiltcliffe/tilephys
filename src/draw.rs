@@ -170,7 +170,7 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
         let c = rect.centre();
         for i in 0..4 {
             let foot_rect = world.get::<&IntRect>(beh.feet[i]).unwrap();
-            let f = foot_rect.centre();
+            let f = foot_rect.centre() - vec2(0.0, 4.0);
             let ct = Vec2::new(c.x + i as f32 * 8.0 - 12.0, c.y + 8.0);
             let hv = (f - ct) / 2.0;
             let mut perp = hv.perp().normalize();
@@ -184,6 +184,26 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
             }
             draw_line(ct.x, ct.y, (ct + knee).x, (ct + knee).y, 4.0, GRAY);
             draw_line(f.x, f.y, (ct + knee).x, (ct + knee).y, 4.0, GRAY);
+            draw_texture_ex(
+                assets.boss_sprites,
+                (ct + knee).x.round() - 4.0,
+                (ct + knee).y.round() - 4.0,
+                WHITE,
+                DrawTextureParams {
+                    source: Some(Rect::new(16.0, 16.0, 8.0, 8.0)),
+                    ..Default::default()
+                },
+            );
+            draw_texture_ex(
+                assets.boss_sprites,
+                foot_rect.x as f32,
+                foot_rect.y as f32,
+                WHITE,
+                DrawTextureParams {
+                    source: Some(Rect::new(16.0, 0.0, 8.0, 16.0)),
+                    ..Default::default()
+                },
+            );
         }
     }
 

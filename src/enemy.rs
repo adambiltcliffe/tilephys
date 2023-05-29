@@ -543,36 +543,35 @@ impl DroneBehaviour {
 pub struct ParrotBossBehaviour {
     pub feet: [Entity; 4], // pub so we can find the feet to draw them
     foot_timer: u8,
-    current_foot: u8,
+    current_foot: i8,
+    cycle_dir: i8,
     foot_dx: f32,
     foot_dy: f32,
 }
 
-fn foot_offset(foot_index: u8) -> i32 {
+fn foot_offset(foot_index: i8) -> i32 {
     foot_index as i32 * 32 - 48
 }
 
 pub fn add_boss(world: &mut World, x: i32, y: i32) {
     let mut feet_vec = Vec::new();
-    for i in 0u8..4 {
+    for i in 0i8..4 {
         let fx = x + foot_offset(i);
-        let rect = IntRect::new(fx - 8, y - 16, 16, 16);
+        let rect = IntRect::new(fx - 4, y - 16, 8, 16);
         let actor = Actor::new(&rect, PhysicsCoeffs::Actor);
         let hp = 20;
         let hittable = EnemyHittable::new(hp);
         let dmg = EnemyContactDamage::new();
         feet_vec.push(world.spawn((
-            rect,
-            crate::draw::ColorRect::new(GREEN),
-            actor,
-            hittable,
-            dmg,
+            rect, //crate::draw::ColorRect::new(GREEN),
+            actor, hittable, dmg,
         )));
     }
     let boss = ParrotBossBehaviour {
         feet: [feet_vec[0], feet_vec[1], feet_vec[2], feet_vec[3]],
         foot_timer: 0,
         current_foot: 0,
+        cycle_dir: 1,
         foot_dx: 0.0,
         foot_dy: 0.0,
     };
@@ -602,11 +601,12 @@ impl ParrotBossBehaviour {
                 Some(x) => x.min(c.x + 10.0).max(c.x - 10.0),
                 None => c.x,
             };
+            beh.cycle_dir = if c.x > target_x { -1 } else { 1 };
             let mut fx = 0.0;
             let mut fy = 0.0;
             beh.foot_timer += 1;
             if beh.foot_timer > 30 {
-                let next_foot = (beh.current_foot + 1) % 4;
+                let next_foot = (beh.current_foot + beh.cycle_dir).rem_euclid(4);
                 let ent = world.entity(beh.feet[next_foot as usize]).unwrap();
                 let mut nfa = ent.get::<&mut Actor>().unwrap();
                 let nfar = ent.get::<&IntRect>().unwrap();
