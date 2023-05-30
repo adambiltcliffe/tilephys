@@ -541,12 +541,24 @@ impl DroneBehaviour {
 }
 
 pub struct ParrotBossBehaviour {
-    pub feet: [Entity; 4], // pub so we can find the feet to draw them
+    heads: [Entity; 6],
+    pub feet: [Entity; 4], // pub so we can find the feet to draw the legs
     foot_timer: u8,
     current_foot: i8,
     cycle_dir: i8,
     foot_dx: f32,
     foot_dy: f32,
+    angle: f32,
+    angle_v: f32,
+    spin_timer: u8,
+}
+
+fn head_offset(head_index: i8, angle: f32) -> (i32, i32) {
+    let a = angle + std::f32::consts::TAU / 6.0 * (head_index as f32);
+    (
+        (a.cos() * 16.0).round() as i32,
+        (a.sin() * 16.0).round() as i32,
+    )
 }
 
 fn foot_offset(foot_index: i8) -> i32 {
@@ -554,6 +566,22 @@ fn foot_offset(foot_index: i8) -> i32 {
 }
 
 pub fn add_boss(world: &mut World, x: i32, y: i32) {
+    let mut heads_vec = Vec::new();
+    for i in 0i8..6 {
+        let (hx, hy) = head_offset(i, 0.0);
+        let rect = IntRect::new(hx - 8, hy - 8, 16, 16);
+        //let actor = Actor::new(&rect, PhysicsCoeffs::Static);
+        let hp = 7;
+        let hittable = EnemyHittable::new(hp);
+        let dmg = EnemyContactDamage::new();
+        heads_vec.push(world.spawn((
+            rect,
+            crate::draw::ColorRect::new(YELLOW),
+            //actor,
+            hittable,
+            dmg,
+        )));
+    }
     let mut feet_vec = Vec::new();
     for i in 0i8..4 {
         let fx = x + foot_offset(i);
@@ -567,13 +595,25 @@ pub fn add_boss(world: &mut World, x: i32, y: i32) {
             actor, hittable, dmg,
         )));
     }
+
     let boss = ParrotBossBehaviour {
+        heads: [
+            heads_vec[0],
+            heads_vec[1],
+            heads_vec[2],
+            heads_vec[3],
+            heads_vec[4],
+            heads_vec[5],
+        ],
         feet: [feet_vec[0], feet_vec[1], feet_vec[2], feet_vec[3]],
         foot_timer: 0,
         current_foot: 0,
         cycle_dir: 1,
         foot_dx: 0.0,
         foot_dy: 0.0,
+        angle: 0.0,
+        angle_v: 0.0,
+        spin_timer: 0,
     };
     let rect = IntRect::new(x - 32, y - 32, 64, 32);
     let actor = Actor::new(&rect, PhysicsCoeffs::Flyer);
@@ -602,9 +642,30 @@ impl ParrotBossBehaviour {
                 None => c.x,
             };
             beh.cycle_dir = if c.x > target_x { -1 } else { 1 };
+            // make sure we don't change cycle_dir in mid spin if it will mess stuff up
+            beh.spin_timer += 1;
+            if beh.spin_timer < 10 {
+                beh.angle_v += 0.1 * beh.cycle_dir as f32;
+            } else if beh.spin_timer < 40 {
+                beh.angle_v *= 0.9;
+            } else if beh.spin_timer < 120 {
+                let pi_by_3 = std::f32::consts::PI / 3.0;
+                let snap = (beh.angle / pi_by_3).round() * pi_by_3;
+                beh.angle += (snap - beh.angle) * 0.2;
+                beh.angle_v *= 0.9;
+            } else {
+                beh.spin_timer = 0;
+            }
+            beh.angle += beh.angle_v;
+            for (idx, h_id) in beh.heads.iter().enumerate() {
+                let mut f_rect = world.get::<&mut IntRect>(*h_id).unwrap();
+                let (hx, hy) = head_offset(idx as i8, beh.angle);
+                f_rect.x = c.x as i32 - f_rect.w / 2 + hx;
+                f_rect.y = c.y as i32 - f_rect.h / 2 + hy - 8;
+            }
             let mut fx = 0.0;
             let mut fy = 0.0;
-            beh.foot_timer += 1;
+            beh.foot_timer = beh.foot_timer.saturating_add(1);
             if beh.foot_timer > 30 {
                 let next_foot = (beh.current_foot + beh.cycle_dir).rem_euclid(4);
                 let ent = world.entity(beh.feet[next_foot as usize]).unwrap();
