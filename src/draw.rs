@@ -88,6 +88,14 @@ impl DroneSprite {
     }
 }
 
+pub(crate) struct ParrotHeadSprite {}
+
+impl ParrotHeadSprite {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 pub(crate) struct PickupSprite {}
 
 impl PickupSprite {
@@ -165,13 +173,40 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
         crate::RENDER_H as i32 + 128,
     );
 
+    for (_, (rect, draw)) in world.query::<(&IntRect, &ColorRect)>().iter() {
+        if rect.intersects(&camera_rect) {
+            draw_rectangle(
+                rect.x as f32,
+                rect.y as f32,
+                rect.w as f32,
+                rect.h as f32,
+                draw.color,
+            );
+        }
+    }
+
+    for (_, (rect, _spr)) in world.query::<(&IntRect, &ParrotHeadSprite)>().iter() {
+        if rect.intersects(&camera_rect) {
+            draw_texture_ex(
+                assets.boss_sprites,
+                rect.x as f32,
+                rect.y as f32,
+                WHITE,
+                DrawTextureParams {
+                    source: Some(Rect::new(0.0, 32.0, 16.0, 16.0)),
+                    ..Default::default()
+                },
+            );
+        }
+    }
+
     for (_, (rect, beh)) in world.query::<(&IntRect, &ParrotBossBehaviour)>().iter() {
         let leg_squared = config().boss_leg_length().powf(2.0);
         let c = rect.centre();
         for i in 0..4 {
             let foot_rect = world.get::<&IntRect>(beh.feet[i]).unwrap();
             let f = foot_rect.centre() - vec2(0.0, 4.0);
-            let ct = Vec2::new(c.x + i as f32 * 8.0 - 12.0, c.y + 8.0);
+            let ct = Vec2::new(c.x + i as f32 * 8.0 - 12.0, c.y);
             let hv = (f - ct) / 2.0;
             let mut perp = hv.perp().normalize();
             if i > 1 {
@@ -190,7 +225,7 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
                 (ct + knee).y.round() - 4.0,
                 WHITE,
                 DrawTextureParams {
-                    source: Some(Rect::new(16.0, 16.0, 8.0, 8.0)),
+                    source: Some(Rect::new(16.0, 48.0, 8.0, 8.0)),
                     ..Default::default()
                 },
             );
@@ -200,23 +235,26 @@ pub(crate) fn draw_sprites(world: &mut World, resources: &SceneResources, assets
                 foot_rect.y as f32,
                 WHITE,
                 DrawTextureParams {
-                    source: Some(Rect::new(16.0, 0.0, 8.0, 16.0)),
+                    source: Some(Rect::new(16.0, 32.0, 8.0, 16.0)),
                     ..Default::default()
                 },
             );
         }
-    }
-
-    for (_, (rect, draw)) in world.query::<(&IntRect, &ColorRect)>().iter() {
-        if rect.intersects(&camera_rect) {
-            draw_rectangle(
-                rect.x as f32,
-                rect.y as f32,
-                rect.w as f32,
-                rect.h as f32,
-                draw.color,
-            );
+        for i in 0..6 {
+            let head_rect = world.get::<&IntRect>(beh.heads[i]).unwrap();
+            let h = head_rect.centre();
+            draw_line(c.x, c.y - 17.0, h.x, h.y + 3.0, 4.0, GRAY);
         }
+        draw_texture_ex(
+            assets.boss_sprites,
+            rect.x as f32,
+            rect.y as f32 - 12.0,
+            WHITE,
+            DrawTextureParams {
+                source: Some(Rect::new(0.0, 0.0, 64.0, 32.0)),
+                ..Default::default()
+            },
+        );
     }
 
     for (_, (rect, sw, _spr)) in world.query::<(&IntRect, &Switch, &SwitchSprite)>().iter() {

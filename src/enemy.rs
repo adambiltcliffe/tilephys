@@ -13,6 +13,8 @@ use crate::vfx::{create_explosion, create_smoke_cloud, make_railgun_trail};
 use hecs::{CommandBuffer, Entity, World};
 use macroquad::prelude::*;
 
+const FRAC_2_SQRT_3: f32 = 1.1547005177; // one over sin(60)
+
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum EnemyKind {
     Dog,
@@ -541,8 +543,8 @@ impl DroneBehaviour {
 }
 
 pub struct ParrotBossBehaviour {
-    heads: [Entity; 6],
-    pub feet: [Entity; 4], // pub so we can find the feet to draw the legs
+    pub heads: [Entity; 6], // pub so we can draw the necks
+    pub feet: [Entity; 4],  // pub so we can find the feet to draw the legs
     foot_timer: u8,
     current_foot: i8,
     cycle_dir: i8,
@@ -556,8 +558,8 @@ pub struct ParrotBossBehaviour {
 fn head_offset(head_index: i8, angle: f32) -> (i32, i32) {
     let a = angle + std::f32::consts::TAU / 6.0 * (head_index as f32);
     (
-        (a.cos() * 16.0).round() as i32,
-        (a.sin() * 16.0).round() as i32,
+        (a.cos() * 16.0).round() as i32 + 24,
+        ((a.sin() * 16.0).round() * FRAC_2_SQRT_3) as i32 - 16,
     )
 }
 
@@ -569,18 +571,12 @@ pub fn add_boss(world: &mut World, x: i32, y: i32) {
     let mut heads_vec = Vec::new();
     for i in 0i8..6 {
         let (hx, hy) = head_offset(i, 0.0);
-        let rect = IntRect::new(hx - 8, hy - 8, 16, 16);
-        //let actor = Actor::new(&rect, PhysicsCoeffs::Static);
+        let rect = IntRect::new(hx + x, hy + y - 12, 16, 12);
+        let spr = crate::draw::ParrotHeadSprite::new();
         let hp = 7;
         let hittable = EnemyHittable::new(hp);
         let dmg = EnemyContactDamage::new();
-        heads_vec.push(world.spawn((
-            rect,
-            crate::draw::ColorRect::new(YELLOW),
-            //actor,
-            hittable,
-            dmg,
-        )));
+        heads_vec.push(world.spawn((rect, spr, hittable, dmg)));
     }
     let mut feet_vec = Vec::new();
     for i in 0i8..4 {
@@ -615,19 +611,12 @@ pub fn add_boss(world: &mut World, x: i32, y: i32) {
         angle_v: 0.0,
         spin_timer: 0,
     };
-    let rect = IntRect::new(x - 32, y - 32, 64, 32);
+    let rect = IntRect::new(x - 32, y - 20, 64, 20);
     let actor = Actor::new(&rect, PhysicsCoeffs::Flyer);
     let hp = 20;
     let hittable = EnemyHittable::new(hp);
     let dmg = EnemyContactDamage::new();
-    world.spawn((
-        boss,
-        rect,
-        crate::draw::ColorRect::new(RED),
-        actor,
-        hittable,
-        dmg,
-    ));
+    world.spawn((boss, rect, actor, hittable, dmg));
 }
 
 impl ParrotBossBehaviour {
@@ -660,8 +649,8 @@ impl ParrotBossBehaviour {
             for (idx, h_id) in beh.heads.iter().enumerate() {
                 let mut f_rect = world.get::<&mut IntRect>(*h_id).unwrap();
                 let (hx, hy) = head_offset(idx as i8, beh.angle);
-                f_rect.x = c.x as i32 - f_rect.w / 2 + hx;
-                f_rect.y = c.y as i32 - f_rect.h / 2 + hy - 8;
+                f_rect.x = rect.x + hx;
+                f_rect.y = rect.y + hy;
             }
             let mut fx = 0.0;
             let mut fy = 0.0;
@@ -705,7 +694,7 @@ impl ParrotBossBehaviour {
                 fy += c.y;
             }
             let targ_x = fx / 4.0;
-            let targ_y = fy / 4.0 - 96.0;
+            let targ_y = fy / 4.0 - 84.0;
             let rc = rect.centre();
             actor.vx = actor.vx + ((targ_x - rc.x) / 3.0).max(-4.0).min(4.0);
             actor.vy = actor.vy + ((targ_y - rc.y) / 3.0).max(-4.0).min(4.0);

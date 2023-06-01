@@ -53,7 +53,7 @@ pub async fn load_assets() -> anyhow::Result<GlobalAssets> {
         parrot_sprite: load_texture("spiderparrot.png").await?,
         parrot_sprite2: load_texture("greenparrot.png").await?,
         drone_sprite: load_texture("drone.png").await?,
-        boss_sprites: load_texture("boss_parts.png").await?,
+        boss_sprites: load_texture("bossparts.png").await?,
         pickup_sprite: load_texture("pickup.png").await?,
         switch_sprite: load_texture("switch.png").await?,
         ui_sprite: load_texture("ui-heart.png").await?,
