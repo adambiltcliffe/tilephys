@@ -4,7 +4,7 @@ use std::num::NonZeroU8;
 
 use crate::config::config;
 use crate::draw::{DogSprite, DroneSprite, ParrotSprite};
-use crate::physics::{collide_any, Actor, IntRect, PhysicsCoeffs};
+use crate::physics::{collide_any, find_collision_pos, Actor, IntRect, PhysicsCoeffs};
 use crate::player::Controller;
 use crate::projectile::{make_enemy_fireball, make_enemy_laser, railgun_intersects, RailgunHitbox};
 use crate::ray::ray_collision;
@@ -396,28 +396,32 @@ impl Reticule {
 }
 
 struct DroneBehaviour {
-    target: Vec2,
+    phase: f32,
+    dest_x: i32,
     fs: DroneFiringState,
 }
 
 impl DroneBehaviour {
     pub fn new(pos: Vec2) -> Self {
         Self {
-            target: pos,
+            phase: pos.x,
+            dest_x: pos.x as i32,
             fs: DroneFiringState::Ready,
         }
     }
 
     pub fn update(world: &World, resources: &SceneResources, buffer: &mut CommandBuffer) {
-        let thrust_mag;
         let floor_sensor_w;
         let floor_sensor_h;
+        let bob_h;
+        let bob_a;
         let lock_frames: u8;
         {
             let conf = config();
-            thrust_mag = conf.drone_thrust();
             floor_sensor_w = conf.drone_sensor_w();
             floor_sensor_h = conf.drone_sensor_h();
+            bob_h = conf.drone_bob_h();
+            bob_a = conf.drone_bob_a();
             lock_frames = conf.drone_lock_frames().try_into().unwrap();
         }
         let player_x = player_x(world, resources.player_id);
@@ -426,25 +430,52 @@ impl DroneBehaviour {
             .query::<(&mut Actor, &mut DroneBehaviour, &IntRect, &mut DroneSprite)>()
             .iter()
         {
-            let below_rect = IntRect::new(
-                rect.x - (floor_sensor_w - rect.w) / 2,
-                rect.y + rect.h,
-                floor_sensor_w,
-                floor_sensor_h,
-            );
-            let too_low = collide_any(world, &resources.body_index, &below_rect);
-            let pos = rect.centre();
-            let thrust = beh.target - pos;
-            let should_retarget = too_low || thrust.length_squared() < 100.0;
-            let thrust = thrust.normalize_or_zero() * thrust_mag;
-            actor.vx += thrust.x;
-            actor.vy += thrust.y;
-            if should_retarget || quad_rand::gen_range(0.0, 1.0) < 0.01 {
-                let new_x = pos.x + quad_rand::gen_range(-24.0, 24.0);
-                let new_y =
-                    pos.y + quad_rand::gen_range(-24.0, 24.0) - if too_low { 64.0 } else { 0.0 };
-                beh.target = Vec2::new(new_x, new_y);
+            // this is a mess because our pub physics API doesn't expose what we want.
+            // probably it should
+            let left_lim = find_collision_pos(
+                &IntRect {
+                    x: rect.x - floor_sensor_w,
+                    ..*rect
+                },
+                rect.x,
+                rect.y,
+                world,
+                &resources.body_index,
+            )
+            .0;
+            let right_lim = find_collision_pos(
+                &IntRect {
+                    x: rect.x + floor_sensor_w,
+                    ..*rect
+                },
+                rect.x,
+                rect.y,
+                world,
+                &resources.body_index,
+            )
+            .0;
+            let targ_x = beh.dest_x.clamp(left_lim, right_lim) + rect.w / 2;
+            if with_prob(0.01) {
+                beh.dest_x = player_x.map(|x| x as i32).unwrap_or(beh.dest_x)
+                    + quad_rand::gen_range(-100, 100);
             }
+            let hover_h = (floor_sensor_h as f32 + beh.phase.cos() * bob_h).round() as i32;
+            beh.phase += bob_a;
+            let below_lim = find_collision_pos(
+                &IntRect {
+                    y: rect.y + hover_h + 16,
+                    ..*rect
+                },
+                rect.x,
+                rect.y,
+                world,
+                &resources.body_index,
+            )
+            .1;
+            let targ_y = below_lim + rect.h / 2 - hover_h;
+            let pos = rect.centre();
+            actor.vx += (targ_x as f32 - pos.x - actor.vx).clamp(-10.0, 10.0) / 100.0;
+            actor.vy += (targ_y as f32 - pos.y - actor.vy).clamp(-10.0, 10.0) / 100.0;
             beh.fs = match beh.fs {
                 DroneFiringState::Delay(n) => {
                     if n == 0 {
