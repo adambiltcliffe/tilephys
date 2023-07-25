@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="77">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="78">
  <tileset firstgid="1" source="../phtiles16.tsx"/>
  <layer id="14" name="background" width="40" height="30">
   <data encoding="base64" compression="zlib">
@@ -25,7 +25,7 @@
    eJzjYmBg4BrCGBmgi2NTL4BHPzZAiv1DQT+pYKjrHwX4AQDYjQPv
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJzjYmBg4MKD0QG6HCl6SdVPjNmDSb8Alf1PjP5RMAooAQBUjgNF
+   eJzjYmBg4MKD0QG6HCl6SdVPjNmDSb8Alf1PjH50cXLBUNc/CsgDAOduA5U=
   </chunk>
   </data>
  </layer>
@@ -48,6 +48,9 @@
    <point/>
   </object>
   <object id="76" type="railgun_drone_enemy" x="-96" y="48">
+   <point/>
+  </object>
+  <object id="77" type="railgun_drone_enemy" x="48" y="160">
    <point/>
   </object>
   <object id="75" type="railgun_drone_enemy" x="-552" y="112">
@@ -88,7 +91,7 @@
    eJxjYBjagJEAptTs4aaflPDBpZ9S++mpn9ppYrgBAEAAAB0=
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJxjYMANGEnkY9OPjknRT4zZg1k/pf4nJvwJYVLcMwpGHgAAaYgAJg==
+   eJxjYMANGEnkY9OPjknRT4zZg1k/pf4nJvzRzSVkHzZ5dP2kgsGgH5efRwF+AAB0OAAu
   </chunk>
   </data>
  </layer>

@@ -471,7 +471,8 @@ impl DroneBehaviour {
                 world,
                 &resources.body_index,
             )
-            .1;
+            .1 - rect.y;
+            println!("hover_h: {:?}, below_lim: {:?}", hover_h, below_lim);
             let targ_y = below_lim + rect.h / 2 - hover_h;
             let pos = rect.centre();
             actor.vx += (targ_x as f32 - pos.x - actor.vx).clamp(-10.0, 10.0) / 100.0;

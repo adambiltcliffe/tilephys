@@ -96,6 +96,7 @@ pub enum AmmoType {
     Shell,
     Rocket,
     Slug,
+    Fuel,
 }
 
 pub type AmmoQuantity = u8;
@@ -106,6 +107,7 @@ pub fn ammo_symbol(typ: AmmoType) -> &'static str {
         AmmoType::Shell => "SHL",
         AmmoType::Rocket => "RKT",
         AmmoType::Slug => "SLG",
+        AmmoType::Fuel => "FUE",
     }
 }
 
@@ -122,6 +124,7 @@ pub fn ammo_name(typ: AmmoType, amt: AmmoQuantity) -> &'static str {
             }
         }
         AmmoType::Slug => "railgun slugs",
+        AmmoType::Fuel => "omnifuel",
     }
 }
 
@@ -131,6 +134,7 @@ pub fn ammo_max(typ: AmmoType) -> AmmoQuantity {
         AmmoType::Shell => 40,
         AmmoType::Rocket => 20,
         AmmoType::Slug => 50,
+        AmmoType::Fuel => 99,
     }
 }
 

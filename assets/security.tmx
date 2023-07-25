@@ -103,10 +103,16 @@
  <layer id="26" name="extra_floor" width="40" height="30">
   <data encoding="base64" compression="zlib">
    <chunk x="-32" y="0" width="16" height="16">
-   eJxjYBgFo2AUDARgHGD9IAAABMgAAw==
+   eJxjYBgFo2AUDARgHAT6AQTMAAQ=
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJxjYBgFo2AUkAsYB1g/pQAABUAAAw==
+   eJxjYBgFo2AUkAsYh7h+AAWAAAQ=
+  </chunk>
+   <chunk x="-32" y="16" width="16" height="16">
+   eJxjYCAfMFKgdxSMglEw8AAAB8QAAg==
+  </chunk>
+   <chunk x="-16" y="16" width="16" height="16">
+   eJxjZBgFo2AUjFQAAAgAAAI=
   </chunk>
   </data>
  </layer>
