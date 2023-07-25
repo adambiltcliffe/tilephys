@@ -1,6 +1,6 @@
 use macroquad::{
     input::{is_key_down, is_key_pressed, KeyCode},
-    prelude::get_char_pressed,
+    prelude::{get_char_pressed, get_last_key_pressed},
 };
 use std::collections::HashSet;
 
@@ -61,6 +61,7 @@ impl Input {
 
     pub fn update(&mut self) {
         self.down.clear();
+        self.any_pressed = get_last_key_pressed().is_some();
         for (kc, vk) in ALL_KEYS.iter() {
             if is_key_down(*kc) {
                 self.down.insert(*vk);
@@ -69,7 +70,6 @@ impl Input {
                 self.pressed.insert(*vk);
             }
         }
-        self.any_pressed = get_char_pressed().is_some();
     }
 
     pub fn is_down(&self, vk: VirtualKey) -> bool {

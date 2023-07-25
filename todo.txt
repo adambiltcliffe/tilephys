@@ -11,7 +11,6 @@ Boss
 
 RAILGUN
 -------
-fix drone flight behaviour
 tweak fx (gap between gun and trail)
 
 MISC ENHANCEMENTS
