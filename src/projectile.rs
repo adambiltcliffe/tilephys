@@ -4,9 +4,9 @@ use crate::enemy::EnemyHittable;
 use crate::physics::{collide_any, find_collision_pos, IntRect};
 use crate::player::Controller;
 use crate::resources::SceneResources;
-use crate::vfx::Explosion;
 use crate::vfx::FireballEffect;
 use crate::vfx::ZapFlash;
+use crate::vfx::{Explosion, SmokeParticle};
 use hecs::CommandBuffer;
 use std::cmp::Ordering;
 
@@ -16,6 +16,13 @@ pub struct LaserImpact {}
 pub struct FireballSplit {}
 pub struct ProjectileGravity {}
 pub struct ProjectileDrag {}
+pub struct ToxicSmoke {}
+
+impl ToxicSmoke {
+    fn new() -> Self {
+        Self {}
+    }
+}
 
 pub struct Projectile {
     prec_x: f32,
@@ -121,6 +128,19 @@ impl Projectile {
                 buffer.despawn(id);
             }
         }
+        for (_, (proj, rect, _smoke)) in world
+            .query::<(&mut Projectile, &IntRect, &ToxicSmoke)>()
+            .iter()
+        {
+            proj.vy -= 0.2;
+            proj.vx = proj.vx * 0.9 + quad_rand::gen_range(-0.8, 0.8);
+            buffer.spawn((SmokeParticle::new_from_centre(
+                rect.x + 4,
+                rect.y + 2,
+                std::f32::consts::PI / -2.0 + quad_rand::gen_range(-0.3, 0.3),
+                8.0,
+            ),));
+        }
 
         // process railgun collisions with enemies
         let damage = config().rg_damage();
@@ -198,6 +218,17 @@ pub fn make_enemy_fireball(
             ProjectileGravity {},
         ));
     }
+}
+
+pub fn make_smoke(buffer: &mut CommandBuffer, rect: IntRect, vx: f32, vy: f32) {
+    let proj = Projectile::new(&rect, vx, vy);
+    buffer.spawn((
+        rect,
+        proj,
+        FireballEffect::new(4.0),
+        DamageEnemies {},
+        ToxicSmoke::new(),
+    ));
 }
 
 pub struct RailgunHitbox {
