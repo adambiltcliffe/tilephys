@@ -292,6 +292,9 @@ impl LoadingManager {
                                 } else if obj_type == "ammo_rocket" {
                                     add_ammo(&mut world, *x as i32, *y as i32, AmmoType::Rocket, 1);
                                     max_items += 1;
+                                } else if obj_type == "ammo_fuel_10" {
+                                    add_ammo(&mut world, *x as i32, *y as i32, AmmoType::Fuel, 10);
+                                    max_items += 1;
                                 } else if obj_type == "weapon_shotgun" {
                                     add_weapon(
                                         &mut world,
@@ -361,6 +364,24 @@ impl LoadingManager {
                                         *x as i32,
                                         *y as i32,
                                         WeaponType::Railgun,
+                                        properties.contains_key("gravity"),
+                                    );
+                                    max_items += 1;
+                                } else if obj_type == "weapon_flamer" {
+                                    add_weapon(
+                                        &mut world,
+                                        *x as i32,
+                                        *y as i32,
+                                        WeaponType::Flamer,
+                                        properties.contains_key("gravity"),
+                                    );
+                                    max_items += 1;
+                                } else if obj_type == "weapon_smoker" {
+                                    add_weapon(
+                                        &mut world,
+                                        *x as i32,
+                                        *y as i32,
+                                        WeaponType::Smoker,
                                         properties.contains_key("gravity"),
                                     );
                                     max_items += 1;

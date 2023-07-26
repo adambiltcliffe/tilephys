@@ -19,8 +19,6 @@ pub enum FiringResult {
     Yes(bool),
 }
 
-// eventually there will be variants whose names don't end in "...Laser"
-#[allow(clippy::enum_variant_names)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub enum WeaponType {
     BackupLaser,
@@ -32,6 +30,8 @@ pub enum WeaponType {
     SuperShotgun,
     ReverseShotgun,
     Railgun,
+    Flamer,
+    Smoker,
 }
 
 pub fn weapon_name(typ: WeaponType) -> &'static str {
@@ -45,6 +45,8 @@ pub fn weapon_name(typ: WeaponType) -> &'static str {
         WeaponType::SuperShotgun => "super shotgun",
         WeaponType::ReverseShotgun => "reverse shotgun",
         WeaponType::Railgun => "railgun",
+        WeaponType::Flamer => "flamer",
+        WeaponType::Smoker => "smoker",
     }
 }
 
@@ -59,6 +61,8 @@ pub fn weapon_name_indef(typ: WeaponType) -> &'static str {
         WeaponType::SuperShotgun => "a super shotgun",
         WeaponType::ReverseShotgun => "the reverse shotgun",
         WeaponType::Railgun => "a railgun",
+        WeaponType::Flamer => "a flamer",
+        WeaponType::Smoker => "a smoker",
     }
 }
 
@@ -73,6 +77,8 @@ pub fn weapon_sprite_frame(typ: WeaponType) -> usize {
         WeaponType::SuperShotgun => 4,
         WeaponType::ReverseShotgun => 5,
         WeaponType::Railgun => 6,
+        WeaponType::Flamer => 9,
+        WeaponType::Smoker => 10,
     }
 }
 
@@ -87,6 +93,8 @@ pub fn weapon_v_offset(typ: WeaponType) -> f32 {
         WeaponType::SuperShotgun => 3.0,
         WeaponType::ReverseShotgun => 1.0,
         WeaponType::Railgun => 3.0,
+        WeaponType::Flamer => 1.0,
+        WeaponType::Smoker => 0.0,
     }
 }
 
@@ -640,6 +648,8 @@ pub fn new_weapon(typ: WeaponType) -> Box<dyn Weapon> {
         WeaponType::SuperShotgun => Box::new(SuperShotgun::new()),
         WeaponType::ReverseShotgun => Box::new(ReverseShotgun::new()),
         WeaponType::Railgun => Box::new(Railgun::new()),
+        WeaponType::Flamer => Box::new(BackupLaser::new()), //placeholder
+        WeaponType::Smoker => Box::new(BackupLaser::new()), //placeholder
     }
 }
 
