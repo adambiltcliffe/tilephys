@@ -1,22 +1,17 @@
 THREE-LEVEL DEMO
 ----------------
-Title screen (improve)
 Level map for level 3 (with big moving geometry)
-Finish railgun
-Omnifuel
-Omnifuel weapons x2
+Finish railgun fx (gap between gun and trail)
+Add flamer
 Sound
 Music
 Boss
-
-RAILGUN
--------
-tweak fx (gap between gun and trail)
 
 MISC ENHANCEMENTS
 -----------------
 explosion debris (esp. for player)
 more tiles
+improve title screen
 
 INVISIBLE ENHANCEMENTS
 ----------------------
