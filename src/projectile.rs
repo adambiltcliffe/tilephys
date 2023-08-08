@@ -17,6 +17,7 @@ pub struct FireballSplit {}
 pub struct ProjectileGravity {}
 pub struct ProjectileDrag {}
 pub struct ToxicSmoke {}
+pub struct Napalm {}
 
 impl ToxicSmoke {
     fn new() -> Self {
@@ -142,6 +143,11 @@ impl Projectile {
             ),));
         }
 
+        let g = config().flamer_g();
+        for (_, (proj, _)) in world.query::<(&mut Projectile, &Napalm)>().iter() {
+            proj.vy += g;
+        }
+
         // process railgun collisions with enemies
         let damage = config().rg_damage();
         for (id, hb) in world.query::<&RailgunHitbox>().iter() {
@@ -229,6 +235,21 @@ pub fn make_smoke(buffer: &mut CommandBuffer, rect: IntRect, vx: f32, vy: f32) {
         DamageEnemies {},
         ToxicSmoke::new(),
     ));
+}
+
+pub fn make_napalm(buffer: &mut CommandBuffer, rect: IntRect, vx: f32, vy: f32, real: bool) {
+    let proj = Projectile::new(&rect, vx, vy);
+    if real {
+        buffer.spawn((
+            rect,
+            proj,
+            FireballEffect::new(4.0),
+            DamageEnemies {},
+            Napalm {},
+        ));
+    } else {
+        buffer.spawn((rect, proj, FireballEffect::new(4.0), Napalm {}));
+    }
 }
 
 pub struct RailgunHitbox {

@@ -3,8 +3,8 @@ use crate::index::SpatialIndex;
 use crate::input::KeyState;
 use crate::physics::{collide_any, Actor, IntRect};
 use crate::projectile::{
-    make_player_fireball, make_player_laser, make_railgun_hitbox, make_smoke, DamageEnemies,
-    Projectile, ProjectileDrag,
+    make_napalm, make_player_fireball, make_player_laser, make_railgun_hitbox, make_smoke,
+    DamageEnemies, Projectile, ProjectileDrag,
 };
 use crate::ray::ray_collision;
 use crate::vfx::{make_railgun_trail, FireballEffect, SmokeParticle};
@@ -637,6 +637,62 @@ impl Weapon for Railgun {
     }
 }
 
+struct Flamer {
+    delay: u8,
+}
+
+impl Flamer {
+    fn new() -> Self {
+        Self { delay: 0 }
+    }
+}
+
+impl Weapon for Flamer {
+    fn get_type(&self) -> WeaponType {
+        WeaponType::Flamer
+    }
+    fn get_ammo_type(&self) -> AmmoType {
+        AmmoType::Fuel
+    }
+    fn get_ammo_use(&self) -> AmmoQuantity {
+        1
+    }
+    fn update(
+        &mut self,
+        _world: &MutexGuard<World>,
+        _body_index: &SpatialIndex,
+        buffer: &mut CommandBuffer,
+        _player: &mut Actor,
+        player_rect: &IntRect,
+        facing: i8,
+        _fire_timer: u32,
+        key_state: KeyState,
+    ) -> FiringResult {
+        if self.delay > 0 {
+            self.delay -= 1
+        }
+        if key_state != KeyState::NotPressed {
+            let dx = config().flamer_dx();
+            let dxv = config().flamer_dxv();
+            let dyv = config().flamer_dyv();
+            let new_x = player_rect.x + 3 + facing as i32 * 9;
+            let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
+            make_napalm(
+                buffer,
+                rect,
+                facing as f32 * (dx + quad_rand::gen_range(-dxv, dxv)),
+                quad_rand::gen_range(-dyv, dyv),
+                self.delay == 0,
+            );
+            if self.delay == 0 {
+                self.delay = 4;
+            }
+            return FiringResult::No;
+        }
+        FiringResult::No
+    }
+}
+
 struct Smoker {
     delay: u8,
 }
@@ -693,7 +749,7 @@ pub fn new_weapon(typ: WeaponType) -> Box<dyn Weapon> {
         WeaponType::SuperShotgun => Box::new(SuperShotgun::new()),
         WeaponType::ReverseShotgun => Box::new(ReverseShotgun::new()),
         WeaponType::Railgun => Box::new(Railgun::new()),
-        WeaponType::Flamer => Box::new(BackupLaser::new()), //placeholder
+        WeaponType::Flamer => Box::new(Flamer::new()),
         WeaponType::Smoker => Box::new(Smoker::new()),
     }
 }
