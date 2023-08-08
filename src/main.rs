@@ -123,6 +123,11 @@ async fn main() {
         Scene::Title(0)
     };
 
+    use quad_snd::{AudioContext, Sound};
+    let ctx = AudioContext::new();
+    let sound_data = load_file("../assets/sfx/jump.wav").await.unwrap();
+    let sound = Sound::load(&ctx, &sound_data);
+
     loop {
         match assets.next_scene {
             None => (),
@@ -132,6 +137,7 @@ async fn main() {
                 renderer.start_transition(typ);
                 scene = next_scene;
                 assets.next_scene = None;
+                sound.play(&ctx, Default::default());
             }
         }
 
