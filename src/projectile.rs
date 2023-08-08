@@ -1,7 +1,7 @@
 use crate::config::config;
 use crate::draw::ZapSprite;
 use crate::enemy::EnemyHittable;
-use crate::physics::{collide_any, find_collision_pos, IntRect};
+use crate::physics::{collide_any, find_collision_pos, Actor, IntRect, PhysicsCoeffs};
 use crate::player::Controller;
 use crate::resources::SceneResources;
 use crate::vfx::FireballEffect;
@@ -15,13 +15,35 @@ pub struct DamagePlayer {}
 pub struct LaserImpact {}
 pub struct FireballSplit {}
 pub struct ProjectileGravity {}
-pub struct ProjectileDrag {}
 pub struct ToxicSmoke {}
 pub struct Napalm {}
+pub struct NapalmImpact {}
+pub struct Flames {}
+pub struct RisingFlame {}
 
 impl ToxicSmoke {
     fn new() -> Self {
         Self {}
+    }
+}
+
+pub struct ProjectileDrag {
+    limit: f32,
+}
+
+impl ProjectileDrag {
+    pub fn new(limit: f32) -> Self {
+        Self { limit }
+    }
+}
+
+pub struct TimeLimit {
+    frames: i32,
+}
+
+impl TimeLimit {
+    pub fn new(frames: i32) -> Self {
+        Self { frames }
     }
 }
 
@@ -61,6 +83,10 @@ impl Projectile {
                 if world.satisfies::<&FireballSplit>(e).unwrap_or(false) {
                     let (x, y) = find_collision_pos(rect, ox, oy, &world, &resources.body_index);
                     spawn_mini_fireballs(buffer, x + 8, y + 8);
+                }
+                if world.satisfies::<&NapalmImpact>(e).unwrap_or(false) {
+                    let (x, y) = find_collision_pos(rect, ox, oy, &world, &resources.body_index);
+                    make_flame_patch(buffer, x, y);
                 }
             }
         }
@@ -122,10 +148,16 @@ impl Projectile {
         {
             proj.vy += 0.2;
         }
-        for (id, (proj, _)) in world.query::<(&mut Projectile, &ProjectileDrag)>().iter() {
+        for (id, (proj, d)) in world.query::<(&mut Projectile, &ProjectileDrag)>().iter() {
             proj.vx *= 0.8;
             proj.vy *= 0.8;
-            if proj.vx.abs() < 2.0 {
+            if proj.vx.abs().max(proj.vy.abs()) < d.limit {
+                buffer.despawn(id);
+            }
+        }
+        for (id, t) in world.query::<&mut TimeLimit>().iter() {
+            t.frames -= 1;
+            if t.frames <= 0 {
                 buffer.despawn(id);
             }
         }
@@ -146,6 +178,25 @@ impl Projectile {
         let g = config().flamer_g();
         for (_, (proj, _)) in world.query::<(&mut Projectile, &Napalm)>().iter() {
             proj.vy += g;
+        }
+
+        for (_, (_, rect)) in world.query::<(&Flames, &IntRect)>().iter() {
+            let y = rect.y + rect.h;
+            let x = rect.x + quad_rand::gen_range(0, rect.w) - 2;
+            let rect = IntRect::new(x, y - 4, 4, 4);
+            let proj = Projectile::new(&rect, 0.0, -quad_rand::gen_range(2.0, 3.0));
+            buffer.spawn((
+                rect,
+                proj,
+                FireballEffect::new(4.0),
+                RisingFlame {},
+                TimeLimit::new(10),
+            ));
+        }
+
+        for (_, (fx, _)) in world.query::<(&mut FireballEffect, &RisingFlame)>().iter() {
+            fx.t = std::f32::consts::FRAC_PI_2;
+            fx.r *= 0.9;
         }
 
         // process railgun collisions with enemies
@@ -246,10 +297,17 @@ pub fn make_napalm(buffer: &mut CommandBuffer, rect: IntRect, vx: f32, vy: f32, 
             FireballEffect::new(4.0),
             DamageEnemies {},
             Napalm {},
+            NapalmImpact {},
         ));
     } else {
         buffer.spawn((rect, proj, FireballEffect::new(4.0), Napalm {}));
     }
+}
+
+pub fn make_flame_patch(buffer: &mut CommandBuffer, x: i32, y: i32) {
+    let rect = IntRect::new(x, y, 8, 8);
+    let actor = Actor::new(&rect, PhysicsCoeffs::Actor);
+    buffer.spawn((rect, actor, DamageEnemies {}, TimeLimit::new(30), Flames {}));
 }
 
 pub struct RailgunHitbox {

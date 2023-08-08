@@ -244,6 +244,10 @@ pub fn draw_vfx(world: &World) {
         let c = rect.centre();
         let r = fb.r * (1.0 - 0.5 * fb.t.cos().powi(5).abs());
         draw_circle(c.x, c.y, r, EXPLOSION_OUTER_COLOR);
+    }
+    for (_, (rect, fb)) in world.query::<(&IntRect, &FireballEffect)>().iter() {
+        let c = rect.centre();
+        let r = fb.r * (1.0 - 0.5 * fb.t.cos().powi(5).abs());
         draw_circle(c.x, c.y, r * 0.75, EXPLOSION_INNER_COLOR);
     }
     for (_, fp) in world.query::<&FireParticle>().iter() {

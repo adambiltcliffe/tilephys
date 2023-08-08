@@ -1,7 +1,6 @@
 THREE-LEVEL DEMO
 ----------------
 Level map for level 3 (with big moving geometry)
-Add flamer
 Drone reticule graphic
 Boss behaviour
 Boss graphics

@@ -484,7 +484,7 @@ pub fn find_collision_pos(
                 );
             }
             col_rect.x -= d;
-            collided = true;
+            collided = col_rect.x != rect.x;
         }
         Ordering::Equal => (),
         Ordering::Greater => {
@@ -499,7 +499,7 @@ pub fn find_collision_pos(
                 );
             }
             col_rect.x += d;
-            collided = true;
+            collided = col_rect.x != rect.x;
         }
     }
     if collided {

@@ -225,7 +225,7 @@ fn make_shotgun_spray(
             FireballEffect::new(3.0),
             proj,
             DamageEnemies {},
-            ProjectileDrag {},
+            ProjectileDrag::new(2.0),
         ));
     }
     for _ in 0..(n / 2) {
@@ -676,7 +676,7 @@ impl Weapon for Flamer {
             let dxv = config().flamer_dxv();
             let dyv = config().flamer_dyv();
             let new_x = player_rect.x + 3 + facing as i32 * 9;
-            let rect = IntRect::new(new_x, player_rect.y + 11, 8, 5);
+            let rect = IntRect::new(new_x, player_rect.y + 11, 8, 8);
             make_napalm(
                 buffer,
                 rect,
