@@ -686,8 +686,8 @@ impl Weapon for Flamer {
             );
             if self.delay == 0 {
                 self.delay = 4;
+                return FiringResult::Yes(false);
             }
-            return FiringResult::No;
         }
         FiringResult::No
     }
