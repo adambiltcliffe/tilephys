@@ -1,14 +1,16 @@
 THREE-LEVEL DEMO
 ----------------
 Level map for level 3 (with big moving geometry)
-Finish railgun fx (gap between gun and trail)
 Add flamer
+Drone reticule graphic
+Boss behaviour
+Boss graphics
 Sound
 Music
-Boss
 
 MISC ENHANCEMENTS
 -----------------
+better railgun fx with no gap between player and trail
 explosion debris (esp. for player)
 more tiles
 improve title screen
