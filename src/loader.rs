@@ -258,7 +258,7 @@ impl LoadingManager {
                             }
                             tiled::ObjectData {
                                 name,
-                                obj_type,
+                                user_type: obj_type, // from old rs-tiled API
                                 shape: tiled::ObjectShape::Rect { width, height },
                                 x,
                                 y,
@@ -279,7 +279,7 @@ impl LoadingManager {
                             }
                             tiled::ObjectData {
                                 shape: tiled::ObjectShape::Point(x, y),
-                                obj_type,
+                                user_type: obj_type, // from old rs-tiled API
                                 name,
                                 properties,
                                 ..
