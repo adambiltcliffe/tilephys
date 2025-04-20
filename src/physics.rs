@@ -418,7 +418,7 @@ impl PathMotion {
 
 pub fn collide_any(world: &World, body_index: &SpatialIndex, rect: &IntRect) -> bool {
     let blockers = body_index.entities(rect);
-    blockers.iter().any(|id| {
+    blockers.elements.iter().any(|id| {
         world
             .get::<&TileBody>(*id)
             .unwrap()
@@ -445,7 +445,7 @@ fn move_actor(
         Ordering::Less => {
             // handle moving left
             let mut d = rect.x - targ_x;
-            for id in blockers.iter() {
+            for id in blockers.elements.iter() {
                 d = d.min(
                     world
                         .get::<&TileBody>(*id)
@@ -459,7 +459,7 @@ fn move_actor(
         Ordering::Greater => {
             // handle moving right
             let mut d = targ_x - rect.x;
-            for id in blockers.iter() {
+            for id in blockers.elements.iter() {
                 d = d.min(
                     world
                         .get::<&TileBody>(*id)
@@ -478,7 +478,7 @@ fn move_actor(
         Ordering::Less => {
             // handle moving up
             let mut d = rect.y - targ_y;
-            for id in blockers.iter() {
+            for id in blockers.elements.iter() {
                 d = d.min(
                     world
                         .get::<&TileBody>(*id)
@@ -492,7 +492,7 @@ fn move_actor(
         Ordering::Greater => {
             // handle moving down
             let mut d = targ_y - rect.y;
-            for id in blockers.iter() {
+            for id in blockers.elements.iter() {
                 d = d.min(
                     world
                         .get::<&TileBody>(*id)
